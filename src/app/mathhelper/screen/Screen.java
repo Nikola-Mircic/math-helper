@@ -23,4 +23,13 @@ public class Screen extends JPanel {
 		render.draw();
 		g.drawImage(render.img, 0, 0, null);
 	}
+	
+	public void update(int width, int height) {
+		this.WIDTH = width;
+		this.HEIGHT = height;
+		
+		this.remove(render);
+		this.render = new Render(width, height);
+		this.add(render);
+	}
 }

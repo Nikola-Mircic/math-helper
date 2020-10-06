@@ -1,6 +1,8 @@
 package app.mathhelper.window;
 
 import java.awt.Dimension;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 
 import javax.swing.JFrame;
 
@@ -18,8 +20,8 @@ public class Window extends JFrame implements Runnable{
 	private Screen screen;
 	
 	public Window() {
-		this.MIN_WIDTH = 1000;
-		this.MIN_HEIGHT = 800;
+		this.MIN_WIDTH = 600;
+		this.MIN_HEIGHT = 400;
 		
 		this.TITLE = "Math helper";
 		
@@ -35,6 +37,37 @@ public class Window extends JFrame implements Runnable{
 		this.HEIGHT = this.getHeight();
 		
 		this.screen = new Screen(WIDTH,HEIGHT);
+		
+		this.getContentPane().addComponentListener(new ComponentListener() {
+			
+			@Override
+			public void componentShown(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void componentResized(ComponentEvent e) {
+				WIDTH = getWidth();
+				HEIGHT = getHeight();
+				
+				screen.update(WIDTH, HEIGHT);
+			}
+			
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void componentHidden(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		
 		
 		this.add(screen);
 	}
