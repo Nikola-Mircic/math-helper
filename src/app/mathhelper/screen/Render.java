@@ -10,19 +10,24 @@ import java.awt.image.BufferedImage;
 import app.mathhelper.shape.Shape;
 import app.mathhelper.shape.Vertex;
 
-public class Render extends Canvas {
+public class Render extends Canvas{
 	private static final long serialVersionUID = 1L;
 	
 	private int WIDTH,HEIGHT;
 	
-	public BufferedImage img;
+	private BufferedImage img;
 	
-	public double rotation = 0;
+	private double rotationX;
+	private double rotationY;
+	
 	
 	public Render(int w,int h) {
 		this.WIDTH = w;
 		this.HEIGHT = h;
 		this.img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		
+		this.rotationX = 0;
+		this.rotationY = 0;
 	}
 
 	public void draw() {
@@ -54,30 +59,18 @@ public class Render extends Canvas {
 			temp[i] = new Vertex();
 		}
 		
-		double d = (System.currentTimeMillis()/25.0);
-		double sine = Math.sin(d/180.0*Math.PI)*1.2;
-		double cosine = Math.cos(d/180.0*Math.PI)*1.2;
-		rotation = d/180.0*Math.PI;
-		
-		Vertex center = s.getCenterCords();
-		
-		double[] angleHoriz = getHorizontalAngle(s);
-		double[] angleVert = getVerticalAngle(s);
+		s.rotateVertical(rotationY/2);
+		s.rotateHorizontal(rotationX/2);
 		
 		for(int i=0;i<4;++i) {
-			temp[i].z = center.z + Math.sin(angleHoriz[i]+rotation)*getDistHorizontal(center, s.v[i]);
-			//temp[i].z = center.z + Math.sin(angleVert[i]+rotation)*getDistHorizontal(center, s.v[i]);
-			temp[i].z = (temp[i].z-zNear+cosine)/zRatio;
+			temp[i].z = (s.v[i].z-zNear)/zRatio;
 		}
 		
 		for(int i=0;i<4;++i) {
-			temp[i].x = center.x + Math.cos(angleHoriz[i]+rotation)*getDistHorizontal(center, s.v[i]);
-			temp[i].y = center.y - Math.sin(angleVert[i]+rotation)*getDistVertical(center, s.v[i]);
-			temp[i].x = a*fov*(temp[i].x+cosine)/temp[i].z*WIDTH+WIDTH/2;
-			temp[i].y = -fov*(s.v[i].y+sine)/temp[i].z*HEIGHT+HEIGHT/2;
+			temp[i].x = a*fov*(s.v[i].x)/temp[i].z*WIDTH+WIDTH/2;
+			temp[i].y = -fov*(s.v[i].y)/temp[i].z*HEIGHT+HEIGHT/2;
 			
 		}
-		
 		
 		for(int i=0;i<4;++i) {
 			for(int j=0;j<4;++j) {
@@ -100,56 +93,28 @@ public class Render extends Canvas {
 		g.dispose();
 	}
 	
-	private double[] getHorizontalAngle(Shape s) {
-		double[] temp = new double[4];
-		Vertex center = s.getCenterCords();
-		
-		for(int i=0;i<4;++i) {
-			double dist = getDistHorizontal(center, s.v[i]);
-			double sin = (s.v[i].z-center.z)/dist;
-			double cos = (s.v[i].x-center.x)/dist;
-			double asin = Math.asin(sin);
-			
-			if(cos>=0) {
-				temp[i] = asin;
-			}else {
-				temp[i] = Math.PI-asin;
-			}
-		}
-		
-		return temp;
+	public BufferedImage getImg() {
+		return img;
 	}
-	
-	private double[] getVerticalAngle(Shape s) {
-		double[] temp = new double[4];
-		Vertex center = s.getCenterCords();
-		
-		for(int i=0;i<4;++i) {
-			double dist = getDistHorizontal(center, s.v[i]);
-			double cos = (s.v[i].z-center.z)/dist;
-			double sin = (s.v[i].y-center.y)/dist;
-			double asin = Math.asin(sin);
-			
-			if(cos>=0) {
-				temp[i] = asin;
-			}else {
-				temp[i] = Math.PI-asin;
-			}
-		}
-		
-		return temp;
+
+	public void setImg(BufferedImage img) {
+		this.img = img;
 	}
-	
-	private double getDistHorizontal(Vertex a,Vertex b) {
-		double dx = a.x-b.x;
-		double dz = a.z-b.z;
-		return Math.sqrt(dx*dx+dz*dz);
+
+	public double getRotationX() {
+		return rotationX;
 	}
-	
-	private double getDistVertical(Vertex a,Vertex b) {
-		double dy = a.y-b.y;
-		double dz = a.z-b.z;
-		return Math.sqrt(dy*dy+dz*dz);
+
+	public void setRotationX(double rotationX) {
+		this.rotationX = rotationX;
+	}
+
+	public double getRotationY() {
+		return rotationY;
+	}
+
+	public void setRotationY(double rotationY) {
+		this.rotationY = rotationY;
 	}
 	
 }
