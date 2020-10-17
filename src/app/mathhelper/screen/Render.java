@@ -44,46 +44,46 @@ public class Render extends Canvas{
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 		
-		double zFar = 1000;
+		double zFar = 100000;
 		double zNear = 0.1;
-		double angle = Math.PI/2;
+		double angle = Math.PI*3/4;
 		double fov = 1/Math.tan(angle/2);
 		double a = HEIGHT/(double)WIDTH;
 		
 		double zRatio = zFar/(zFar-zNear);
 		
 		Shape s = new Shape();
-		Vertex temp[] = new Vertex[4];
+		Vertex temp[] = new Vertex[8];
 		
-		for(int i=0;i<4;++i) {
+		
+		for(int i=0;i<8;++i) {
 			temp[i] = new Vertex();
 		}
 		
 		s.rotateVertical(rotationY/2);
 		s.rotateHorizontal(rotationX/2);
 		
-		for(int i=0;i<4;++i) {
+		for(int i=0;i<8;++i) {
 			temp[i].z = (s.v[i].z-zNear)/zRatio;
 		}
 		
-		for(int i=0;i<4;++i) {
+		for(int i=0;i<8;++i) {
 			temp[i].x = a*fov*(s.v[i].x)/temp[i].z*WIDTH+WIDTH/2;
 			temp[i].y = -fov*(s.v[i].y)/temp[i].z*HEIGHT+HEIGHT/2;
-			
 		}
 		
-		for(int i=0;i<4;++i) {
-			for(int j=0;j<4;++j) {
+		for(int i=0;i<8;++i) {
+			for(int j=0;j<8;++j) {
 				if(s.e[i][j]) {
-					g.setColor(new Color(15<<(i*10)));
+					g.setColor(new Color(0));
 					g.drawLine((int)temp[i].x, (int)temp[i].y, (int)temp[j].x, (int)temp[j].y);
 				}
 			}
 		}
 		
 		g.setColor(Color.BLACK);
-		g.setFont(new Font("Serig", Font.PLAIN, 20));
-		for(int i=0;i<4;++i) {
+		g.setFont(new Font("Serif", Font.PLAIN, 20));
+		for(int i=0;i<8;++i) {
 			g.fillOval((int)temp[i].x-3, (int)temp[i].y-3, 6, 6);
 			g.drawString((""+(i+1)), (int)temp[i].x-15, (int)temp[i].y-3);
 		}

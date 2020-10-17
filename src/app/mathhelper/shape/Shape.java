@@ -5,20 +5,30 @@ public class Shape {
 	public boolean[][] e;
 	
 	public Shape() {
-		this.v = new Vertex[4];
-		this.e = new boolean[4][4];
+		this.v = new Vertex[8];
+		this.e = new boolean[8][8];
 		
-		v[0] = new Vertex(-0.5,-0.5,4);
-		v[1] = new Vertex(0.5,-0.5,4);
-		v[2] = new Vertex(-0.5,-0.5,5);
-		v[3] = new Vertex(-0.5,0.5,4);
+		v[0] = new Vertex( -0.5, -0.5, 2);
+		v[1] = new Vertex( 0.5, -0.5, 2);
+		v[2] = new Vertex( 0.5, -0.5, 3);
+		v[3] = new Vertex( -0.5, -0.5, 3);
+		v[4] = new Vertex( -0.5, 0.5, 2);
+		v[5] = new Vertex( 0.5, 0.5, 2);
+		v[6] = new Vertex( 0.5, 0.5, 3);
+		v[7] = new Vertex( -0.5, 0.5, 3);
 		
-		e[0][1] = true;
-		e[1][2] = true;
-		e[2][0] = true;
-		e[0][3] = true;
-		e[1][3] = true;
-		e[2][3] = true;
+		e[0][1] = true;//0 1
+		e[1][2] = true;//1 2
+		e[2][3] = true;//2 3
+		e[3][0] = true;//3 0
+		e[0][4] = true;//0 4
+		e[1][5] = true;//1 5
+		e[2][6] = true;//2 6
+		e[3][7] = true;//3 7
+		e[4][5] = true;//4 5
+		e[5][6] = true;//5 6
+		e[6][7] = true;//6 7
+		e[7][4] = true;//7 4
 	}
 	
 	public Vertex getCenterCords() {
@@ -51,12 +61,12 @@ public class Shape {
 		
 		double[] angleVert = getVerticalAngle();
 		
-		for(int i=0;i<v.length;++i) {
-			v[i].z = center.z + Math.cos(angleVert[i]+rotation)*getDistVertical(center, v[i]);
-		}
+		double temp;
 		
 		for(int i=0;i<v.length;++i) {
+			temp = center.z + Math.cos(angleVert[i]+rotation)*getDistVertical(center, v[i]);
 			v[i].y = center.y + Math.sin(angleVert[i]+rotation)*getDistVertical(center, v[i]);
+			v[i].z = temp;
 		}
 	}
 	
@@ -65,13 +75,14 @@ public class Shape {
 		
 		double[] angleHoriz = getHorizontalAngle();
 		
-		for(int i=0;i<v.length;++i) {
-			v[i].z = center.z + Math.sin(angleHoriz[i]+rotation)*getDistHorizontal(center, v[i]);
-		}
+		double temp;
 		
 		for(int i=0;i<v.length;++i) {
+			temp = center.z + Math.sin(angleHoriz[i]+rotation)*getDistHorizontal(center, v[i]);
 			v[i].x = center.x + Math.cos(angleHoriz[i]+rotation)*getDistHorizontal(center, v[i]);
+			v[i].z = temp;
 		}
+		
 	}
 	
 	private double[] getHorizontalAngle() {
@@ -99,7 +110,7 @@ public class Shape {
 		Vertex center = getCenterCords();
 		
 		for(int i=0;i<v.length;++i) {
-			double dist = getDistHorizontal(center, v[i]);
+			double dist = getDistVertical(center, v[i]);
 			double cos = (v[i].z-center.z)/dist;
 			double sin = (v[i].y-center.y)/dist;
 			double asin = Math.asin(sin);
