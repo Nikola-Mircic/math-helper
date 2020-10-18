@@ -8,14 +8,14 @@ public class Shape {
 		this.v = new Vertex[8];
 		this.e = new boolean[8][8];
 		
-		v[0] = new Vertex( -0.5, -0.5, 2);
-		v[1] = new Vertex( 0.5, -0.5, 2);
-		v[2] = new Vertex( 0.5, -0.5, 3);
-		v[3] = new Vertex( -0.5, -0.5, 3);
-		v[4] = new Vertex( -0.5, 0.5, 2);
-		v[5] = new Vertex( 0.5, 0.5, 2);
-		v[6] = new Vertex( 0.5, 0.5, 3);
-		v[7] = new Vertex( -0.5, 0.5, 3);
+		v[0] = new Vertex("A", -0.5, -0.5, 4);
+		v[1] = new Vertex("B", 0.5, -0.5, 4);
+		v[2] = new Vertex("C", 0.5, -0.5, 5);
+		v[3] = new Vertex("D", -0.5, -0.5, 5);
+		v[4] = new Vertex("A'", -0.5, 0.5, 4);
+		v[5] = new Vertex("B'", 0.5, 0.5, 4);
+		v[6] = new Vertex("C'", 0.5, 0.5, 5);
+		v[7] = new Vertex("D'", -0.5, 0.5, 5);
 		
 		e[0][1] = true;//0 1
 		e[1][2] = true;//1 2
@@ -51,7 +51,7 @@ public class Shape {
 				minZ = vertex.z;
 		}
 		
-		temp = new Vertex(minX+(maxX-minX)/2, minY+(maxY-minY)/2, minZ+(maxZ-minZ)/2);
+		temp = new Vertex("center",minX+(maxX-minX)/2, minY+(maxY-minY)/2, minZ+(maxZ-minZ)/2);
 		
 		return temp;
 	}
@@ -61,12 +61,12 @@ public class Shape {
 		
 		double[] angleVert = getVerticalAngle();
 		
-		double temp;
+		double dist;
 		
 		for(int i=0;i<v.length;++i) {
-			temp = center.z + Math.cos(angleVert[i]+rotation)*getDistVertical(center, v[i]);
-			v[i].y = center.y + Math.sin(angleVert[i]+rotation)*getDistVertical(center, v[i]);
-			v[i].z = temp;
+			dist = getDistVertical(center, v[i]);
+			v[i].y = center.y + Math.sin(angleVert[i]+rotation)*dist;
+			v[i].z = center.z + Math.cos(angleVert[i]+rotation)*dist;
 		}
 	}
 	
@@ -75,12 +75,12 @@ public class Shape {
 		
 		double[] angleHoriz = getHorizontalAngle();
 		
-		double temp;
+		double dist;
 		
 		for(int i=0;i<v.length;++i) {
-			temp = center.z + Math.sin(angleHoriz[i]+rotation)*getDistHorizontal(center, v[i]);
+			dist = getDistHorizontal(center, v[i]);
 			v[i].x = center.x + Math.cos(angleHoriz[i]+rotation)*getDistHorizontal(center, v[i]);
-			v[i].z = temp;
+			v[i].z = center.z + Math.sin(angleHoriz[i]+rotation)*dist;
 		}
 		
 	}

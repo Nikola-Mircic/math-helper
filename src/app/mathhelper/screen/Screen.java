@@ -25,9 +25,11 @@ public class Screen extends JPanel {
 		this.il = new InputListener(render);
 		
 		this.add(render);
+		this.addMouseListener(il);
 		this.addMouseMotionListener(il);
 	}
 	
+	@Override
 	public void paint(Graphics g) {
 		render.draw();
 		g.drawImage(render.getImg(), 0, 0, null);
@@ -42,6 +44,15 @@ public class Screen extends JPanel {
 		this.il = new InputListener(render);
 		
 		this.add(render);
+		this.addMouseListener(il);
 		this.addMouseMotionListener(il);
+	}
+
+	public Render getRender() {
+		return render;
+	}
+
+	public void setRender(Render render) {
+		this.render = render;
 	}
 }

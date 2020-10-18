@@ -11,7 +11,6 @@ import java.awt.event.MouseWheelListener;
 import app.mathhelper.screen.Render;
 
 public class InputListener implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
-	
 	private Render render;
 	
 	private int lastX,lastY;
@@ -26,16 +25,18 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		if(lastX == -1 && lastY==-1) {
+		if(lastX == -1 || lastY==-1) {
+			lastX = e.getX();
+			lastY = e.getY();
+		}else {
+			int x = e.getX()-lastX;
+			int y = e.getY()-lastY;
+			render.setRotationX(render.getRotationX() + (x)/180.0*Math.PI);
+			render.setRotationY(render.getRotationY() + (y)/180.0*Math.PI);
+			
 			lastX = e.getX();
 			lastY = e.getY();
 		}
-		
-		render.setRotationX(render.getRotationX() + (e.getX()-lastX)/180.0*Math.PI);
-		render.setRotationY(render.getRotationY() + (e.getY()-lastY)/180.0*Math.PI);
-		
-		lastX = e.getX();
-		lastY = e.getY();
 	}
 
 	@Override

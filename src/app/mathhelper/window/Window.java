@@ -31,7 +31,6 @@ public class Window extends JFrame implements Runnable{
 		this.setResizable(true);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setLocationRelativeTo(null);
-		this.setVisible(true);
 		
 		this.WIDTH = this.getWidth();
 		this.HEIGHT = this.getHeight();
@@ -66,17 +65,17 @@ public class Window extends JFrame implements Runnable{
 				
 			}
 		});
-		
-		
-		
+
 		this.add(screen);
+		
+		this.setVisible(true);
 	}
 	
 	public static void main(String[] args) {
 		Window mathHelper = new Window();
 		
 		Thread t = new Thread(mathHelper);
-		t.run();
+		t.start();
 	}
 
 	@Override
