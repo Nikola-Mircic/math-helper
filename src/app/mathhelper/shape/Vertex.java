@@ -5,7 +5,7 @@ public class Vertex {
 	public double x,y,z;
 	
 	public Vertex() {
-		this.name = "";
+		this.name = "?";
 		this.x = 0;
 		this.y = 0;
 		this.z = 0;
@@ -16,5 +16,13 @@ public class Vertex {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+	}
+	
+	public static double dist(Vertex a, Vertex b) {
+		return Math.sqrt((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) + (a.z-b.z)*(a.z-b.z));
+	}
+	
+	public boolean equals(Vertex v) {
+		return ((this.x == v.x) && (this.y == v.y) && (this.z == v.z));
 	}
 }

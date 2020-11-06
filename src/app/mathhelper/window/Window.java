@@ -65,8 +65,10 @@ public class Window extends JFrame implements Runnable{
 				
 			}
 		});
-
+		
 		this.add(screen);
+		
+		this.addKeyListener(screen.getInputListener());
 		
 		this.setVisible(true);
 	}

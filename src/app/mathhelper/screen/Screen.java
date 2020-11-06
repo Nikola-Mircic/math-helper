@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 import app.mathhelper.input.InputListener;
+import app.mathhelper.shape.Object3D;
 
 public class Screen extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -13,6 +14,7 @@ public class Screen extends JPanel {
 	private int WIDTH,HEIGHT;
 	
 	private Render render;
+	private Object3D object;
 	
 	private InputListener il;
 	
@@ -21,8 +23,9 @@ public class Screen extends JPanel {
 		this.HEIGHT = height;
 		
 		this.render = new Render(width, height);
+		object = new Object3D();
 		
-		this.il = new InputListener(render);
+		this.il = new InputListener(this);
 		
 		this.add(render);
 		this.addMouseListener(il);
@@ -31,7 +34,7 @@ public class Screen extends JPanel {
 	
 	@Override
 	public void paint(Graphics g) {
-		render.draw();
+		render.draw3DEdges(this.object);
 		g.drawImage(render.getImg(), 0, 0, null);
 	}
 	
@@ -41,7 +44,7 @@ public class Screen extends JPanel {
 		
 		this.remove(render);
 		this.render = new Render(width, height);
-		this.il = new InputListener(render);
+		this.il = new InputListener(this);
 		
 		this.add(render);
 		this.addMouseListener(il);
@@ -54,5 +57,17 @@ public class Screen extends JPanel {
 
 	public void setRender(Render render) {
 		this.render = render;
+	}
+	
+	public void resetShape() {
+		this.object = new Object3D();
+	}
+
+	public InputListener getInputListener() {
+		return il;
+	}
+
+	public void setInputListener(InputListener il) {
+		this.il = il;
 	}
 }
