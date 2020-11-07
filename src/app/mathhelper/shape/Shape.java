@@ -3,19 +3,21 @@ package app.mathhelper.shape;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Shape {	
+public class Shape extends GeometryObject{	
 	public List<Triangle> triangles;
-	public List<Edge> edges;
-	
-	private double area;
 	
 	public Shape(Triangle[] triangles) {
+		super();
+		
 		this.triangles = new ArrayList<>();
+				
 		for(Triangle temp : triangles) {
 			this.triangles.add(temp);
 			addEdgeFromTriangle(temp);
 		}
-		this.area = -1;
+		
+		this.area = getArea();
+		this.scope = getScope();
 	}
 	
 	public Shape(Vertex[] verticies){
@@ -27,23 +29,42 @@ public class Shape {
 	}
 	
 	private void addEdgeFromTriangle(Triangle t) {
-		A:for(Edge temp : t.getEdges()) {
-			for(Edge e : this.edges) {
-				if(temp.equals(e))
-					continue A;
+		Edge toDelete = null;
+		
+		A:for(Edge temp : t.e) {
+			if(toDelete!=null) {
+				e.remove(toDelete);
+				toDelete = null;
 			}
-			this.edges.add(temp);
+			for(Edge edge : this.e) {
+				if(edge.equals(temp)) {
+					toDelete = edge;
+					continue A;
+				}
+			}
+			this.e.add(temp);
+		}
+		if(toDelete!=null) {
+			e.remove(toDelete);
+			toDelete = null;
 		}
 	}
 	
-	public double getArea() {
-		if(this.area > 0)
-			return this.area;
-		
-		double temp = 0;
+	
+	@Override
+	protected void calculateArea() {
+		this.area = 0;
 		for(Triangle t : triangles) {
-			temp += t.getArea();
+			area += t.getArea();
 		}
-		return temp;
+	}
+	
+	@Override
+	protected void calculateScope() {
+		this.scope = 0;
+		
+		for(Edge edge : this.e) {
+			scope += edge.weight;
+		}
 	}
 }

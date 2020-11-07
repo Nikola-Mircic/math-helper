@@ -1,19 +1,16 @@
 package app.mathhelper.shape;
 
-public class Object3D {
-	public Vertex[] v;
-	public Shape[] s;
-	public Edge[] e;
-	
-	private double area;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Object3D extends GeometryObject{
+	public List<Shape> s;
 	private double volume;
 	
 	public Object3D() {
-		this.v = new Vertex[8];
-		this.s = new Shape[6];
-		this.e = new Edge[12];
+		super();
 		
-		this.area = -1;
+		this.s = new ArrayList<>();
 		this.volume = -1;
 		
 		createCubeVerticies();
@@ -22,51 +19,51 @@ public class Object3D {
 	}
 	
 	private void createCubeVerticies() {
-		v[0] = new Vertex("A", -0.5, -0.5, 4);
-		v[1] = new Vertex("B", 0.5, -0.5, 4);
-		v[2] = new Vertex("C", 0.5, -0.5, 5);
-		v[3] = new Vertex("D", -0.5, -0.5, 5);
-		v[4] = new Vertex("A'", -0.5, 0.5, 4);
-		v[5] = new Vertex("B'", 0.5, 0.5, 4);
-		v[6] = new Vertex("C'", 0.5, 0.5, 5);
-		v[7] = new Vertex("D'", -0.5, 0.5, 5);
+		v.add( new Vertex("A", -0.5, -0.5, 4));
+		v.add( new Vertex("B", 0.5, -0.5, 4));
+		v.add( new Vertex("C", 0.5, -0.5, 5));
+		v.add( new Vertex("D", -0.5, -0.5, 5));
+		v.add( new Vertex("A'", -0.5, 0.5, 4));
+		v.add( new Vertex("B'", 0.5, 0.5, 4));
+		v.add( new Vertex("C'", 0.5, 0.5, 5));
+		v.add( new Vertex("D'", -0.5, 0.5, 5));
 	}
 	
 	private void createCubeSides() {
-		Vertex[] nearSide = {v[0], v[1], v[4], v[5]};
-		Vertex[] farSide = {v[2], v[3], v[6], v[7]};
-		Vertex[] topSide = {v[4], v[5], v[7], v[6]};
-		Vertex[] bottomSide = {v[3], v[2], v[0], v[1]};
-		Vertex[] leftSide = {v[3], v[0], v[7], v[4]};
-		Vertex[] rightSide = {v[1], v[2], v[5], v[6]};
+		Vertex[] nearSide = {v.get(0), v.get(1), v.get(4), v.get(5)};
+		Vertex[] farSide = {v.get(2), v.get(3), v.get(6), v.get(7)};
+		Vertex[] topSide = {v.get(4), v.get(5), v.get(7), v.get(6)};
+		Vertex[] bottomSide = {v.get(3), v.get(2), v.get(0), v.get(1)};
+		Vertex[] leftSide = {v.get(3), v.get(0), v.get(7), v.get(4)};
+		Vertex[] rightSide = {v.get(1), v.get(2), v.get(5), v.get(6)};
 		
-		s[0] = new Shape(nearSide);
-		s[1] = new Shape(farSide);
-		s[2] = new Shape(topSide);
-		s[3] = new Shape(bottomSide);
-		s[4] = new Shape(leftSide);
-		s[5] = new Shape(rightSide);
+		s.add( new Shape(nearSide));
+		s.add( new Shape(farSide));
+		s.add( new Shape(topSide));
+		s.add( new Shape(bottomSide));
+		s.add( new Shape(leftSide));
+		s.add( new Shape(rightSide));
 	}
 	
 	private void createCubeEdges() {
-		e[0] = new Edge(v[0], v[1]);//0 1
-		e[1] = new Edge(v[1], v[2]);//1 2
-		e[2] = new Edge(v[2], v[3]);//2 3
-		e[3] = new Edge(v[3], v[0]);//3 0 
-		e[4] = new Edge(v[0], v[4]);//0 4 
-		e[5] = new Edge(v[1], v[5]);//1 5 
-		e[6] = new Edge(v[2], v[6]);//2 6 
-		e[7] = new Edge(v[3], v[7]);//3 7
-		e[8] = new Edge(v[4], v[5]);//4 5 
-		e[9] = new Edge(v[5], v[6]);//5 6 
-		e[10] = new Edge(v[6], v[7]);//6 7 
-		e[11] = new Edge(v[7], v[4]);//7 4 
+		e.add( new Edge(v.get(0), v.get(1)));//0 1
+		e.add( new Edge(v.get(1), v.get(2)));//1 2
+		e.add( new Edge(v.get(2), v.get(3)));//2 3
+		e.add( new Edge(v.get(3), v.get(0)));//3 0 
+		e.add( new Edge(v.get(0), v.get(4)));//0 4 
+		e.add( new Edge(v.get(1), v.get(5)));//1 5 
+		e.add( new Edge(v.get(2), v.get(6)));//2 6 
+		e.add( new Edge(v.get(3), v.get(7)));//3 7
+		e.add( new Edge(v.get(4), v.get(5)));//4 5 
+		e.add( new Edge(v.get(5), v.get(6)));//5 6 
+		e.add( new Edge(v.get(6), v.get(7)));//6 7 
+		e.add( new Edge(v.get(7), v.get(4)));//7 4 
 	}
 	
 	public Vertex getCenterCords() {
 		Vertex temp;
-		double maxX=v[0].x,maxY=v[0].y,maxZ=v[0].z;
-		double minX=v[0].x,minY=v[0].y,minZ=v[0].z;
+		double maxX=v.get(0).x,maxY=v.get(0).y,maxZ=v.get(0).z;
+		double minX=v.get(0).x,minY=v.get(0).y,minZ=v.get(0).z;
 		
 		for(Vertex vertex : this.v) {
 			if(vertex.x > maxX)
@@ -95,10 +92,10 @@ public class Object3D {
 		
 		double dist;
 		
-		for(int i=0;i<v.length;++i) {
-			dist = getDistVertical(center, v[i]);
-			v[i].y = center.y + Math.sin(angleVert[i]+rotation)*dist;
-			v[i].z = center.z + Math.cos(angleVert[i]+rotation)*dist;
+		for(int i=0;i<v.size();++i) {
+			dist = getDistVertical(center, v.get(i));
+			v.get(i).y = center.y + Math.sin(angleVert[i]+rotation)*dist;
+			v.get(i).z = center.z + Math.cos(angleVert[i]+rotation)*dist;
 		}
 	}
 	
@@ -109,22 +106,22 @@ public class Object3D {
 		
 		double dist;
 		
-		for(int i=0;i<v.length;++i) {
-			dist = getDistHorizontal(center, v[i]);
-			v[i].x = center.x + Math.cos(angleHoriz[i]+rotation)*getDistHorizontal(center, v[i]);
-			v[i].z = center.z + Math.sin(angleHoriz[i]+rotation)*dist;
+		for(int i=0;i<v.size();++i) {
+			dist = getDistHorizontal(center, v.get(i));
+			v.get(i).x = center.x + Math.cos(angleHoriz[i]+rotation)*getDistHorizontal(center, v.get(i));
+			v.get(i).z = center.z + Math.sin(angleHoriz[i]+rotation)*dist;
 		}
 		
 	}
 	
 	private double[] getHorizontalAngle() {
-		double[] temp = new double[v.length];
+		double[] temp = new double[v.size()];
 		Vertex center = getCenterCords();
 		
-		for(int i=0;i<v.length;++i) {
-			double dist = getDistHorizontal(center, v[i]);
-			double sin = (v[i].z-center.z)/dist;
-			double cos = (v[i].x-center.x)/dist;
+		for(int i=0;i<v.size();++i) {
+			double dist = getDistHorizontal(center, v.get(i));
+			double sin = (v.get(i).z-center.z)/dist;
+			double cos = (v.get(i).x-center.x)/dist;
 			double asin = Math.asin(sin);
 			
 			if(cos>=0) {
@@ -138,13 +135,13 @@ public class Object3D {
 	}
 	
 	private double[] getVerticalAngle() {
-		double[] temp = new double[v.length];
+		double[] temp = new double[v.size()];
 		Vertex center = getCenterCords();
 		
-		for(int i=0;i<v.length;++i) {
-			double dist = getDistVertical(center, v[i]);
-			double cos = (v[i].z-center.z)/dist;
-			double sin = (v[i].y-center.y)/dist;
+		for(int i=0;i<v.size();++i) {
+			double dist = getDistVertical(center, v.get(i));
+			double cos = (v.get(i).z-center.z)/dist;
+			double sin = (v.get(i).y-center.y)/dist;
 			double asin = Math.asin(sin);
 			
 			if(cos>=0) {
@@ -169,14 +166,32 @@ public class Object3D {
 		return Math.sqrt(dy*dy+dz*dz);
 	}
 	
-	public double getArea() {
-		if(area>0)
-			return area;
-		
-		double temp = 0;
-		for(Shape shape : s) {
-			temp += shape.getArea();
+	@Override
+	protected void calculateArea(){
+		this.area = 0;
+		for(Shape s : this.s) {
+			area += s.getArea();
 		}
-		return temp;
+	}
+	
+	@Override
+	protected void calculateScope(){
+		this.scope = 0;
+		
+		for(Edge edge : this.e) {
+			scope += edge.weight;
+		}
+	}
+	
+	public List<Vertex> getVerticies(){
+		return this.v;
+	}
+	
+	public List<Edge> getEdges() {
+		return this.e;
+	}
+	
+	public List<Shape> getSides(){
+		return this.s;
 	}
 }

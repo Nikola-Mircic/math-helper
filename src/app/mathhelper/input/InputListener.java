@@ -7,9 +7,11 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.Map.Entry;
 
 import app.mathhelper.screen.Render;
 import app.mathhelper.screen.Screen;
+import app.mathhelper.shape.Vertex;
 
 public class InputListener implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 	private Screen screen;
@@ -68,6 +70,18 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 
 	@Override
 	public void mousePressed(MouseEvent e) {
+		int x = e.getX();
+		int y = e.getY();
+		
+		for(Entry<String, Vertex> entry : render.onScreenVertex.entrySet()) {
+			if(entry.getValue().x-3<=x && entry.getValue().x+3>=x &&
+				entry.getValue().y-3<=y && entry.getValue().y+3>=y) {
+				render.setClickedVertex(new Vertex(entry.getKey(), entry.getValue().x, entry.getValue().y, entry.getValue().z));
+				return;
+			}
+		}
+		
+		render.setClickedVertex(null);
 	}
 
 	@Override

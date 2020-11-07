@@ -70,4 +70,8 @@ public class Screen extends JPanel {
 	public void setInputListener(InputListener il) {
 		this.il = il;
 	}
+	
+	public Object3D getObject() {
+		return this.object;
+	}
 }
