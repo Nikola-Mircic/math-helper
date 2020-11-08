@@ -17,6 +17,14 @@ public class Edge {
 	}
 	
 	public boolean equals(Edge edge) {
-		return (this.a.equals(edge.a) && this.b.equals(edge.b));
+		boolean flag1 = a.equals(edge.a) && b.equals(edge.b);
+		boolean flag2 = a.equals(edge.b) && b.equals(edge.a);
+		return (flag1 || flag2);
+	}
+	
+	public boolean equalsByName(Edge edge) {
+		boolean flag1 = a.name.equals(edge.a.name) && b.name.equals(edge.b.name);
+		boolean flag2 = a.name.equals(edge.b.name) && b.name.equals(edge.a.name);
+		return (flag1 || flag2);
 	}
 }

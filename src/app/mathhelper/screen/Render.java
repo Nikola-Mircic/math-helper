@@ -1,15 +1,12 @@
 package app.mathhelper.screen;
 
-import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.*;
+import java.awt.image.*;
+import java.util.*;
+import java.util.List;
 
 import app.mathhelper.shape.*;
+import app.mathhelper.shape.Shape;
 
 public class Render extends Canvas{
 	private static final long serialVersionUID = 1L;
@@ -45,24 +42,27 @@ public class Render extends Canvas{
 			bs = this.getBufferStrategy();
 		}while(bs==null);
 		
+		List<Edge> filled = new ArrayList<>();
+		
+		Graphics gDraw = bs.getDrawGraphics();
 		Graphics g = img.getGraphics();
 		
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 		
 		for(Shape s : object.getSides()) {
-			draw3DEdges(s, bs, g);
+			draw3DEdges(s, bs, g, filled);
 		}
 		
 		printObjectData(object, g);
+		
+		gDraw.drawImage(img, 0, 0, null);
 		
 		bs.show();
 		g.dispose();
 	}
 
-	public void draw3DEdges(GeometryObject object, BufferStrategy bs, Graphics g) {
-		Graphics gDraw = bs.getDrawGraphics();
-		
+	public void draw3DEdges(GeometryObject object, BufferStrategy bs, Graphics g, List<Edge> filled) {
 		Edge normal = ((Shape) object).getNormal();
 		Vertex v1 = normal.a;
 		Vertex v2 = normal.b;
@@ -90,26 +90,43 @@ public class Render extends Canvas{
 			for(int i=0;i<temp.length;++i) {
 				temp[i].a.x = a*fov*(object.getEdges().get(i).a.x)/temp[i].a.z*WIDTH+WIDTH/2;
 				temp[i].a.y = -fov*(object.getEdges().get(i).a.y)/temp[i].a.z*HEIGHT+HEIGHT/2;
+				onScreenVertex.put(object.getEdges().get(i).a.name, new Vertex("", temp[i].a.x, temp[i].a.y, temp[i].a.z));
 				
 				temp[i].b.x = a*fov*(object.getEdges().get(i).b.x)/temp[i].b.z*WIDTH+WIDTH/2;
 				temp[i].b.y = -fov*(object.getEdges().get(i).b.y)/temp[i].b.z*HEIGHT+HEIGHT/2;
+				onScreenVertex.put(object.getEdges().get(i).b.name, new Vertex("", temp[i].b.x, temp[i].b.y, temp[i].b.z));
 			}
 			
 			g.setColor(Color.BLACK);
-			for(int i=0;i<temp.length;++i) {
-				g.drawLine((int)temp[i].a.x, (int)temp[i].a.y, (int)temp[i].b.x, (int)temp[i].b.y);
+			
+			if((v1.x*v2.x + v1.y*v2.y + v1.z*v2.z < 0)) {
+				Graphics2D g2d = (Graphics2D) g.create();
+				Stroke s = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{10,20}, 0);
+				g2d.setStroke(s);
+				
+				A:for(int i=0;i<temp.length;++i) {
+					for(Edge e : filled) {
+						if(e.equals(temp[i])) {
+							continue A;
+						}
+					}					
+					g2d.drawLine((int)temp[i].a.x, (int)temp[i].a.y, (int)temp[i].b.x, (int)temp[i].b.y);
+				}
+			} else {
+				g.setColor(Color.BLACK);
+				for(int i=0;i<temp.length;++i) {
+					g.drawLine((int)temp[i].a.x, (int)temp[i].a.y, (int)temp[i].b.x, (int)temp[i].b.y);
+					filled.add(temp[i]);
+				}
 			}
 			
 			g.setFont(new Font("Serif", Font.PLAIN, 20));
 			for(int i=0;i<temp.length;++i) {
 				g.fillOval((int)temp[i].a.x-3, (int)temp[i].a.y-3, 6, 6);
-				g.drawString((object.getEdges().get(i).a.name), (int)temp[i].a.x-15, (int)temp[i].a.y-3);
-				//onScreenVertex.add(new Vertex(object.getEdges().get(i).a.name, temp[i].a.x, temp[i].a.y, temp[i].a.z));
-				onScreenVertex.put(object.getEdges().get(i).a.name, new Vertex("", temp[i].a.x, temp[i].a.y, temp[i].a.z));
+				g.drawString((object.getEdges().get(i).a.name), (int)temp[i].a.x-15, (int)temp[i].a.y-3);	
 				
 				g.fillOval((int)temp[i].b.x-3, (int)temp[i].b.y-3, 6, 6);
 				g.drawString((object.getEdges().get(i).b.name), (int)temp[i].b.x-15, (int)temp[i].b.y-3);
-				onScreenVertex.put(object.getEdges().get(i).b.name, new Vertex("", temp[i].b.x, temp[i].b.y, temp[i].b.z));
 			}
 			
 			if(clickedVertex!=null) {
@@ -117,8 +134,6 @@ public class Render extends Canvas{
 				g.drawString("Clicked on: ", 30, 220);
 				g.drawString("- "+data, 30, 250);
 			}
-			
-			gDraw.drawImage(img, 0, 0, null);
 		}
 	}
 	

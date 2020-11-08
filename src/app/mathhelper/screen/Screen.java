@@ -5,9 +5,8 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 import app.mathhelper.input.InputListener;
-import app.mathhelper.shape.Object3D;
-import app.mathhelper.shape.preset.Cube;
-import app.mathhelper.shape.preset.Tetrahedron;
+import app.mathhelper.shape.*;
+import app.mathhelper.shape.preset.*;
 
 public class Screen extends JPanel {
 	private static final long serialVersionUID = 1L;
