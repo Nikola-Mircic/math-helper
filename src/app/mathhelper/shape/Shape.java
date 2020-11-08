@@ -24,6 +24,7 @@ public class Shape extends GeometryObject{
 		this.triangles = new ArrayList<>();
 		for(int i=2;i<verticies.length;++i) {
 			triangles.add(new Triangle(verticies[i-2], verticies[i-1], verticies[i]));
+			addEdgeFromTriangle(triangles.get(triangles.size()-1));
 		}
 		this.area = -1;
 	}
@@ -66,5 +67,9 @@ public class Shape extends GeometryObject{
 		for(Edge edge : this.e) {
 			scope += edge.weight;
 		}
+	}
+	
+	public Edge getNormal() {
+		return new Edge(triangles.get(0).v.get(0), triangles.get(0).getCrossProduct());
 	}
 }

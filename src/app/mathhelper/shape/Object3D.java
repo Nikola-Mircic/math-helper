@@ -8,57 +8,23 @@ public class Object3D extends GeometryObject{
 	private double volume;
 	
 	public Object3D() {
+		this(0, 0, 0);
+	}
+	
+	public Object3D(int x, int y, int z) {
 		super();
 		
 		this.s = new ArrayList<>();
 		this.volume = -1;
 		
-		createCubeVerticies();
-		createCubeSides();
-		createCubeEdges();
+		this.createVerticies(x, y, z);
+		this.createEdges();
+		this.createSides();
 	}
 	
-	private void createCubeVerticies() {
-		v.add( new Vertex("A", -0.5, -0.5, 4));
-		v.add( new Vertex("B", 0.5, -0.5, 4));
-		v.add( new Vertex("C", 0.5, -0.5, 5));
-		v.add( new Vertex("D", -0.5, -0.5, 5));
-		v.add( new Vertex("A'", -0.5, 0.5, 4));
-		v.add( new Vertex("B'", 0.5, 0.5, 4));
-		v.add( new Vertex("C'", 0.5, 0.5, 5));
-		v.add( new Vertex("D'", -0.5, 0.5, 5));
-	}
-	
-	private void createCubeSides() {
-		Vertex[] nearSide = {v.get(0), v.get(1), v.get(4), v.get(5)};
-		Vertex[] farSide = {v.get(2), v.get(3), v.get(6), v.get(7)};
-		Vertex[] topSide = {v.get(4), v.get(5), v.get(7), v.get(6)};
-		Vertex[] bottomSide = {v.get(3), v.get(2), v.get(0), v.get(1)};
-		Vertex[] leftSide = {v.get(3), v.get(0), v.get(7), v.get(4)};
-		Vertex[] rightSide = {v.get(1), v.get(2), v.get(5), v.get(6)};
-		
-		s.add( new Shape(nearSide));
-		s.add( new Shape(farSide));
-		s.add( new Shape(topSide));
-		s.add( new Shape(bottomSide));
-		s.add( new Shape(leftSide));
-		s.add( new Shape(rightSide));
-	}
-	
-	private void createCubeEdges() {
-		e.add( new Edge(v.get(0), v.get(1)));//0 1
-		e.add( new Edge(v.get(1), v.get(2)));//1 2
-		e.add( new Edge(v.get(2), v.get(3)));//2 3
-		e.add( new Edge(v.get(3), v.get(0)));//3 0 
-		e.add( new Edge(v.get(0), v.get(4)));//0 4 
-		e.add( new Edge(v.get(1), v.get(5)));//1 5 
-		e.add( new Edge(v.get(2), v.get(6)));//2 6 
-		e.add( new Edge(v.get(3), v.get(7)));//3 7
-		e.add( new Edge(v.get(4), v.get(5)));//4 5 
-		e.add( new Edge(v.get(5), v.get(6)));//5 6 
-		e.add( new Edge(v.get(6), v.get(7)));//6 7 
-		e.add( new Edge(v.get(7), v.get(4)));//7 4 
-	}
+	protected void createVerticies(int x, int y, int z) {}
+	protected void createSides(){};
+	protected void createEdges(){};
 	
 	public Vertex getCenterCords() {
 		Vertex temp;

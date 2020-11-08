@@ -30,4 +30,12 @@ public class GeometryObject {
 			calculateScope();
 		return this.scope;
 	}
+	
+	public List<Vertex> getVerticies(){
+		return this.v;
+	}
+	
+	public List<Edge> getEdges() {
+		return this.e;
+	}
 }

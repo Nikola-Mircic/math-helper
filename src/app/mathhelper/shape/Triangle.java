@@ -42,5 +42,18 @@ public class Triangle extends GeometryObject{
 
 	public List<Edge> getEdges() {
 		return this.e;
+		
+	}
+	
+	public Vertex getCrossProduct() {
+		Vertex temp = new Vertex("Normal", 0, 0, 0);
+		Vertex A = v.get(1).add(v.get(0).getOpositeVector());
+		Vertex B = v.get(2).add(v.get(0).getOpositeVector());
+		
+		temp.x = A.y*B.z - A.z*B.y;
+		temp.y = A.z*B.x - A.x*B.z;
+		temp.z = A.x*B.y - A.y*B.x;
+		
+		return temp;
 	}
 }

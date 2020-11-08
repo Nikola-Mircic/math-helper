@@ -23,6 +23,8 @@ public class Render extends Canvas{
 	private double rotationX = 0;
 	private double rotationY = 0;
 	
+	public boolean transparent;
+	
 	public Map<String,Vertex> onScreenVertex;
 	
 	public Render(int w,int h) {
@@ -33,90 +35,104 @@ public class Render extends Canvas{
 		this.onScreenVertex = new HashMap<String, Vertex>();
 		this.clickedVertex = null;
 		
-		this.rotationX = 0;
-		this.rotationY = 0;
+		this.transparent = true;
 	}
-
-	public void draw3DEdges(Object3D object) {
+	
+	public void renderObject(Object3D object) {
 		BufferStrategy bs = null;
 		do {
 			createBufferStrategy(3);
 			bs = this.getBufferStrategy();
 		}while(bs==null);
 		
-		Graphics gDraw = bs.getDrawGraphics();
-		
 		Graphics g = img.getGraphics();
 		
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 		
-		double zFar = 100000;
-		double zNear = 0.1;
-		double angle = Math.PI/2;
-		double fov = 1/Math.tan(angle/2);
-		double a = HEIGHT/(double)WIDTH;
-		
-		double zRatio = zFar/(zFar-zNear);
-		
-		Edge temp[] = new Edge[object.getEdges().size()];
-		
-		for(int i=0;i<temp.length;++i) {
-			temp[i] = new Edge();
+		for(Shape s : object.getSides()) {
+			draw3DEdges(s, bs, g);
 		}
 		
-		object.rotateHorizontal(this.rotationX/2);
-		object.rotateVertical(this.rotationY/2);
-		this.rotationX=0;
-		this.rotationY=0;
+		printObjectData(object, g);
 		
-		for(int i=0;i<temp.length;++i) {
-			temp[i].a.z = (object.getEdges().get(i).a.z-zNear)/zRatio;
-			temp[i].b.z = (object.getEdges().get(i).b.z-zNear)/zRatio;
-		}
+		bs.show();
+		g.dispose();
+	}
+
+	public void draw3DEdges(GeometryObject object, BufferStrategy bs, Graphics g) {
+		Graphics gDraw = bs.getDrawGraphics();
 		
-		for(int i=0;i<temp.length;++i) {
-			temp[i].a.x = a*fov*(object.getEdges().get(i).a.x)/temp[i].a.z*WIDTH+WIDTH/2;
-			temp[i].a.y = -fov*(object.getEdges().get(i).a.y)/temp[i].a.z*HEIGHT+HEIGHT/2;
+		Edge normal = ((Shape) object).getNormal();
+		Vertex v1 = normal.a;
+		Vertex v2 = normal.b;
+		
+		if((v1.x*v2.x + v1.y*v2.y + v1.z*v2.z > 0) || transparent) {
+			double zFar = 100000;
+			double zNear = 0.1;
+			double angle = Math.PI/2;
+			double fov = 1/Math.tan(angle/2);
+			double a = HEIGHT/(double)WIDTH;
 			
-			temp[i].b.x = a*fov*(object.getEdges().get(i).b.x)/temp[i].b.z*WIDTH+WIDTH/2;
-			temp[i].b.y = -fov*(object.getEdges().get(i).b.y)/temp[i].b.z*HEIGHT+HEIGHT/2;
+			double zRatio = zFar/(zFar-zNear);
+			
+			Edge temp[] = new Edge[object.getEdges().size()];
+			
+			for(int i=0;i<temp.length;++i) {
+				temp[i] = new Edge();
+			}
+			
+			for(int i=0;i<temp.length;++i) {
+				temp[i].a.z = (object.getEdges().get(i).a.z-zNear)/zRatio;
+				temp[i].b.z = (object.getEdges().get(i).b.z-zNear)/zRatio;
+			}
+			
+			for(int i=0;i<temp.length;++i) {
+				temp[i].a.x = a*fov*(object.getEdges().get(i).a.x)/temp[i].a.z*WIDTH+WIDTH/2;
+				temp[i].a.y = -fov*(object.getEdges().get(i).a.y)/temp[i].a.z*HEIGHT+HEIGHT/2;
+				
+				temp[i].b.x = a*fov*(object.getEdges().get(i).b.x)/temp[i].b.z*WIDTH+WIDTH/2;
+				temp[i].b.y = -fov*(object.getEdges().get(i).b.y)/temp[i].b.z*HEIGHT+HEIGHT/2;
+			}
+			
+			g.setColor(Color.BLACK);
+			for(int i=0;i<temp.length;++i) {
+				g.drawLine((int)temp[i].a.x, (int)temp[i].a.y, (int)temp[i].b.x, (int)temp[i].b.y);
+			}
+			
+			g.setFont(new Font("Serif", Font.PLAIN, 20));
+			for(int i=0;i<temp.length;++i) {
+				g.fillOval((int)temp[i].a.x-3, (int)temp[i].a.y-3, 6, 6);
+				g.drawString((object.getEdges().get(i).a.name), (int)temp[i].a.x-15, (int)temp[i].a.y-3);
+				//onScreenVertex.add(new Vertex(object.getEdges().get(i).a.name, temp[i].a.x, temp[i].a.y, temp[i].a.z));
+				onScreenVertex.put(object.getEdges().get(i).a.name, new Vertex("", temp[i].a.x, temp[i].a.y, temp[i].a.z));
+				
+				g.fillOval((int)temp[i].b.x-3, (int)temp[i].b.y-3, 6, 6);
+				g.drawString((object.getEdges().get(i).b.name), (int)temp[i].b.x-15, (int)temp[i].b.y-3);
+				onScreenVertex.put(object.getEdges().get(i).b.name, new Vertex("", temp[i].b.x, temp[i].b.y, temp[i].b.z));
+			}
+			
+			if(clickedVertex!=null) {
+				String data = clickedVertex.name+"( "+Math.round(clickedVertex.x*100)/100.0+", "+Math.round(clickedVertex.y*100)/100.0+")";
+				g.drawString("Clicked on: ", 30, 220);
+				g.drawString("- "+data, 30, 250);
+			}
+			
+			gDraw.drawImage(img, 0, 0, null);
 		}
-		
+	}
+	
+	private void printObjectData(GeometryObject object, Graphics g) {
 		g.setColor(Color.BLACK);
-		for(int i=0;i<temp.length;++i) {
-			g.drawLine((int)temp[i].a.x, (int)temp[i].a.y, (int)temp[i].b.x, (int)temp[i].b.y);
-		}
-		
-		g.setFont(new Font("Serif", Font.PLAIN, 20));
-		for(int i=0;i<temp.length;++i) {
-			g.fillOval((int)temp[i].a.x-3, (int)temp[i].a.y-3, 6, 6);
-			g.drawString((object.getEdges().get(i).a.name), (int)temp[i].a.x-15, (int)temp[i].a.y-3);
-			//onScreenVertex.add(new Vertex(object.getEdges().get(i).a.name, temp[i].a.x, temp[i].a.y, temp[i].a.z));
-			onScreenVertex.put(object.getEdges().get(i).a.name, new Vertex("", temp[i].a.x, temp[i].a.y, temp[i].a.z));
-			
-			g.fillOval((int)temp[i].b.x-3, (int)temp[i].b.y-3, 6, 6);
-			g.drawString((object.getEdges().get(i).b.name), (int)temp[i].b.x-15, (int)temp[i].b.y-3);
-			onScreenVertex.put(object.getEdges().get(i).b.name, new Vertex("", temp[i].b.x, temp[i].b.y, temp[i].b.z));
-		}
-		
 		g.setFont(new Font("Serif", Font.PLAIN, 25));
 		g.drawString("Object data: ", 30, 25);
 		g.drawString("- Object area: "+Math.round(object.getArea()*100)/100.0, 35, 55);
 		g.drawString("- Object scope: "+Math.round(object.getScope()*100)/100.0, 35, 85);
 		g.drawString("- Verticies: "+object.getVerticies().size(), 35, 115);
-		g.drawString("- Sides: "+object.getSides().size(), 35, 145);
-		g.drawString("- Edges: "+object.getEdges().size(), 35, 175);
-		
-		if(clickedVertex!=null) {
-			String data = clickedVertex.name+"( "+Math.round(clickedVertex.x*100)/100.0+", "+Math.round(clickedVertex.y*100)/100.0+")";
-			g.drawString("Clicked on: ", 30, 220);
-			g.drawString("- "+data, 30, 250);
+		g.drawString("- Edges: "+object.getEdges().size(), 35, 145);
+		if(object instanceof Object3D) {
+			g.drawString("- Sides: "+((Object3D) object).getSides().size(), 35, 175);
 		}
-		
-		gDraw.drawImage(img, 0, 0, null);
-		bs.show();
-		g.dispose();
 	}
 	
 	public void findSelectedVertex(int x,int y) {
@@ -153,6 +169,14 @@ public class Render extends Canvas{
 
 	public void setClickedVertex(Vertex clickedVertex) {
 		this.clickedVertex = clickedVertex;
+	}
+
+	public boolean isTransparent() {
+		return transparent;
+	}
+
+	public void setTransparent(boolean transparent) {
+		this.transparent = transparent;
 	}
 	
 }

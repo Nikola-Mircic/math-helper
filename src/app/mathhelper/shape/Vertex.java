@@ -25,4 +25,24 @@ public class Vertex {
 	public boolean equals(Vertex v) {
 		return ((this.x == v.x) && (this.y == v.y) && (this.z == v.z));
 	}
+	
+	public Vertex getOpositeVector() {
+		Vertex t = new Vertex();
+		
+		t.x = -this.x;
+		t.y = -this.y;
+		t.z = -this.z;
+		
+		return t;
+	}
+	
+	public Vertex add(Vertex v) {
+		Vertex t = new Vertex();
+		
+		t.x = this.x+v.x;
+		t.y = this.y+v.y;
+		t.z = this.z+v.z;
+		
+		return t;
+	}
 }

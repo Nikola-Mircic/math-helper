@@ -6,6 +6,8 @@ import javax.swing.JPanel;
 
 import app.mathhelper.input.InputListener;
 import app.mathhelper.shape.Object3D;
+import app.mathhelper.shape.preset.Cube;
+import app.mathhelper.shape.preset.Tetrahedron;
 
 public class Screen extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -23,7 +25,7 @@ public class Screen extends JPanel {
 		this.HEIGHT = height;
 		
 		this.render = new Render(width, height);
-		object = new Object3D();
+		object = new Tetrahedron(0, 0, 0);
 		
 		this.il = new InputListener(this);
 		
@@ -34,7 +36,7 @@ public class Screen extends JPanel {
 	
 	@Override
 	public void paint(Graphics g) {
-		render.draw3DEdges(this.object);
+		render.renderObject(object);
 		g.drawImage(render.getImg(), 0, 0, null);
 	}
 	
@@ -73,5 +75,9 @@ public class Screen extends JPanel {
 	
 	public Object3D getObject() {
 		return this.object;
+	}
+	
+	public void setObject(Object3D object) {
+		this.object = object;
 	}
 }
