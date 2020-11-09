@@ -13,10 +13,10 @@ public class Tetrahedron extends Object3D {
 	
 	@Override
 	protected void createVerticies(int x, int y, int z) {
-		v.add(new Vertex("A", x-0.5, y-0.5, z+4));
-		v.add(new Vertex("B", x+0.5, y-0.5, z+4));
-		v.add(new Vertex("C", x-0.5, y-0.5, z+5));
-		v.add(new Vertex("D", x-0.5, y+0.5, z+4));
+		v.add(new Vertex("A", x-0.5, y-0.5, z-0.5));
+		v.add(new Vertex("B", x+0.5, y-0.5, z-0.5));
+		v.add(new Vertex("C", x-0.5, y-0.5, z+0.5));
+		v.add(new Vertex("D", x-0.5, y+0.5, z-0.5));
 	}
 	
 	@Override

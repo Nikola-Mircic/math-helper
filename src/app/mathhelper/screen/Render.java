@@ -21,6 +21,7 @@ public class Render extends Canvas{
 	private double rotationY = 0;
 	
 	public boolean transparent;
+	public boolean renderingCenter;
 	
 	public Map<String,Vertex> onScreenVertex;
 	
@@ -33,6 +34,7 @@ public class Render extends Canvas{
 		this.clickedVertex = null;
 		
 		this.transparent = true;
+		this.renderingCenter = false;
 	}
 	
 	public void renderObject(Object3D object) {
@@ -49,6 +51,9 @@ public class Render extends Canvas{
 		
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, WIDTH, HEIGHT);
+		
+		if(renderingCenter)
+			renderObjectCenter(object, g);
 		
 		for(Shape s : object.getSides()) {
 			draw3DEdges(s, bs, g, filled);
@@ -135,6 +140,26 @@ public class Render extends Canvas{
 				g.drawString("- "+data, 30, 250);
 			}
 		}
+	}
+	
+	private void renderObjectCenter(GeometryObject object, Graphics g) {
+		Vertex center = new Vertex();
+		
+		g.setColor(Color.GREEN);
+		
+		double zFar = 100000;
+		double zNear = 0.1;
+		double angle = Math.PI/2;
+		double fov = 1/Math.tan(angle/2);
+		double a = HEIGHT/(double)WIDTH;
+		
+		double zRatio = zFar/(zFar-zNear);
+		
+		center.z = (object.getCenter().z-zNear)/zRatio;
+		center.x = a*fov*(object.getCenter().x)/center.z*WIDTH+WIDTH/2;
+		center.y = -fov*(object.getCenter().y)/center.z*HEIGHT+HEIGHT/2;
+		
+		g.fillOval((int)center.x, (int)center.y, 5, 5);
 	}
 	
 	private void printObjectData(GeometryObject object, Graphics g) {

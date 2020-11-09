@@ -23,6 +23,8 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 	
 	private int object = 1;
 	
+	private static boolean disabledRotation[] = {false,false,false};
+	
 	public InputListener(Screen screen) {
 		this.screen = screen;
 		this.render = screen.getRender();
@@ -42,11 +44,16 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 			/*render.setRotationX(render.getRotationX() + (x/180.0*Math.PI));
 			render.setRotationY(render.getRotationY() + (y/180.0*Math.PI));*/
 			
-			double rotationX = render.getRotationX() + (x/180.0*Math.PI);
-			double rotationY = render.getRotationY() + (y/180.0*Math.PI);
+			double rotationX = (x/180.0*Math.PI);
+			double rotationY = (y/180.0*Math.PI);
 			
-			screen.getObject().rotateHorizontal(rotationX/4);
-			screen.getObject().rotateVertical(rotationY/4);
+			if(!disabledRotation[1]) {
+				screen.getObject().rotateHorizontal(rotationX/4);
+			}
+				
+			if(!disabledRotation[2]) {
+				screen.getObject().rotateVertical(rotationY/4);
+			}
 			
 			lastX = e.getX();
 			lastY = e.getY();
@@ -120,23 +127,41 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 			screen.getRender().setTransparent(!screen.getRender().isTransparent());
 			break;
 		case KeyEvent.VK_1:
-			screen.setObject(new Cube(0, 0, 0));
-			object = 1;
+			if(e.isShiftDown()) {
+				disabledRotation[1] = !disabledRotation[1];
+				disabledRotation[2] = false;
+			}else {
+				screen.setObject(new Cube(0, 0, 0));
+				object = 1;
+			}
 			break;
 		case KeyEvent.VK_2:
-			screen.setObject(new Tetrahedron(0, 0, 0));
-			object = 2;
+			if(e.isShiftDown()) {
+				disabledRotation[2] = !disabledRotation[2];
+				disabledRotation[1] = false;
+			}else {
+				screen.setObject(new Tetrahedron(0, 0, 0));
+				object = 2;
+			}
+			break;
+		case KeyEvent.VK_CONTROL:
+			screen.getRender().renderingCenter = true;
 			break;
 		default:
 			break;
 		}
-
 	}
 
 	@Override
-	public void keyReleased(KeyEvent arg0) {
-		// TODO Auto-generated method stub
+	public void keyReleased(KeyEvent e) {
+		switch (e.getKeyCode()) {
+		case KeyEvent.VK_CONTROL:
+			screen.getRender().renderingCenter = false;
+			break;
 
+		default:
+			break;
+		}
 	}
 
 	@Override

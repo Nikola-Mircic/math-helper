@@ -17,43 +17,18 @@ public class Object3D extends GeometryObject{
 		this.s = new ArrayList<>();
 		this.volume = -1;
 		
-		this.createVerticies(x, y, z);
+		this.createVerticies(x, y, z+5);
 		this.createEdges();
 		this.createSides();
+		
+		this.center = getCenterCords();
 	}
 	
 	protected void createVerticies(int x, int y, int z) {}
 	protected void createSides(){};
 	protected void createEdges(){};
 	
-	public Vertex getCenterCords() {
-		Vertex temp;
-		double maxX=v.get(0).x,maxY=v.get(0).y,maxZ=v.get(0).z;
-		double minX=v.get(0).x,minY=v.get(0).y,minZ=v.get(0).z;
-		
-		for(Vertex vertex : this.v) {
-			if(vertex.x > maxX)
-				maxX = vertex.x;
-			if(vertex.y > maxY)
-				maxY = vertex.y;
-			if(vertex.z > maxZ)
-				maxZ = vertex.z;
-			if(vertex.x < minX)
-				minX = vertex.x;
-			if(vertex.y < minY)
-				minY = vertex.y;
-			if(vertex.z < minZ)
-				minZ = vertex.z;
-		}
-		
-		temp = new Vertex("center",minX+(maxX-minX)/2, minY+(maxY-minY)/2, minZ+(maxZ-minZ)/2);
-		
-		return temp;
-	}
-	
 	public void rotateVertical(double rotation) {
-		Vertex center = this.getCenterCords();
-		
 		double[] angleVert = getVerticalAngle();
 		
 		double dist;
@@ -66,15 +41,13 @@ public class Object3D extends GeometryObject{
 	}
 	
 	public void rotateHorizontal(double rotation) {
-		Vertex center = this.getCenterCords();
-		
 		double[] angleHoriz = getHorizontalAngle();
 		
 		double dist;
 		
 		for(int i=0;i<v.size();++i) {
 			dist = getDistHorizontal(center, v.get(i));
-			v.get(i).x = center.x + Math.cos(angleHoriz[i]+rotation)*getDistHorizontal(center, v.get(i));
+			v.get(i).x = center.x + Math.cos(angleHoriz[i]+rotation)*dist;
 			v.get(i).z = center.z + Math.sin(angleHoriz[i]+rotation)*dist;
 		}
 		
@@ -82,7 +55,6 @@ public class Object3D extends GeometryObject{
 	
 	private double[] getHorizontalAngle() {
 		double[] temp = new double[v.size()];
-		Vertex center = getCenterCords();
 		
 		for(int i=0;i<v.size();++i) {
 			double dist = getDistHorizontal(center, v.get(i));
@@ -102,7 +74,6 @@ public class Object3D extends GeometryObject{
 	
 	private double[] getVerticalAngle() {
 		double[] temp = new double[v.size()];
-		Vertex center = getCenterCords();
 		
 		for(int i=0;i<v.size();++i) {
 			double dist = getDistVertical(center, v.get(i));
