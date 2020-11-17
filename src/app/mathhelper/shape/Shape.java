@@ -72,4 +72,12 @@ public class Shape extends GeometryObject{
 	public Edge getNormal() {
 		return new Edge(triangles.get(0).v.get(0), triangles.get(0).getCrossProduct());
 	}
+
+	public List<Triangle> getTriangles() {
+		return triangles;
+	}
+
+	public void setTriangles(List<Triangle> triangles) {
+		this.triangles = triangles;
+	}
 }

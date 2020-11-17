@@ -45,4 +45,9 @@ public class Vertex {
 		
 		return t;
 	}
+	
+	@Override
+	public String toString() {
+		return this.name+" ("+this.x+", "+this.y+", "+this.z+")";
+	}
 }

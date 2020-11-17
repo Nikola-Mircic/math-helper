@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Object3D extends GeometryObject{
 	public List<Shape> s;
-	private double volume;
+	//private double volume;
 	
 	public Object3D() {
 		this(0, 0, 0);
@@ -15,7 +15,7 @@ public class Object3D extends GeometryObject{
 		super();
 		
 		this.s = new ArrayList<>();
-		this.volume = -1;
+		//this.volume = -1;
 		
 		this.createVerticies(x, y, z+5);
 		this.createEdges();
