@@ -23,7 +23,7 @@ public class Shape extends GeometryObject{
 	public Shape(Vertex[] verticies){
 		this.triangles = new ArrayList<>();
 		for(int i=2;i<verticies.length;++i) {
-			triangles.add(new Triangle(verticies[i-2], verticies[i-1], verticies[i]));
+			triangles.add(new Triangle(verticies[i], verticies[i-1], verticies[i-2]));
 			addEdgeFromTriangle(triangles.get(triangles.size()-1));
 		}
 		this.area = -1;
@@ -51,6 +51,10 @@ public class Shape extends GeometryObject{
 		}
 	}
 	
+	public void addTriangle(Triangle t) {
+		this.triangles.add(t);
+		addEdgeFromTriangle(t);
+	}
 	
 	@Override
 	protected void calculateArea() {

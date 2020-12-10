@@ -25,12 +25,12 @@ public class Cube extends Object3D {
 	
 	@Override
 	protected void createSides() {
-		Vertex[] nearSide = {v.get(0), v.get(1), v.get(4), v.get(5)};
-		Vertex[] farSide = {v.get(2), v.get(3), v.get(6), v.get(7)};
-		Vertex[] topSide = {v.get(4), v.get(5), v.get(7), v.get(6)};
-		Vertex[] bottomSide = {v.get(3), v.get(2), v.get(0), v.get(1)};
-		Vertex[] leftSide = {v.get(3), v.get(0), v.get(7), v.get(4)};
-		Vertex[] rightSide = {v.get(1), v.get(2), v.get(5), v.get(6)};
+		Vertex[] nearSide = {v.get(5), v.get(4), v.get(1), v.get(0)};
+		Vertex[] farSide = {v.get(7), v.get(6), v.get(3), v.get(2)};
+		Vertex[] topSide = {v.get(6), v.get(7), v.get(5), v.get(4)};
+		Vertex[] bottomSide = {v.get(1), v.get(0), v.get(2), v.get(3)};
+		Vertex[] leftSide = {v.get(4), v.get(7), v.get(0), v.get(3)};
+		Vertex[] rightSide = {v.get(6), v.get(5), v.get(2), v.get(1)};
 		
 		s.add( new Shape(nearSide));
 		s.add( new Shape(farSide));

@@ -20,7 +20,10 @@ public class Render extends Canvas{
 	private double rotationX = 0;
 	private double rotationY = 0;
 	
-	public boolean transparent;
+	private double xOffset,yOffset,zOffset;
+	
+	public int renderMode = 0;
+	
 	public boolean renderingCenter;
 	
 	public Map<String,Vertex> onScreenVertex;
@@ -33,8 +36,11 @@ public class Render extends Canvas{
 		this.onScreenVertex = new HashMap<String, Vertex>();
 		this.clickedVertex = null;
 		
-		this.transparent = true;
 		this.renderingCenter = false;
+		
+		this.xOffset = 0;
+		this.yOffset = 0;
+		this.zOffset = 0;
 	}
 	
 	public void renderObject(Object3D object) {
@@ -56,10 +62,14 @@ public class Render extends Canvas{
 			renderObjectCenter(object, g);
 		
 		for(Shape s : object.getSides()) {
-			if(!transparent) {
+			if(renderMode == 0) {
 				fill3DShape(s, bs, g);
+			}else if(renderMode == 1){
+				draw3DEdges(s, bs, g, filled);
+			}else {
+				fill3DShape(s, bs, g);
+				draw3DEdges(s, bs, g, filled);
 			}
-			draw3DEdges(s, bs, g, filled);
 		}
 		
 		printObjectData(object, g);
@@ -75,13 +85,12 @@ public class Render extends Canvas{
 		Vertex v1 = normal.a;
 		Vertex v2 = normal.b;
 		
-		double dotProduct = v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
-		
-		if(dotProduct > 0) {
+		double dotProduct = Vertex.getDotProduct(v1, v2);
+		double cos = dotProduct/(v1.getLenght()*v2.getLenght());
+		if(dotProduct < 0) {
+			int c = (int)(180-cos*70);
+			int color = (new Color(c, c, c)).getRGB();
 			for(Triangle t : s.triangles) {
-				int c = (int)(dotProduct*5+210);
-				int color = (new Color(c, c, c)).getRGB();
-				
 				makeTriangle(t.getVerticies().get(0), t.getVerticies().get(1), t.getVerticies().get(2), color);
 			}
 		}
@@ -92,9 +101,9 @@ public class Render extends Canvas{
 		Vertex v1 = normal.a;
 		Vertex v2 = normal.b;
 		
-		double dotProduct = v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
+		double dotProduct = Vertex.getDotProduct(v1, v2);
 		
-		if((dotProduct > 0) || transparent) {
+		if((dotProduct < 0) || renderMode==1) {
 			
 			Edge temp[] = new Edge[object.getEdges().size()];
 			Edge toConvert;
@@ -105,7 +114,7 @@ public class Render extends Canvas{
 			
 			g.setColor(Color.BLACK);
 			
-			if((dotProduct < 0)) {
+			if((dotProduct > 0) && renderMode==1) {
 				Graphics2D g2d = (Graphics2D) g.create();
 				Stroke s = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{10,20}, 0);
 				g2d.setStroke(s);
@@ -126,14 +135,14 @@ public class Render extends Canvas{
 				}
 			}
 			
-			g.setFont(new Font("Serif", Font.PLAIN, 20));
+			/*g.setFont(new Font("Serif", Font.PLAIN, 20));
 			for(int i=0;i<temp.length;++i) {
 				g.fillOval((int)temp[i].a.x-3, (int)temp[i].a.y-3, 6, 6);
 				g.drawString((object.getEdges().get(i).a.name), (int)temp[i].a.x-15, (int)temp[i].a.y-3);	
 				
 				g.fillOval((int)temp[i].b.x-3, (int)temp[i].b.y-3, 6, 6);
 				g.drawString((object.getEdges().get(i).b.name), (int)temp[i].b.x-15, (int)temp[i].b.y-3);
-			}
+			}*/
 			
 			if(clickedVertex!=null) {
 				String data = clickedVertex.name+"( "+Math.round(clickedVertex.x*100)/100.0+", "+Math.round(clickedVertex.y*100)/100.0+")";
@@ -154,10 +163,10 @@ public class Render extends Canvas{
 		
 		double zRatio = zFar/(zFar-zNear);
 		
-		temp.z = (v.z-zNear)/zRatio;
+		temp.z = (v.z+this.zOffset-zNear)/zRatio;
 	
-		temp.x = a*fov*(v.x)/temp.z*WIDTH+WIDTH/2;
-		temp.y = -fov*(v.y)/temp.z*HEIGHT+HEIGHT/2;
+		temp.x = a*fov*(v.x+this.xOffset)/temp.z*WIDTH+WIDTH/2;
+		temp.y = -fov*(v.y+this.yOffset)/temp.z*HEIGHT+HEIGHT/2;
 		
 		return temp;
 	}
@@ -201,7 +210,10 @@ public class Render extends Canvas{
 		
 		if(x1==x2) {
 			for(int i=Math.min(y1, y2);i<=Math.max(y1, y2);++i) {
-				pixels[x1+i*w] = color;
+				if(x1>0 && x1<img.getWidth() && i>0 && i<img.getHeight()) {
+					pixels[x1+i*w] = color;
+					pixels[x1+1+i*w] = color;
+				}
 			}
 		}else if(x1<x2) {
 			double k = (y2-y1)/(double)(x2-x1);
@@ -215,7 +227,11 @@ public class Render extends Canvas{
 					ye = ye-ys;
 				}
 				for(double y=ys;y<=ye;y+=1) {
-					pixels[x+((int) y)*w] = color;
+					if(x>0 && x<img.getWidth() && y>0 && y<img.getHeight()-1) {
+						pixels[x+((int) y)*w] = color;
+						pixels[x+1+((int) y)*w] = color;
+						pixels[x+((int)y+1)*w] = color;
+					}
 				}
 			}
 		}else {
@@ -230,7 +246,11 @@ public class Render extends Canvas{
 					ye = ye-ys;
 				}
 				for(double y=ys;y<=ye;y+=1) {
-					pixels[x+((int) y)*w] = color;
+					if(x>0 && x<img.getWidth() && y>0 && y<img.getHeight()-1) {
+						pixels[x+((int) y)*w] = color;
+						pixels[x+1+((int) y)*w] = color;
+						pixels[x+((int)y+1)*w] = color;
+					}
 				}
 			}
 		}
@@ -241,50 +261,11 @@ public class Render extends Canvas{
 		temp.add(convertTo2D(a));
 		temp.add(convertTo2D(b));
 		temp.add(convertTo2D(c));
-		
-		temp.sort(new Comparator<Vertex>() {
-			@Override
-			public int compare(Vertex o1, Vertex o2) {
-				return (int)(o1.y-o2.y);
-			}
-		});
-		
-		int newX = (int)(temp.get(0).x-(temp.get(0).x-temp.get(2).x)*(temp.get(0).y-temp.get(1).y)/(temp.get(0).y-temp.get(2).y));
-		
-		Vertex p = new Vertex("p",newX,temp.get(1).y,0);
-		
-		int[] raster = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
-		
-		drawBottomFlatTriangle(temp.get(0), p, temp.get(1), raster, img.getWidth(), color);
-		drawTopFlatTriangle(p, temp.get(1), temp.get(2), raster, img.getWidth(), color);
-	}
-	
-	private void drawBottomFlatTriangle(Vertex a, Vertex b, Vertex c, int[] raster, int rasterWidth ,int color) {
-		double baXDiff = (b.x-a.x)/Math.abs(b.y-a.y);//Difference between a & b coordinates
-		double caXDiff = (c.x-a.x)/Math.abs(c.y-a.y);//Difference between a & c coordinates
-		double bDir = a.x;//X value following the vector ab
-		double cDir = a.x;//X value following the vector ac
-		for(int y=(int)a.y; y<b.y; ++y) {
-			for(int x = (int)Math.min(bDir, cDir); x<Math.max(bDir, cDir); ++x) {
-				raster[x+y*rasterWidth] = color;
-			}
-			bDir+=baXDiff;
-			cDir+=caXDiff;
-		}
-	}
-	
-	private void drawTopFlatTriangle(Vertex a, Vertex b, Vertex c, int[] raster, int rasterWidth ,int color) {
-		double acXDiff = (c.x-a.x)/Math.abs(c.y-a.y);//Difference between a & c coordinates
-		double bcXDiff = (c.x-b.x)/Math.abs(c.y-b.y);//Difference between b & c coordinates
-		double aDir = a.x;//X value following the vector ac
-		double bDir = b.x;//X value following the vector bc
-		for(int y=(int)a.y; y<c.y; ++y) {
-			for(int x = (int)Math.min(aDir, bDir); x<Math.max(aDir, bDir); ++x) {
-				raster[x+y*rasterWidth] = color;
-			}
-			aDir+=acXDiff;
-			bDir+=bcXDiff;
-		}
+		Graphics2D g2d = img.createGraphics();
+		int[] x = {(int)temp.get(0).x,(int)temp.get(1).x,(int)temp.get(2).x};
+		int[] y = {(int)temp.get(0).y,(int)temp.get(1).y,(int)temp.get(2).y};
+		g2d.setColor(new Color(color));
+		g2d.fillPolygon(x, y, 3);
 	}
 	
 	public void findSelectedVertex(int x,int y) {
@@ -315,20 +296,36 @@ public class Render extends Canvas{
 		this.rotationY = rotationY;
 	}
 
+	public double getxOffset() {
+		return xOffset;
+	}
+
+	public void setxOffset(double xOffset) {
+		this.xOffset = xOffset;
+	}
+
+	public double getyOffset() {
+		return yOffset;
+	}
+
+	public void setyOffset(double yOffset) {
+		this.yOffset = yOffset;
+	}
+
+	public double getzOffset() {
+		return zOffset;
+	}
+
+	public void setzOffset(double zOffset) {
+		this.zOffset = zOffset;
+	}
+
 	public Vertex getClickedVertex() {
 		return clickedVertex;
 	}
 
 	public void setClickedVertex(Vertex clickedVertex) {
 		this.clickedVertex = clickedVertex;
-	}
-
-	public boolean isTransparent() {
-		return transparent;
-	}
-
-	public void setTransparent(boolean transparent) {
-		this.transparent = transparent;
 	}
 	
 }

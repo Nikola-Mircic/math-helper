@@ -46,6 +46,18 @@ public class Vertex {
 		return t;
 	}
 	
+	public double getDotProduct(Vertex v) {
+		return this.x*v.x + this.y*v.y + this.z*v.z;
+	}
+	
+	public static double getDotProduct(Vertex v1, Vertex v2) {
+		return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
+	}
+	
+	public double getLenght() {
+		return Math.sqrt(x*x+y*y+z*z);
+	}
+	
 	@Override
 	public String toString() {
 		return this.name+" ("+this.x+", "+this.y+", "+this.z+")";

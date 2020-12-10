@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 
 import app.mathhelper.screen.Render;
 import app.mathhelper.screen.Screen;
+import app.mathhelper.shape.Object3D;
 import app.mathhelper.shape.Vertex;
 import app.mathhelper.shape.preset.Cube;
 import app.mathhelper.shape.preset.Tetrahedron;
@@ -124,7 +125,8 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 			}
 			break;
 		case KeyEvent.VK_T:
-			screen.getRender().setTransparent(!screen.getRender().isTransparent());
+			screen.getRender().renderMode++;
+			screen.getRender().renderMode%=3;
 			break;
 		case KeyEvent.VK_1:
 			if(e.isShiftDown()) {
@@ -144,8 +146,40 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 				object = 2;
 			}
 			break;
+		case KeyEvent.VK_3:
+			screen.setObject(Object3D.loadFromFile("utah.obj"));
+			object = 2;
+			break;
+		case KeyEvent.VK_4:
+			screen.setObject(Object3D.loadFromFile("cone.obj"));
+			object = 2;
+			break;
+		case KeyEvent.VK_5:
+			screen.setObject(Object3D.loadFromFile("icosphere.obj"));
+			object = 2;
+			break;
+		case KeyEvent.VK_6:
+			screen.setObject(Object3D.loadFromFile("cylinder.obj"));
+			object = 2;
+			break;
 		case KeyEvent.VK_CONTROL:
 			screen.getRender().renderingCenter = true;
+			break;
+		case KeyEvent.VK_UP:
+			System.out.println("GORE");
+			screen.getRender().setyOffset(screen.getRender().getyOffset()+0.1);
+			break;
+		case KeyEvent.VK_DOWN:
+			System.out.println("DOLE");
+			screen.getRender().setyOffset(screen.getRender().getyOffset()-0.1);
+			break;
+		case KeyEvent.VK_LEFT:
+			System.out.println("LEVO");
+			screen.getRender().setxOffset(screen.getRender().getxOffset()-0.1);
+			break;
+		case KeyEvent.VK_RIGHT:
+			System.out.println("DESNO");
+			screen.getRender().setxOffset(screen.getRender().getxOffset()+0.1);
 			break;
 		default:
 			break;

@@ -39,27 +39,24 @@ public class GeometryObject {
 			return null;
 		}
 		
-		double maxX=v.get(0).x,maxY=v.get(0).y,maxZ=v.get(0).z;
-		double minX=v.get(0).x,minY=v.get(0).y,minZ=v.get(0).z;
+		double xsum = 0;
+		double ysum = 0;
+		double zsum = 0;
 		
 		for(Vertex vertex : this.v) {
-			if(vertex.x > maxX)
-				maxX = vertex.x;
-			if(vertex.y > maxY)
-				maxY = vertex.y;
-			if(vertex.z > maxZ)
-				maxZ = vertex.z;
-			if(vertex.x < minX)
-				minX = vertex.x;
-			if(vertex.y < minY)
-				minY = vertex.y;
-			if(vertex.z < minZ)
-				minZ = vertex.z;
+			xsum += vertex.x;
+			ysum += vertex.y;
+			zsum += vertex.z;
 		}
 		
-		temp = new Vertex("center",minX+(maxX-minX)/2, minY+(maxY-minY)/2, minZ+(maxZ-minZ)/2);
+		temp = new Vertex("center",xsum/v.size(), ysum/v.size(), zsum/v.size());
 		
 		return temp;
+	}
+	
+	protected void addVertex(int idx,String[] values) {
+		this.v.add(new Vertex("V"+idx,Double.parseDouble(values[1]),Double.parseDouble(values[2]),Double.parseDouble(values[3])+7.0));
+		this.center = getCenterCords();
 	}
 	
 	public List<Vertex> getVerticies(){

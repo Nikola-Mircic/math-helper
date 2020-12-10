@@ -56,4 +56,8 @@ public class Triangle extends GeometryObject{
 		
 		return temp;
 	}
+	
+	public Edge getNormalEdge() {
+		return new Edge(this.v.get(0), this.getCrossProduct());
+	}
 }

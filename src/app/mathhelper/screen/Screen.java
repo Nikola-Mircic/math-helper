@@ -24,7 +24,8 @@ public class Screen extends JPanel {
 		this.HEIGHT = height;
 		
 		this.render = new Render(width, height);
-		object = new Tetrahedron(0, 0, 0);
+
+		object = new Cube(0, 0, 0);
 		
 		this.il = new InputListener(this);
 		
