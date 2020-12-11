@@ -7,31 +7,44 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.List;
 
-import app.mathhelper.screen.Render;
 import app.mathhelper.screen.Screen;
+import app.mathhelper.screen.render.Camera3D;
 import app.mathhelper.shape.Object3D;
-import app.mathhelper.shape.Vertex;
 import app.mathhelper.shape.preset.Cube;
 import app.mathhelper.shape.preset.Tetrahedron;
 
 public class InputListener implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 	private Screen screen;
-	private Render render;
 	
 	private int lastX,lastY;
 	
-	private int object = 1;
+	private int objectIdx = 1;
+	
+	private List<Object3D> objects;
 	
 	private static boolean disabledRotation[] = {false,false,false};
 	
 	public InputListener(Screen screen) {
 		this.screen = screen;
-		this.render = screen.getRender();
 		
 		this.lastX = -1;
 		this.lastY = -1;
+		
+		makeNewObjects();
+	}
+	
+	private void makeNewObjects() {
+		this.objects = new ArrayList<>();
+		objects.add(new Cube(0, 0, 0));
+		objects.add(new Tetrahedron(0, 0, 0));
+		objects.add(Object3D.loadFromFile("utah.obj"));
+		objects.add(Object3D.loadFromFile("cone.obj"));
+		objects.add(Object3D.loadFromFile("icosphere.obj"));
+		objects.add(Object3D.loadFromFile("cylinder.obj"));
+		objects.add(Object3D.loadFromFile("ball.obj"));
 	}
 	
 	@Override
@@ -50,10 +63,12 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 			
 			if(!disabledRotation[1]) {
 				screen.getObject().rotateHorizontal(rotationX/4);
+				screen.getRender().getCamera().drawContext();
 			}
 				
 			if(!disabledRotation[2]) {
 				screen.getObject().rotateVertical(rotationY/4);
+				screen.getRender().getCamera().drawContext();
 			}
 			
 			lastX = e.getX();
@@ -90,15 +105,7 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 		int x = e.getX();
 		int y = e.getY();
 		
-		for(Entry<String, Vertex> entry : render.onScreenVertex.entrySet()) {
-			if(entry.getValue().x-3<=x && entry.getValue().x+3>=x &&
-				entry.getValue().y-3<=y && entry.getValue().y+3>=y) {
-				render.setClickedVertex(new Vertex(entry.getKey(), entry.getValue().x, entry.getValue().y, entry.getValue().z));
-				return;
-			}
-		}
-		
-		render.setClickedVertex(null);
+		screen.mousePressed(x, y);
 	}
 
 	@Override
@@ -109,32 +116,33 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 	
 	
 	@Override
-	public void mouseWheelMoved(MouseWheelEvent arg0) {
-		// TODO Auto-generated method stub
-
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		screen.getRender().getCamera().moveZ(e.getWheelRotation()/10.0);
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
+		Camera3D camera = screen.getRender().getCamera();
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_R:
-			if(object == 1) {
-				screen.setObject(new Cube(0, 0, 0));
-			}else {
-				screen.setObject(new Tetrahedron(0, 0, 0));
+			if(e.isControlDown() && e.isShiftDown()) {
+				makeNewObjects();
+				screen.getRender().setCamera(new Camera3D(screen.getRender().WIDTH, screen.getRender().HEIGHT, objects.get(objectIdx-1)));
+				screen.setObject(objects.get(objectIdx-1));
 			}
 			break;
 		case KeyEvent.VK_T:
-			screen.getRender().renderMode++;
-			screen.getRender().renderMode%=3;
+			camera.renderMode++;
+			camera.renderMode%=3;
+			camera.drawContext();
 			break;
 		case KeyEvent.VK_1:
 			if(e.isShiftDown()) {
 				disabledRotation[1] = !disabledRotation[1];
 				disabledRotation[2] = false;
 			}else {
-				screen.setObject(new Cube(0, 0, 0));
-				object = 1;
+				objectIdx = 1;
+				screen.setObject(objects.get(objectIdx-1));
 			}
 			break;
 		case KeyEvent.VK_2:
@@ -142,44 +150,44 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 				disabledRotation[2] = !disabledRotation[2];
 				disabledRotation[1] = false;
 			}else {
-				screen.setObject(new Tetrahedron(0, 0, 0));
-				object = 2;
+				objectIdx = 2;
+				screen.setObject(objects.get(objectIdx-1));
 			}
 			break;
 		case KeyEvent.VK_3:
-			screen.setObject(Object3D.loadFromFile("utah.obj"));
-			object = 2;
+			objectIdx = 3;
+			screen.setObject(objects.get(objectIdx-1));
 			break;
 		case KeyEvent.VK_4:
-			screen.setObject(Object3D.loadFromFile("cone.obj"));
-			object = 2;
+			objectIdx = 4;
+			screen.setObject(objects.get(objectIdx-1));
 			break;
 		case KeyEvent.VK_5:
-			screen.setObject(Object3D.loadFromFile("icosphere.obj"));
-			object = 2;
+			objectIdx = 5;
+			screen.setObject(objects.get(objectIdx-1));
 			break;
 		case KeyEvent.VK_6:
-			screen.setObject(Object3D.loadFromFile("cylinder.obj"));
-			object = 2;
+			objectIdx = 6;
+			screen.setObject(objects.get(objectIdx-1));
+			break;
+		case KeyEvent.VK_7:
+			objectIdx = 7;
+			screen.setObject(objects.get(objectIdx-1));
 			break;
 		case KeyEvent.VK_CONTROL:
-			screen.getRender().renderingCenter = true;
+			camera.renderingCenter = true;
 			break;
 		case KeyEvent.VK_UP:
-			System.out.println("GORE");
-			screen.getRender().setyOffset(screen.getRender().getyOffset()+0.1);
+			camera.moveY(0.1);
 			break;
 		case KeyEvent.VK_DOWN:
-			System.out.println("DOLE");
-			screen.getRender().setyOffset(screen.getRender().getyOffset()-0.1);
+			camera.moveY(-0.1);
 			break;
 		case KeyEvent.VK_LEFT:
-			System.out.println("LEVO");
-			screen.getRender().setxOffset(screen.getRender().getxOffset()-0.1);
+			camera.moveX(-0.1);
 			break;
 		case KeyEvent.VK_RIGHT:
-			System.out.println("DESNO");
-			screen.getRender().setxOffset(screen.getRender().getxOffset()+0.1);
+			camera.moveX(0.1);
 			break;
 		default:
 			break;
@@ -190,7 +198,7 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 	public void keyReleased(KeyEvent e) {
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_CONTROL:
-			screen.getRender().renderingCenter = false;
+			screen.getRender().getCamera().renderingCenter = false;
 			break;
 
 		default:

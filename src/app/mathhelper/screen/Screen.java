@@ -5,8 +5,8 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 import app.mathhelper.input.InputListener;
+import app.mathhelper.screen.render.Render;
 import app.mathhelper.shape.*;
-import app.mathhelper.shape.preset.*;
 
 public class Screen extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -15,7 +15,6 @@ public class Screen extends JPanel {
 	private int WIDTH,HEIGHT;
 	
 	private Render render;
-	private Object3D object;
 	
 	private InputListener il;
 	
@@ -24,19 +23,18 @@ public class Screen extends JPanel {
 		this.HEIGHT = height;
 		
 		this.render = new Render(width, height);
-
-		object = new Cube(0, 0, 0);
 		
 		this.il = new InputListener(this);
 		
 		this.add(render);
 		this.addMouseListener(il);
 		this.addMouseMotionListener(il);
+		this.addMouseWheelListener(il);
 	}
 	
 	@Override
 	public void paint(Graphics g) {
-		render.renderObject(object);
+		render.renderCameras();
 		g.drawImage(render.getImg(), 0, 0, null);
 	}
 	
@@ -46,11 +44,8 @@ public class Screen extends JPanel {
 		
 		this.remove(render);
 		this.render = new Render(width, height);
-		this.il = new InputListener(this);
 		
 		this.add(render);
-		this.addMouseListener(il);
-		this.addMouseMotionListener(il);
 	}
 
 	public Render getRender() {
@@ -61,10 +56,6 @@ public class Screen extends JPanel {
 		this.render = render;
 	}
 	
-	public void resetShape() {
-		this.object = new Object3D();
-	}
-
 	public InputListener getInputListener() {
 		return il;
 	}
@@ -74,10 +65,14 @@ public class Screen extends JPanel {
 	}
 	
 	public Object3D getObject() {
-		return this.object;
+		return render.getCamera().object;
 	}
 	
 	public void setObject(Object3D object) {
-		this.object = object;
+		render.setObject(object);
+	}
+
+	public void mousePressed(int x, int y) {
+		render.mousePressed(x, y);
 	}
 }

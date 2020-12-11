@@ -174,7 +174,7 @@ public class Object3D extends GeometryObject{
 	}
 	
 	private void addTriangle(Triangle t) {
-		double diff = 5*Math.pow(10, -10);
+		double diff = 5*Math.pow(10, -11);
 		Vertex test = t.getCrossProduct();
 		Vertex temp;
 		for(Shape side : this.s) {

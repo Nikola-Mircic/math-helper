@@ -1,94 +1,114 @@
-package app.mathhelper.screen;
+package app.mathhelper.screen.render;
 
-import java.awt.*;
-import java.awt.image.*;
-import java.util.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Stroke;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.util.ArrayList;
 import java.util.List;
 
-import app.mathhelper.shape.*;
+import app.mathhelper.shape.Edge;
+import app.mathhelper.shape.GeometryObject;
+import app.mathhelper.shape.Object3D;
 import app.mathhelper.shape.Shape;
+import app.mathhelper.shape.Triangle;
+import app.mathhelper.shape.Vertex;
 
-public class Render extends Canvas{
-	private static final long serialVersionUID = 1L;
+public class Camera3D{
+	public static int id = 0;
+	public int currentId;
 	
-	private int WIDTH,HEIGHT;
+	private int width;
+	private int height;
+	public BufferedImage context;
 	
-	private BufferedImage img;
+	public Vertex postition;
 	
+	public Object3D object;
 	private Vertex clickedVertex;
 	
-	private double rotationX = 0;
-	private double rotationY = 0;
-	
-	private double xOffset,yOffset,zOffset;
-	
-	public int renderMode = 0;
-	
 	public boolean renderingCenter;
+	public int renderMode;
 	
-	public Map<String,Vertex> onScreenVertex;
-	
-	public Render(int w,int h) {
-		this.WIDTH = w;
-		this.HEIGHT = h;
-		this.img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
-		
-		this.onScreenVertex = new HashMap<String, Vertex>();
-		this.clickedVertex = null;
-		
-		this.renderingCenter = false;
-		
-		this.xOffset = 0;
-		this.yOffset = 0;
-		this.zOffset = 0;
+	public Camera3D(int width,int height,Object3D object) {
+		this(width, height, 0, 0, 0,object);
 	}
 	
-	public void renderObject(Object3D object) {
-		BufferStrategy bs = null;
-		do {
-			createBufferStrategy(3);
-			bs = this.getBufferStrategy();
-		}while(bs==null);
+	public Camera3D(int width, int height, double x, double y, double z, Object3D object) {
+		Camera3D.id++;
+		this.currentId = id;
+		
+		this.width = width;
+		this.height = height;
+		this.context = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		
+		this.postition = new Vertex("camera"+id, x, y, z);
+		
+		this.object = object;
+		
+		renderingCenter = false;
+		renderMode = 0;
+		
+		drawContext();
+	}
+	
+	public void drawContext() {
+		if(this.object == null) {
+			return;
+		}
 		
 		List<Edge> filled = new ArrayList<>();
 		
-		Graphics gDraw = bs.getDrawGraphics();
-		Graphics g = img.getGraphics();
+		Graphics g = context.getGraphics();
 		
 		g.setColor(new Color(70, 70, 70));
-		g.fillRect(0, 0, WIDTH, HEIGHT);
+		g.fillRect(0, 0, width, height);
+		
+		g.setColor(Color.BLACK);
+		g.drawRect(0, 0, width, height);
 		
 		if(renderingCenter)
 			renderObjectCenter(object, g);
 		
 		for(Shape s : object.getSides()) {
 			if(renderMode == 0) {
-				fill3DShape(s, bs, g);
+				fill3DShape(s, g);
 			}else if(renderMode == 1){
-				draw3DEdges(s, bs, g, filled);
+				draw3DEdges(s, g, filled);
 			}else {
-				fill3DShape(s, bs, g);
-				draw3DEdges(s, bs, g, filled);
+				fill3DShape(s, g);
+				draw3DEdges(s, g, filled);
 			}
 		}
 		
 		printObjectData(object, g);
 		
-		gDraw.drawImage(img, 0, 0, null);
-		
-		bs.show();
-		g.dispose();
+		g.setColor(Color.WHITE);
+		g.setFont(new Font("mono", Font.PLAIN, 15));
+		g.drawString("Camera id: "+id, 10, this.height-50);
 	}
-
-	public void fill3DShape(Shape s, BufferStrategy bs, Graphics g) {
+	
+	public BufferedImage getToDrawContex(int width, int height, int xOffset, int yOffset) {
+		BufferedImage temp = context.getSubimage(xOffset, yOffset, width, height);
+		return temp;
+	}
+	
+	public void fill3DShape(Shape s, Graphics g) {
 		Edge normal = s.getNormal();
 		Vertex v1 = normal.a;
 		Vertex v2 = normal.b;
 		
-		double dotProduct = Vertex.getDotProduct(v1, v2);
-		double cos = dotProduct/(v1.getLenght()*v2.getLenght());
+		double dotProduct = Vertex.getDotProduct(v1.add(postition), v2);
+		
+		double cos = dotProduct/(v1.add(postition).getLenght()*v2.getLenght());
 		if(dotProduct < 0) {
-			int c = (int)(180-cos*70);
+			int c = (int)(180-cos*65);
+			c=Math.min(255, c);
+			c=Math.max(0, c);
 			int color = (new Color(c, c, c)).getRGB();
 			for(Triangle t : s.triangles) {
 				makeTriangle(t.getVerticies().get(0), t.getVerticies().get(1), t.getVerticies().get(2), color);
@@ -96,12 +116,12 @@ public class Render extends Canvas{
 		}
 	}
 	
-	public void draw3DEdges(GeometryObject object, BufferStrategy bs, Graphics g, List<Edge> filled) {
+	public void draw3DEdges(GeometryObject object, Graphics g, List<Edge> filled) {
 		Edge normal = ((Shape) object).getNormal();
 		Vertex v1 = normal.a;
 		Vertex v2 = normal.b;
 		
-		double dotProduct = Vertex.getDotProduct(v1, v2);
+		double dotProduct = Vertex.getDotProduct(v1.add(postition), v2);
 		
 		if((dotProduct < 0) || renderMode==1) {
 			
@@ -159,14 +179,14 @@ public class Render extends Canvas{
 		double zNear = 0.1;
 		double angle = Math.PI/2;
 		double fov = 1/Math.tan(angle/2);
-		double a = HEIGHT/(double)WIDTH;
+		double a = height/(double)width;
 		
 		double zRatio = zFar/(zFar-zNear);
 		
-		temp.z = (v.z+this.zOffset-zNear)/zRatio;
+		temp.z = (v.z+this.postition.z-zNear)/zRatio;
 	
-		temp.x = a*fov*(v.x+this.xOffset)/temp.z*WIDTH+WIDTH/2;
-		temp.y = -fov*(v.y+this.yOffset)/temp.z*HEIGHT+HEIGHT/2;
+		temp.x = a*fov*(v.x+this.postition.x)/temp.z*width+width/2;
+		temp.y = -fov*(v.y+this.postition.y)/temp.z*height+height/2;
 		
 		return temp;
 	}
@@ -180,13 +200,13 @@ public class Render extends Canvas{
 		double zNear = 0.1;
 		double angle = Math.PI/2;
 		double fov = 1/Math.tan(angle/2);
-		double a = HEIGHT/(double)WIDTH;
+		double a = height/(double)width;
 		
 		double zRatio = zFar/(zFar-zNear);
 		
 		center.z = (object.getCenter().z-zNear)/zRatio;
-		center.x = a*fov*(object.getCenter().x)/center.z*WIDTH+WIDTH/2;
-		center.y = -fov*(object.getCenter().y)/center.z*HEIGHT+HEIGHT/2;
+		center.x = a*fov*(object.getCenter().x)/center.z*width+width/2;
+		center.y = -fov*(object.getCenter().y)/center.z*height+height/2;
 		
 		g.fillOval((int)center.x, (int)center.y, 5, 5);
 	}
@@ -205,12 +225,12 @@ public class Render extends Canvas{
 	}
 	
 	private void drawLine(int x1, int y1, int x2, int y2, int color) {
-		int[] pixels = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
-		int w = img.getWidth();
+		int[] pixels = ((DataBufferInt)context.getRaster().getDataBuffer()).getData();
+		int w = context.getWidth();
 		
 		if(x1==x2) {
 			for(int i=Math.min(y1, y2);i<=Math.max(y1, y2);++i) {
-				if(x1>0 && x1<img.getWidth() && i>0 && i<img.getHeight()) {
+				if(x1>0 && x1<width && i>0 && i<height) {
 					pixels[x1+i*w] = color;
 					pixels[x1+1+i*w] = color;
 				}
@@ -227,7 +247,7 @@ public class Render extends Canvas{
 					ye = ye-ys;
 				}
 				for(double y=ys;y<=ye;y+=1) {
-					if(x>0 && x<img.getWidth() && y>0 && y<img.getHeight()-1) {
+					if(x>0 && x<width && y>0 && y<height-1) {
 						pixels[x+((int) y)*w] = color;
 						pixels[x+1+((int) y)*w] = color;
 						pixels[x+((int)y+1)*w] = color;
@@ -246,7 +266,7 @@ public class Render extends Canvas{
 					ye = ye-ys;
 				}
 				for(double y=ys;y<=ye;y+=1) {
-					if(x>0 && x<img.getWidth() && y>0 && y<img.getHeight()-1) {
+					if(x>0 && x<width && y>0 && y<height-1) {
 						pixels[x+((int) y)*w] = color;
 						pixels[x+1+((int) y)*w] = color;
 						pixels[x+((int)y+1)*w] = color;
@@ -261,71 +281,30 @@ public class Render extends Canvas{
 		temp.add(convertTo2D(a));
 		temp.add(convertTo2D(b));
 		temp.add(convertTo2D(c));
-		Graphics2D g2d = img.createGraphics();
+		Graphics2D g2d = context.createGraphics();
 		int[] x = {(int)temp.get(0).x,(int)temp.get(1).x,(int)temp.get(2).x};
 		int[] y = {(int)temp.get(0).y,(int)temp.get(1).y,(int)temp.get(2).y};
 		g2d.setColor(new Color(color));
 		g2d.fillPolygon(x, y, 3);
 	}
 	
-	public void findSelectedVertex(int x,int y) {
-		//for(int i=0;)
+	public void setObject(Object3D object) {
+		this.object = object;
+		drawContext();
 	}
 	
-	public BufferedImage getImg() {
-		return img;
-	}
-
-	public void setImg(BufferedImage img) {
-		this.img = img;
-	}
-
-	public double getRotationX() {
-		return rotationX;
-	}
-
-	public void setRotationX(double rotationX) {
-		this.rotationX = rotationX;
-	}
-
-	public double getRotationY() {
-		return rotationY;
-	}
-
-	public void setRotationY(double rotationY) {
-		this.rotationY = rotationY;
-	}
-
-	public double getxOffset() {
-		return xOffset;
-	}
-
-	public void setxOffset(double xOffset) {
-		this.xOffset = xOffset;
-	}
-
-	public double getyOffset() {
-		return yOffset;
-	}
-
-	public void setyOffset(double yOffset) {
-		this.yOffset = yOffset;
-	}
-
-	public double getzOffset() {
-		return zOffset;
-	}
-
-	public void setzOffset(double zOffset) {
-		this.zOffset = zOffset;
-	}
-
-	public Vertex getClickedVertex() {
-		return clickedVertex;
-	}
-
-	public void setClickedVertex(Vertex clickedVertex) {
-		this.clickedVertex = clickedVertex;
+	public void moveX(double d) {
+		this.postition.x+=d;
+		drawContext();
 	}
 	
+	public void moveY(double d) {
+		this.postition.y+=d;
+		drawContext();
+	}
+	
+	public void moveZ(double d) {
+		this.postition.z+=d;
+		drawContext();
+	}
 }
