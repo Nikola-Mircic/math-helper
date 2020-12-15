@@ -4,7 +4,7 @@ import java.awt.*;
 import java.awt.image.*;
 
 import app.mathhelper.shape.*;
-import app.mathhelper.shape.preset.Cube;
+import app.mathhelper.shape.preset.*;
 
 import java.util.*;
 import java.util.List;
@@ -28,7 +28,7 @@ public class Render extends Canvas{
 		
 		this.cameras = new ArrayList<>();
 		this.activeCamera = 0;
-		this.cameraCount = 2;
+		this.cameraCount = 1;
 		for(int i=0;i<cameraCount;++i) {
 			cameras.add(new Camera3D(this.WIDTH/cameraCount, this.HEIGHT, new Cube(0, 0, 0)));
 		}
