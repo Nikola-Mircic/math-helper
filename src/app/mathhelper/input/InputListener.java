@@ -7,44 +7,26 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.util.ArrayList;
-import java.util.List;
-
 import app.mathhelper.screen.Screen;
 import app.mathhelper.screen.render.Camera3D;
-import app.mathhelper.shape.Object3D;
-import app.mathhelper.shape.preset.Cube;
-import app.mathhelper.shape.preset.Tetrahedron;
+import app.mathhelper.shape.preset.Preset;
 
 public class InputListener implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 	private Screen screen;
 	
 	private int lastX,lastY;
 	
-	private int objectIdx = 1;
-	
-	private List<Object3D> objects;
+	private Preset object;
 	
 	private static boolean disabledRotation[] = {false,false,false};
 	
 	public InputListener(Screen screen) {
 		this.screen = screen;
 		
+		this.object = Preset.CUBE;
+		
 		this.lastX = -1;
 		this.lastY = -1;
-		
-		makeNewObjects();
-	}
-	
-	private void makeNewObjects() {
-		this.objects = new ArrayList<>();
-		objects.add(new Cube(0, 0, 0));
-		objects.add(new Tetrahedron(0, 0, 0));
-		objects.add(Object3D.loadFromFile("utah.obj"));
-		objects.add(Object3D.loadFromFile("cone.obj"));
-		objects.add(Object3D.loadFromFile("icosphere.obj"));
-		objects.add(Object3D.loadFromFile("cylinder.obj"));
-		objects.add(Object3D.loadFromFile("ball.obj"));
 	}
 	
 	@Override
@@ -126,9 +108,12 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_R:
 			if(e.isControlDown() && e.isShiftDown()) {
-				makeNewObjects();
-				screen.getRender().setCamera(new Camera3D(screen.getRender().WIDTH, screen.getRender().HEIGHT, objects.get(objectIdx-1)));
-				screen.setObject(objects.get(objectIdx-1));
+				object.recreateObject();
+				int mode = screen.getRender().getCamera().renderMode;
+				Camera3D newCamera = new Camera3D(screen.getRender().WIDTH/screen.getRender().cameraCount, screen.getRender().HEIGHT, object.model);
+				newCamera.renderMode = mode;
+				newCamera.drawContext();
+				screen.getRender().setCamera(newCamera);
 			}
 			break;
 		case KeyEvent.VK_T:
@@ -141,8 +126,8 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 				disabledRotation[1] = !disabledRotation[1];
 				disabledRotation[2] = false;
 			}else {
-				objectIdx = 1;
-				screen.setObject(objects.get(objectIdx-1));
+				object = Preset.CUBE;
+				screen.setObject(object.model);
 			}
 			break;
 		case KeyEvent.VK_2:
@@ -150,29 +135,29 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 				disabledRotation[2] = !disabledRotation[2];
 				disabledRotation[1] = false;
 			}else {
-				objectIdx = 2;
-				screen.setObject(objects.get(objectIdx-1));
+				object = Preset.TETRAHEDRON;
+				screen.setObject(object.model);
 			}
 			break;
 		case KeyEvent.VK_3:
-			objectIdx = 3;
-			screen.setObject(objects.get(objectIdx-1));
+			object = Preset.TEAPOT;
+			screen.setObject(object.model);
 			break;
 		case KeyEvent.VK_4:
-			objectIdx = 4;
-			screen.setObject(objects.get(objectIdx-1));
+			object = Preset.CONE;
+			screen.setObject(object.model);
 			break;
 		case KeyEvent.VK_5:
-			objectIdx = 5;
-			screen.setObject(objects.get(objectIdx-1));
+			object = Preset.ICOSPHERE;
+			screen.setObject(object.model);
 			break;
 		case KeyEvent.VK_6:
-			objectIdx = 6;
-			screen.setObject(objects.get(objectIdx-1));
+			object = Preset.CYLINDER;
+			screen.setObject(object.model);
 			break;
 		case KeyEvent.VK_7:
-			objectIdx = 7;
-			screen.setObject(objects.get(objectIdx-1));
+			object = Preset.BALL;
+			screen.setObject(object.model);
 			break;
 		case KeyEvent.VK_CONTROL:
 			camera.renderingCenter = true;

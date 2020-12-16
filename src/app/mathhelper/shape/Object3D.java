@@ -170,6 +170,8 @@ public class Object3D extends GeometryObject{
 			e.printStackTrace();
 		}
 		
+		temp.loadEdgesfromSides();
+		
 		return temp;
 	}
 	
@@ -187,12 +189,30 @@ public class Object3D extends GeometryObject{
 		this.s.add(new Shape(new Triangle[] {t}));
 	}
 	
+	private void loadEdgesfromSides() {
+		for(Shape s : this.s) {
+			addEdgeFromShape(s);
+		}
+	}
+	
+	private void addEdgeFromShape(Shape s) {	
+		A:for(Edge temp : s.e) {
+			for(Edge edge : this.e) {
+				if(edge.equals(temp)) {
+					continue A;
+				}
+			}
+			this.e.add(temp);
+		}
+	}
+	
 	@Override
 	protected void calculateArea(){
 		this.area = 0;
 		for(Shape s : this.s) {
 			area += s.getArea();
 		}
+		area/=2;
 	}
 	
 	@Override
@@ -202,6 +222,8 @@ public class Object3D extends GeometryObject{
 		for(Edge edge : this.e) {
 			scope += edge.weight;
 		}
+		
+		scope/=2;
 	}
 	
 	public List<Vertex> getVerticies(){

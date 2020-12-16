@@ -16,7 +16,7 @@ public class Render extends Canvas{
 	
 	private List<Camera3D> cameras;
 	private int activeCamera;
-	private int cameraCount;
+	public int cameraCount;
 	
 	private BufferedImage img;
 	
@@ -28,9 +28,9 @@ public class Render extends Canvas{
 		
 		this.cameras = new ArrayList<>();
 		this.activeCamera = 0;
-		this.cameraCount = 1;
+		this.cameraCount = 2;
 		for(int i=0;i<cameraCount;++i) {
-			cameras.add(new Camera3D(this.WIDTH/cameraCount, this.HEIGHT, new Cube(0, 0, 0)));
+			cameras.add(new Camera3D(this.WIDTH/cameraCount, this.HEIGHT, Preset.CUBE.model));
 		}
 	}
 	

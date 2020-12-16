@@ -28,6 +28,7 @@ public class Camera3D{
 	private double[][] zBuffer;
 	
 	public Vertex postition;
+	public Vertex light;
 	
 	public Object3D object;
 	private Vertex clickedVertex;
@@ -49,6 +50,7 @@ public class Camera3D{
 		this.zBuffer = new double[width][height];
 		
 		this.postition = new Vertex("camera"+id, x, y, z);
+		this.light = new Vertex("light"+id,2,1.5,2);
 		
 		this.object = object;
 		
@@ -111,8 +113,9 @@ public class Camera3D{
 		
 		double dotProduct = Vertex.getDotProduct(v1.add(postition), v2);
 		
-		double cos = dotProduct/(v1.add(postition).getLenght()*v2.getLenght());
 		if(dotProduct < 0) {
+			double dotProduct2 = Vertex.getDotProduct(v1.add(light.getOpositeVector()), v2);
+			double cos = dotProduct2/(v1.add(light.getOpositeVector()).getLenght()*v2.getLenght());
 			int c = (int)(150-cos*95);
 			c=Math.min(255, c);
 			c=Math.max(0, c);
