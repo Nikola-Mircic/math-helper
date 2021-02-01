@@ -1,26 +1,45 @@
 package app.mathhelper.shape.preset;
 
+import java.util.ArrayList;
+
 import app.mathhelper.shape.Edge;
 import app.mathhelper.shape.Object3D;
 import app.mathhelper.shape.Shape;
 import app.mathhelper.shape.Vertex;
 
 public class Cube extends Object3D {
-
+	
+	private double edgeLenght;
+	
 	public Cube(int x, int y, int z) {
 		super(x, y, z);
+		this.edgeLenght = 0.5;
+	}
+	
+	public Cube(int x, int y, int z, double edgeLenght) {
+		super();
+		
+		this.s = new ArrayList<>();
+		//this.volume = -1;
+		
+		this.edgeLenght = edgeLenght;
+		this.createVerticies(x, y, z+5);
+		this.createEdges();
+		this.createSides();
+		
+		this.center = getCenterCords();
 	}
 	
 	@Override
 	protected void createVerticies(int x, int y, int z) {
-		v.add( new Vertex("A", x-0.5, y-0.5, z-0.5));
-		v.add( new Vertex("B", x+0.5, y-0.5, z-0.5));
-		v.add( new Vertex("C", x+0.5, y-0.5, z+0.5));
-		v.add( new Vertex("D", x-0.5, y-0.5, z+0.5));
-		v.add( new Vertex("A'", x-0.5, y+0.5, z-0.5));
-		v.add( new Vertex("B'", x+0.5, y+0.5, z-0.5));
-		v.add( new Vertex("C'", x+0.5, y+0.5, z+0.5));
-		v.add( new Vertex("D'", x-0.5, y+0.5, z+0.5));
+		v.add( new Vertex("A", x-edgeLenght, y-edgeLenght, z-edgeLenght));
+		v.add( new Vertex("B", x+edgeLenght, y-edgeLenght, z-edgeLenght));
+		v.add( new Vertex("C", x+edgeLenght, y-edgeLenght, z+edgeLenght));
+		v.add( new Vertex("D", x-edgeLenght, y-edgeLenght, z+edgeLenght));
+		v.add( new Vertex("A'", x-edgeLenght, y+edgeLenght, z-edgeLenght));
+		v.add( new Vertex("B'", x+edgeLenght, y+edgeLenght, z-edgeLenght));
+		v.add( new Vertex("C'", x+edgeLenght, y+edgeLenght, z+edgeLenght));
+		v.add( new Vertex("D'", x-edgeLenght, y+edgeLenght, z+edgeLenght));
 	}
 	
 	@Override

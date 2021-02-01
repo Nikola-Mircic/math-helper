@@ -22,14 +22,12 @@ public class GeometryObject {
 	protected void calculateScope() {}
 	
 	public double getArea() {
-		if(this.area==-1)
-			calculateArea();
+		calculateArea();
 		return this.area;
 	}
 	
 	public double getScope() {
-		if(this.scope==-1)
-			calculateScope();
+		calculateScope();
 		return this.scope;
 	}
 	

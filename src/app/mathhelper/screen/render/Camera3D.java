@@ -30,11 +30,16 @@ public class Camera3D{
 	public Vertex postition;
 	public Vertex light;
 	
-	public Object3D object;
+	private int object;
+	private List<Object3D> objectSet;
 	private Vertex clickedVertex;
 	
 	public boolean renderingCenter;
 	public int renderMode;
+	
+	public boolean LIGHT_EFFECT = false;
+	private double lightSpeed = 0.05;
+	private double angle = 0;
 	
 	public Camera3D(int width,int height,Object3D object) {
 		this(width, height, 0, 0, 0,object);
@@ -52,7 +57,9 @@ public class Camera3D{
 		this.postition = new Vertex("camera"+id, x, y, z);
 		this.light = new Vertex("light"+id,2,1.5,2);
 		
-		this.object = object;
+		this.objectSet = new ArrayList<>();
+		objectSet.add(object);
+		this.object = 0;
 		
 		renderingCenter = false;
 		renderMode = 0;
@@ -61,7 +68,7 @@ public class Camera3D{
 	}
 	
 	public void drawContext() {
-		if(this.object == null) {
+		if(this.objectSet.isEmpty()) {
 			return;
 		}
 		
@@ -80,21 +87,28 @@ public class Camera3D{
 		g.setColor(Color.BLACK);
 		g.drawRect(0, 0, width, height);
 		
-		if(renderingCenter)
-			renderObjectCenter(object, g);
+		if(LIGHT_EFFECT) {
+			angle+=lightSpeed;
+			this.light = new Vertex("light"+id, 5*Math.cos(angle), this.postition.y, 5+5*Math.sin(angle));
+		}
 		
-		for(Shape s : object.getSides()) {
-			if(renderMode == 0) {
-				fill3DShape(s, g);
-			}else if(renderMode == 1){
-				draw3DEdges(s, g, filled);
-			}else {
-				fill3DShape(s, g);
-				draw3DEdges(s, g, filled);
+		if(renderingCenter)
+			renderObjectCenter(objectSet.get(object), g);
+		
+		for(Object3D object3d : objectSet) {
+			for(Shape s : object3d.getSides()) {
+				if(renderMode == 0) {
+					fill3DShape(s, g);
+				}else if(renderMode == 1){
+					draw3DEdges(s, g, filled);
+				}else {
+					fill3DShape(s, g);
+					draw3DEdges(s, g, filled);
+				}
 			}
 		}
 		
-		printObjectData(object, g);
+		printObjectData(objectSet.get(object), g);
 		
 		g.setColor(Color.WHITE);
 		g.setFont(new Font("mono", Font.PLAIN, 15));
@@ -102,6 +116,7 @@ public class Camera3D{
 	}
 	
 	public BufferedImage getToDrawContex(int width, int height, int xOffset, int yOffset) {
+		this.drawContext();
 		BufferedImage temp = context.getSubimage(xOffset, yOffset, width, height);
 		return temp;
 	}
@@ -116,7 +131,7 @@ public class Camera3D{
 		if(dotProduct < 0) {
 			double dotProduct2 = Vertex.getDotProduct(v1.add(light.getOpositeVector()), v2);
 			double cos = dotProduct2/(v1.add(light.getOpositeVector()).getLenght()*v2.getLenght());
-			int c = (int)(150-cos*95);
+			int c = (int)(130-cos*90);
 			c=Math.min(255, c);
 			c=Math.max(0, c);
 			int color = (new Color(c, c, c)).getRGB();
@@ -198,7 +213,7 @@ public class Camera3D{
 		temp.x = a*fov*(v.x+this.postition.x)/temp.z*width+width/2;
 		temp.y = -fov*(v.y+this.postition.y)/temp.z*height+height/2;
 		
-		temp.z = v.z;
+		//temp.z = v.z;
 		
 		return temp;
 	}
@@ -216,9 +231,9 @@ public class Camera3D{
 		
 		double zRatio = zFar/(zFar-zNear);
 		
-		center.z = (object.getCenter().z-zNear)/zRatio;
-		center.x = a*fov*(object.getCenter().x)/center.z*width+width/2;
-		center.y = -fov*(object.getCenter().y)/center.z*height+height/2;
+		center.z = (object.getCenter().z+postition.z-zNear)/zRatio;
+		center.x = a*fov*(object.getCenter().x+postition.x)/center.z*width+width/2;
+		center.y = -fov*(object.getCenter().y+postition.y)/center.z*height+height/2;
 		
 		g.fillOval((int)center.x, (int)center.y, 5, 5);
 	}
@@ -240,25 +255,33 @@ public class Camera3D{
 		Vertex a = new Vertex("a", (double)x1, (double)y1, z1);
 		Vertex b = new Vertex("b", (double)x2, (double)y2, z2);
 		double zValue;
+		double zStep;
 		if(x1==x2) {
-			a = new Vertex("a", (double)y1, (double)x1, z1);
-			b = new Vertex("b", (double)y2, (double)x2, z2);
-			for(int y=Math.min(y1, y2);y<=Math.max(y1, y2);++y) {
-				zValue = calculateZ(a, b, y);
-				if(x1>0 && x1<width && y>0 && y<height) {
-					if(zBuffer[x1][y]>zValue || zBuffer[x1][y]==0) {
-						context.setRGB(x1, y, color);
-						zBuffer[x1][y] = zValue;
-					}
-					if(zBuffer[x1+1][y]>zValue || zBuffer[x1+1][y]==0) {
-						context.setRGB(x1+1, y, color);
-						zBuffer[x1+1][y] = zValue;
-					}
+			a = new Vertex("a", x1, y1, z1);
+			b = new Vertex("b", x2, y2, z2);
+			if(a.y>b.y) {
+				Vertex temp = a;
+				a = b;
+				b = temp;
+			}
+			zValue = a.z;
+			zStep = (b.z-a.z)/(b.y-a.y);
+			for(int y=(int)a.y;y<=b.y;++y) {
+				if(zBuffer[x1][y]>zValue || zBuffer[x1][y]==0) {
+					context.setRGB(x1, y, color);
+					zBuffer[x1][y]=zValue;
 				}
+				if(zBuffer[x1+1][y]>zValue || zBuffer[x1+1][y]==0) {
+					context.setRGB(x1+1, y, color);
+					zBuffer[x1+1][y]=zValue;
+				}
+				zValue+=zStep;
 			}
 		}else if(x1<x2) {
 			double k = (y2-y1)/(double)(x2-x1);
 			double n = y1-k*x1;
+			zValue = z1;
+			zStep = (z2-z1)/(Math.max(x2-x1, Math.abs(y2-y1)));
 			for(int x=x1;x<x2;++x) {
 				double ys = x*k+n;
 				double ye = (x+1)*k+n;
@@ -269,25 +292,21 @@ public class Camera3D{
 				}
 				for(double y=ys;y<=ye;y+=1) {
 					if(x>0 && x<width-1 && y>0 && y<height-1) {
-						zValue = calculateZ(a, b, x);
-						if(zBuffer[x][(int)y]>zValue || zBuffer[x][(int)y]==0) {
+						if(zBuffer[x][(int)y]>zValue || zBuffer[x][(int)y]==0)
 							context.setRGB(x, (int)y, color);
-							zBuffer[x][(int)y] = zValue;
-						}
-						if(zBuffer[x+1][(int)y]>zValue || zBuffer[x+1][(int)y]==0) {
+						if(zBuffer[x+1][(int)y]>zValue || zBuffer[x+1][(int)y]==0)
 							context.setRGB(x+1, (int)y, color);
-							zBuffer[x+1][(int)y] = zValue;
-						}
-						if(zBuffer[x][(int)y+1]>zValue || zBuffer[x][(int)y+1]==0) {
+						if(zBuffer[x][(int)y+1]>zValue || zBuffer[x][(int)y+1]==0)
 							context.setRGB(x, (int)y+1, color);
-							zBuffer[x][(int)y+1] = zValue;
-						}
+						zValue+=zStep;
 					}
 				}
 			}
 		}else {
 			double k = (y1-y2)/(double)(x1-x2);
 			double n = y2-k*x2;
+			zValue = z2;
+			zStep = (z1-z2)/(Math.max(x1-x2, Math.abs(y1-y2)));
 			for(int x=x2;x<x1;++x) {
 				double ys = x*k+n;
 				double ye = (x+1)*k+n;
@@ -297,20 +316,16 @@ public class Camera3D{
 					ye = ye-ys;
 				}
 				for(double y=ys;y<=ye;y+=1) {
-					if(x>0 && x<width && y>0 && y<height-1) {
-						zValue = calculateZ(a, b, x);
-						if(zBuffer[x][(int)y]>zValue || zBuffer[x][(int)y]==0) {
+					if(x>0 && x<width-1 && y>0 && y<height-1) {
+						if(zBuffer[x][(int)y]>zValue || zBuffer[x][(int)y]==0)
 							context.setRGB(x, (int)y, color);
-							zBuffer[x][(int)y] = zValue;
-						}
-						if(zBuffer[x+1][(int)y]>zValue || zBuffer[x+1][(int)y]==0) {
+						if(zBuffer[x][(int)y]>zValue || zBuffer[x][(int)y]==0)
+							context.setRGB(x, (int)y, color);
+						if(zBuffer[x+1][(int)y]>zValue || zBuffer[x+1][(int)y]==0)
 							context.setRGB(x+1, (int)y, color);
-							zBuffer[x+1][(int)y] = zValue;
-						}
-						if(zBuffer[x][(int)y+1]>zValue || zBuffer[x][(int)y+1]==0) {
+						if(zBuffer[x][(int)y+1]>zValue || zBuffer[x][(int)y+1]==0)
 							context.setRGB(x, (int)y+1, color);
-							zBuffer[x][(int)y+1] = zValue;
-						}
+						zValue+=zStep;
 					}
 				}
 			}
@@ -347,7 +362,7 @@ public class Camera3D{
 		}
 		double scale = dy10/dy20;
 		double middleX = temp.get(0).x+(temp.get(2).x-temp.get(0).x)*scale;
-		double middleZ = temp.get(2).z-(temp.get(2).z-temp.get(0).z)*scale;
+		double middleZ = temp.get(0).z+(temp.get(2).z-temp.get(0).z)*scale;
 		Vertex middle = new Vertex("middle", middleX, temp.get(1).y, middleZ);
 		
 		fillBottomFlatTriangle(temp.get(0), temp.get(1), middle, color);
@@ -369,6 +384,9 @@ public class Camera3D{
 		double dzAB = (b.z-a.z)/dy;
 		double dzAC = (c.z-a.z)/dy;
 		
+		Vertex stepAC = new Vertex("step", dxAC, 0, dzAC);
+		Vertex stepAB = new Vertex("step", dxAB, 0, dzAB);
+		
 		double zValue;
 		for(int y=(int)a.y; y<(int)(a.y+dy); ++y) {
 			for(int x=(int)Math.min(ab.x, ac.x);x<Math.max(ab.x, ac.x);++x) {
@@ -378,21 +396,20 @@ public class Camera3D{
 						context.setRGB(x, y, color);
 						zBuffer[x][y] = zValue;
 					}
+					/*zValue = calculateZ(ac, ab, x+1);
 					if(zBuffer[x+1][y]>zValue || zBuffer[x+1][y]==0) {
 						context.setRGB(x+1, y, color);
 						zBuffer[x+1][y] = zValue;
-					}
+					}*/
+					zValue = calculateZ(ac.add(stepAC), ab.add(stepAB), x);
 					if(zBuffer[x][y+1]>zValue || zBuffer[x][y+1]==0) {
 						context.setRGB(x, y+1, color);
 						zBuffer[x][y+1] = zValue;
 					}
 				}
 			}
-			ab.x+=dxAB;
-			ac.x+=dxAC;
-			
-			ab.z+=dzAB;
-			ac.z+=dzAC;
+			ab = ab.add(stepAB);
+			ac = ac.add(stepAC);
 		}
 	}
 	
@@ -411,6 +428,9 @@ public class Camera3D{
 		double dzBC = (c.z-b.z)/dy;
 		double dzAC = (c.z-a.z)/dy;
 		
+		Vertex stepAC = new Vertex("step", dxAC, 0, dzAC);
+		Vertex stepBC = new Vertex("step", dxBC, 0, dzBC);
+		
 		double zValue;
 		for(int y=(int)a.y; y<(int)(a.y+dy);++y) {
 			for(int x=(int)Math.min(ac.x, bc.x);x<Math.max(ac.x, bc.x);++x) {
@@ -420,21 +440,20 @@ public class Camera3D{
 						context.setRGB(x, y, color);
 						zBuffer[x][y] = zValue;
 					}
+					/*zValue = calculateZ(ac, bc, x+1);
 					if(zBuffer[x+1][y]>zValue || zBuffer[x+1][y]==0) {
 						context.setRGB(x+1, y, color);
 						zBuffer[x+1][y] = zValue;
-					}
+					}*/
+					zValue = calculateZ(ac.add(stepAC), bc.add(stepBC), x);
 					if(zBuffer[x][y+1]>zValue || zBuffer[x][y+1]==0) {
 						context.setRGB(x, y+1, color);
 						zBuffer[x][y+1] = zValue;
 					}
 				}
 			}
-			ac.x+=dxAC;
-			bc.x+=dxBC;
-			
-			bc.z+=dzBC;
-			ac.z+=dzAC;
+			ac = ac.add(stepAC);
+			bc = bc.add(stepBC);
 		}
 	}
 	
@@ -451,11 +470,33 @@ public class Camera3D{
 		return temp1.z+(temp2.z-temp1.z)*scale;
 	}
 	
+	public Object3D getObject() {
+		return objectSet.get(object);
+	}
+
 	public void setObject(Object3D object) {
-		this.object = object;
+		int idx = objectSet.indexOf(object);
+		if(idx!=-1)
+			this.object = idx;
 		drawContext();
 	}
 	
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
 	public void moveX(double d) {
 		this.postition.x+=d;
 		drawContext();
@@ -469,5 +510,18 @@ public class Camera3D{
 	public void moveZ(double d) {
 		this.postition.z+=d;
 		drawContext();
+	}
+
+	public void switchLightEffect() {
+		this.LIGHT_EFFECT = !this.LIGHT_EFFECT;	
+	}
+
+	public void update(int width, int height) {
+		this.setWidth(width);
+		this.setHeight(height);
+		
+		this.context = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		this.zBuffer = new double[width][height];
+		this.drawContext();
 	}
 }

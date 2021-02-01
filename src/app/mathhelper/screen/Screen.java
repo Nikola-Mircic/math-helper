@@ -42,10 +42,7 @@ public class Screen extends JPanel {
 		this.WIDTH = width;
 		this.HEIGHT = height;
 		
-		this.remove(render);
-		this.render = new Render(width, height);
-		
-		this.add(render);
+		this.render.update(width, height);
 	}
 
 	public Render getRender() {
@@ -65,7 +62,7 @@ public class Screen extends JPanel {
 	}
 	
 	public Object3D getObject() {
-		return render.getCamera().object;
+		return render.getCamera().getObject();
 	}
 	
 	public void setObject(Object3D object) {

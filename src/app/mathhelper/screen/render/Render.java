@@ -28,7 +28,7 @@ public class Render extends Canvas{
 		
 		this.cameras = new ArrayList<>();
 		this.activeCamera = 0;
-		this.cameraCount = 2;
+		this.cameraCount = 1;
 		for(int i=0;i<cameraCount;++i) {
 			cameras.add(new Camera3D(this.WIDTH/cameraCount, this.HEIGHT, Preset.CUBE.model));
 		}
@@ -51,7 +51,17 @@ public class Render extends Canvas{
 			}
 		}
 	}
-
+	
+	public void update(int width, int height) {
+		this.WIDTH = width;
+		this.HEIGHT = height;
+		
+		this.img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		
+		for(Camera3D camera : cameras) {
+			camera.update(width, height);
+		}
+	}
 	
 	public BufferedImage getImg() {
 		return img;
@@ -75,6 +85,28 @@ public class Render extends Canvas{
 
 	public void mousePressed(int x, int y) {
 		this.activeCamera = x/(this.WIDTH/cameraCount);
+	}
+	
+	public void addCamera() {
+		if(cameraCount<5) {
+			for(int i=0;i<cameraCount;++i) {
+				cameras.set(i, new Camera3D(this.WIDTH/(cameraCount+1), this.HEIGHT, cameras.get(i).getObject()));
+			}
+			this.cameraCount++;
+			cameras.add(new Camera3D(this.WIDTH/cameraCount, this.HEIGHT, Preset.CUBE.model));
+			activeCamera = cameraCount-1;
+		}
+	}
+	
+	public void removeCamera() {
+		if(cameraCount>1) {
+			for(int i=0;i<cameraCount;++i) {
+				cameras.set(i, new Camera3D(this.WIDTH/(cameraCount-1), this.HEIGHT, cameras.get(i).getObject()));
+			}
+			this.cameraCount--;
+			cameras.remove(activeCamera);
+			activeCamera = cameraCount-1;
+		}
 	}
 	
 }

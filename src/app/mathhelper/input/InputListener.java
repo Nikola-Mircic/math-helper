@@ -7,6 +7,15 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageOutputStream;
+
 import app.mathhelper.screen.Screen;
 import app.mathhelper.screen.render.Camera3D;
 import app.mathhelper.shape.preset.Preset;
@@ -118,8 +127,11 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 			break;
 		case KeyEvent.VK_T:
 			camera.renderMode++;
-			camera.renderMode%=3;
+			camera.renderMode%=2;
 			camera.drawContext();
+			break;
+		case KeyEvent.VK_C:
+			screen.getRender().getCamera().switchLightEffect();
 			break;
 		case KeyEvent.VK_1:
 			if(e.isShiftDown()) {
@@ -174,6 +186,15 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 		case KeyEvent.VK_RIGHT:
 			camera.moveX(0.1);
 			break;
+		case KeyEvent.VK_F1:
+			screen.getRender().addCamera();
+			break;
+		case KeyEvent.VK_F2:
+			screen.getRender().removeCamera();
+			break;
+		case KeyEvent.VK_F3:
+			saveScreenshot();
+			break;
 		default:
 			break;
 		}
@@ -195,6 +216,20 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 	public void keyTyped(KeyEvent arg0) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	private void saveScreenshot() {
+		BufferedImage img = screen.getRender().getImg();
+		try {
+			File saved = new File("saved.jpg");
+			if(!saved.exists()){
+				saved.createNewFile();
+			}
+			ImageIO.write(img, "png", saved);
+		} catch (Exception e) {
+			System.out.println("Failed");
+			e.printStackTrace();
+		}
 	}
 
 }

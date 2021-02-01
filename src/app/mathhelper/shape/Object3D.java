@@ -171,12 +171,15 @@ public class Object3D extends GeometryObject{
 		}
 		
 		temp.loadEdgesfromSides();
+		temp.center = temp.getCenter();
+		temp.calculateArea();
+		temp.calculateScope();
 		
 		return temp;
 	}
 	
 	private void addTriangle(Triangle t) {
-		double diff = 5*Math.pow(10, -11);
+		double diff = 5*Math.pow(10, -13);
 		Vertex test = t.getCrossProduct();
 		Vertex temp;
 		for(Shape side : this.s) {
@@ -212,7 +215,6 @@ public class Object3D extends GeometryObject{
 		for(Shape s : this.s) {
 			area += s.getArea();
 		}
-		area/=2;
 	}
 	
 	@Override
@@ -222,8 +224,6 @@ public class Object3D extends GeometryObject{
 		for(Edge edge : this.e) {
 			scope += edge.weight;
 		}
-		
-		scope/=2;
 	}
 	
 	public List<Vertex> getVerticies(){
