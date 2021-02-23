@@ -9,7 +9,7 @@ import app.mathhelper.shape.preset.*;
 import java.util.*;
 import java.util.List;
 
-public class Render extends Canvas{
+public class CameraView extends Canvas{
 	private static final long serialVersionUID = 1L;
 	
 	public int WIDTH,HEIGHT;
@@ -20,7 +20,9 @@ public class Render extends Canvas{
 	
 	private BufferedImage img;
 	
-	public Render(int w,int h) {
+	public static boolean MULTIPLE_CAMERA_ENABLED = true;
+	
+	public CameraView(int w,int h) {
 		this.WIDTH = w;
 		this.HEIGHT = h;
 		
@@ -30,7 +32,7 @@ public class Render extends Canvas{
 		this.activeCamera = 0;
 		this.cameraCount = 1;
 		for(int i=0;i<cameraCount;++i) {
-			cameras.add(new Camera3D(this.WIDTH/cameraCount, this.HEIGHT, Preset.CUBE.model));
+			cameras.add(new Camera3D(this.WIDTH/cameraCount, this.HEIGHT, Preset.CUBE.getObject()));
 		}
 	}
 	
@@ -43,7 +45,7 @@ public class Render extends Canvas{
 		
 		Graphics g = img.getGraphics();
 		
-		for(int i=0;i<cameraCount;++i) {
+		for(int i=0;i<cameras.size();++i) {
 			g.drawImage(cameras.get(i).getToDrawContex(WIDTH/cameraCount, HEIGHT, 0, 0), i*WIDTH/cameraCount, 0, null);
 			if(i==activeCamera) {
 				g.setColor(Color.GREEN);
@@ -88,13 +90,14 @@ public class Render extends Canvas{
 	}
 	
 	public void addCamera() {
-		if(cameraCount<5) {
+		if(cameraCount<5 && MULTIPLE_CAMERA_ENABLED) {
 			for(int i=0;i<cameraCount;++i) {
 				cameras.set(i, new Camera3D(this.WIDTH/(cameraCount+1), this.HEIGHT, cameras.get(i).getObject()));
 			}
 			this.cameraCount++;
-			cameras.add(new Camera3D(this.WIDTH/cameraCount, this.HEIGHT, Preset.CUBE.model));
+			cameras.add(new Camera3D(this.WIDTH/cameraCount, this.HEIGHT, Preset.CUBE.getObject()));
 			activeCamera = cameraCount-1;
+			System.out.println(cameraCount);
 		}
 	}
 	
@@ -106,6 +109,7 @@ public class Render extends Canvas{
 			this.cameraCount--;
 			cameras.remove(activeCamera);
 			activeCamera = cameraCount-1;
+			System.out.println(cameraCount);
 		}
 	}
 	

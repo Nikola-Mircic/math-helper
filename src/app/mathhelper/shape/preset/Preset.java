@@ -11,15 +11,15 @@ public enum Preset {
 	CYLINDER("presets/cylinder.obj"),
 	BALL("presets/ball.obj");
 	
-	public Object3D model;
+	public String modelData;
 	private String path;
 	
 	private Preset(String path) {
-		this.model = Object3D.loadFromFile(path);
+		this.modelData = Object3D.loadDataFromFile(path);
 		this.path = path;
 	}
 	
-	public void recreateObject() {
-		this.model = Object3D.loadFromFile(path);
+	public Object3D getObject() {
+		return Object3D.loadObjectFromString(modelData);
 	}
 }

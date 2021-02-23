@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -38,7 +39,7 @@ public class Camera3D{
 	public int renderMode;
 	
 	public boolean LIGHT_EFFECT = false;
-	private double lightSpeed = 0.05;
+	private double lightPeriod = 5;
 	private double angle = 0;
 	
 	public Camera3D(int width,int height,Object3D object) {
@@ -84,19 +85,44 @@ public class Camera3D{
 			}
 		}
 		
-		g.setColor(Color.BLACK);
-		g.drawRect(0, 0, width, height);
-		
 		if(LIGHT_EFFECT) {
-			angle+=lightSpeed;
+			angle = (System.currentTimeMillis()%(lightPeriod*1000))/1000.0*(2*Math.PI/lightPeriod);
 			this.light = new Vertex("light"+id, 5*Math.cos(angle), this.postition.y, 5+5*Math.sin(angle));
 		}
+		
+		g.setColor(Color.BLACK);
+		g.drawRect(0, 0, width, height);
 		
 		if(renderingCenter)
 			renderObjectCenter(objectSet.get(object), g);
 		
-		for(Object3D object3d : objectSet) {
-			for(Shape s : object3d.getSides()) {
+		if(renderMode == 0) {
+			for(Object3D object : this.objectSet) {
+				for(Shape s : object.getSides()) {
+					fill3DShape(s, g);
+				}
+			}
+		}else if(renderMode == 1) {
+			for(Object3D object : this.objectSet) {
+				for(Shape s : object.getSides()) {
+					draw3DEdges(s, g, filled);
+				}
+			}
+		}else {
+			for(Object3D object : this.objectSet) {
+				for(Shape s : object.getSides()) {
+					fill3DShape(s, g);
+				}
+			}
+			for(Object3D object : this.objectSet) {
+				for(Shape s : object.getSides()) {
+					draw3DEdges(s, g, filled);
+				}
+			}
+		}
+		
+		/*for(Object3D object : this.objectSet) {
+			for(Shape s : object.getSides()) {
 				if(renderMode == 0) {
 					fill3DShape(s, g);
 				}else if(renderMode == 1){
@@ -106,9 +132,7 @@ public class Camera3D{
 					draw3DEdges(s, g, filled);
 				}
 			}
-		}
-		
-		printObjectData(objectSet.get(object), g);
+		}*/
 		
 		g.setColor(Color.WHITE);
 		g.setFont(new Font("mono", Font.PLAIN, 15));
@@ -116,8 +140,14 @@ public class Camera3D{
 	}
 	
 	public BufferedImage getToDrawContex(int width, int height, int xOffset, int yOffset) {
-		this.drawContext();
-		BufferedImage temp = context.getSubimage(xOffset, yOffset, width, height);
+		if(LIGHT_EFFECT)
+			this.drawContext();
+		context.getGraphics().setColor(Color.BLACK);
+		context.getGraphics().drawRect(0, 0, width, height);
+		BufferedImage temp = context.getSubimage((this.width-width)/2+xOffset, (this.height-height)/2+yOffset, width, height);
+		
+		printObjectData(this.objectSet.get(object), temp.getGraphics());
+		
 		return temp;
 	}
 	
@@ -126,11 +156,12 @@ public class Camera3D{
 		Vertex v1 = normal.a;
 		Vertex v2 = normal.b;
 		
-		double dotProduct = Vertex.getDotProduct(v1.add(postition), v2);
+		double visible = Vertex.getDotProduct(v1.add(postition), v2);
 		
-		if(dotProduct < 0) {
-			double dotProduct2 = Vertex.getDotProduct(v1.add(light.getOpositeVector()), v2);
-			double cos = dotProduct2/(v1.add(light.getOpositeVector()).getLenght()*v2.getLenght());
+		if(visible < 0) {
+			double dotProduct = Vertex.getDotProduct(v1.add(light.getOpositeVector()), v2);
+			double cos = dotProduct/(v1.add(light.getOpositeVector()).getLenght()*v2.getLenght());
+			
 			int c = (int)(130-cos*90);
 			c=Math.min(255, c);
 			c=Math.max(0, c);
@@ -146,54 +177,54 @@ public class Camera3D{
 		Vertex v1 = normal.a;
 		Vertex v2 = normal.b;
 		
-		double dotProduct = Vertex.getDotProduct(v1.add(postition), v2);
+		double dotProduct = Vertex.getDotProduct(v1.add(postition.getOpositeVector()), v2);
+
+		Edge temp[] = new Edge[object.getEdges().size()];
+		Edge toConvert;
+		for(int i=0;i<temp.length;++i) {
+			toConvert = object.getEdges().get(i);
+			temp[i] = new Edge(convertTo2D(toConvert.a), convertTo2D(toConvert.b));
+		}
 		
-		if((dotProduct < 0) || renderMode==1) {
+		g.setColor(Color.BLACK);
+		
+		if((dotProduct > 0) && renderMode==1) {
+			Graphics2D g2d = (Graphics2D) g.create();
+			Stroke s = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{10,20}, 0);
+			g2d.setStroke(s);
 			
-			Edge temp[] = new Edge[object.getEdges().size()];
-			Edge toConvert;
-			for(int i=0;i<temp.length;++i) {
-				toConvert = object.getEdges().get(i);
-				temp[i] = new Edge(convertTo2D(toConvert.a), convertTo2D(toConvert.b));
+			A:for(int i=0;i<temp.length;++i) {
+				for(Edge e : filled) {
+					if(e.equals(temp[i])) {
+						continue A;
+					}
+				}					
+				g2d.drawLine((int)temp[i].a.x, (int)temp[i].a.y, (int)temp[i].b.x, (int)temp[i].b.y);
 			}
-			
+		} else if(dotProduct < 0){
 			g.setColor(Color.BLACK);
-			
-			if((dotProduct > 0) && renderMode==1) {
-				Graphics2D g2d = (Graphics2D) g.create();
-				Stroke s = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{10,20}, 0);
-				g2d.setStroke(s);
-				
-				A:for(int i=0;i<temp.length;++i) {
-					for(Edge e : filled) {
-						if(e.equals(temp[i])) {
-							continue A;
-						}
-					}					
-					g2d.drawLine((int)temp[i].a.x, (int)temp[i].a.y, (int)temp[i].b.x, (int)temp[i].b.y);
-				}
-			} else {
-				g.setColor(Color.BLACK);
-				for(int i=0;i<temp.length;++i) {
-					drawLine((int)temp[i].a.x, (int)temp[i].a.y, temp[i].a.z, (int)temp[i].b.x, (int)temp[i].b.y, temp[i].b.z, 0);
-					filled.add(temp[i]);
-				}
-			}
-			
-			/*g.setFont(new Font("Serif", Font.PLAIN, 20));
 			for(int i=0;i<temp.length;++i) {
+				drawLine((int)temp[i].a.x, (int)temp[i].a.y, temp[i].a.z, (int)temp[i].b.x, (int)temp[i].b.y, temp[i].b.z, 0);
+				//g.drawLine((int)temp[i].a.x, (int)temp[i].a.y, (int)temp[i].b.x, (int)temp[i].b.y);
+				filled.add(temp[i]);
+			}
+		}
+		
+		/*g.setFont(new Font("Serif", Font.PLAIN, 20));
+		for(int i=0;i<temp.length;++i) {
+			if(dotProduct<0 || renderMode == 1) {
 				g.fillOval((int)temp[i].a.x-3, (int)temp[i].a.y-3, 6, 6);
-				g.drawString((object.getEdges().get(i).a.name), (int)temp[i].a.x-15, (int)temp[i].a.y-3);	
+				//g.drawString((object.getEdges().get(i).a.name), (int)temp[i].a.x-15, (int)temp[i].a.y-3);	
 				
 				g.fillOval((int)temp[i].b.x-3, (int)temp[i].b.y-3, 6, 6);
-				g.drawString((object.getEdges().get(i).b.name), (int)temp[i].b.x-15, (int)temp[i].b.y-3);
-			}*/
-			
-			if(clickedVertex!=null) {
-				String data = clickedVertex.name+"( "+Math.round(clickedVertex.x*100)/100.0+", "+Math.round(clickedVertex.y*100)/100.0+")";
-				g.drawString("Clicked on: ", 30, 220);
-				g.drawString("- "+data, 30, 250);
+				//g.drawString((object.getEdges().get(i).b.name), (int)temp[i].b.x-15, (int)temp[i].b.y-3);
 			}
+		}*/
+		
+		if(clickedVertex!=null) {
+			String data = clickedVertex.name+"( "+Math.round(clickedVertex.x*100)/100.0+", "+Math.round(clickedVertex.y*100)/100.0+")";
+			g.drawString("Clicked on: ", 30, 220);
+			g.drawString("- "+data, 30, 250);
 		}
 	}
 	
@@ -256,22 +287,41 @@ public class Camera3D{
 		Vertex b = new Vertex("b", (double)x2, (double)y2, z2);
 		double zValue;
 		double zStep;
+		
+		Clipper clipper = new Clipper(0, 0, width, height);
+		Line2D.Double line;
 		if(x1==x2) {
 			a = new Vertex("a", x1, y1, z1);
 			b = new Vertex("b", x2, y2, z2);
-			if(a.y>b.y) {
-				Vertex temp = a;
-				a = b;
-				b = temp;
+			if(a.y<b.y) {
+				line = new Line2D.Double(x1, y1, x2, y2);
+				line = clipper.clip(line);
+				if(line == null)
+					return;
+				a.x = (int)line.getX1();
+				a.y = (int)line.getY1();
+				b.x = (int)line.getX2();
+				b.y = (int)line.getY2();
+				zValue = a.z;
+				zStep = (b.z-a.z)/(b.y-a.y);
+			}else {
+				line = new Line2D.Double(x2, y2, x1, y1);
+				line = clipper.clip(line);
+				if(line == null)
+					return;
+				a.x = (int)line.getX1();
+				a.y = (int)line.getY1();
+				b.x = (int)line.getX2();
+				b.y = (int)line.getY2();
+				zValue = b.z;
+				zStep = (a.z-b.z)/(a.y-b.y);
 			}
-			zValue = a.z;
-			zStep = (b.z-a.z)/(b.y-a.y);
-			for(int y=(int)a.y;y<=b.y;++y) {
+			for(int y=(int)a.y;y<b.y;++y) {
 				if(zBuffer[x1][y]>zValue || zBuffer[x1][y]==0) {
 					context.setRGB(x1, y, color);
-					zBuffer[x1][y]=zValue;
+					zBuffer[x1][y]=zValue;	
 				}
-				if(zBuffer[x1+1][y]>zValue || zBuffer[x1+1][y]==0) {
+				if(zBuffer[x1+1][y]<zValue || zBuffer[x1+1][y]==0) {
 					context.setRGB(x1+1, y, color);
 					zBuffer[x1+1][y]=zValue;
 				}
@@ -298,6 +348,7 @@ public class Camera3D{
 							context.setRGB(x+1, (int)y, color);
 						if(zBuffer[x][(int)y+1]>zValue || zBuffer[x][(int)y+1]==0)
 							context.setRGB(x, (int)y+1, color);
+					
 						zValue+=zStep;
 					}
 				}
@@ -316,15 +367,14 @@ public class Camera3D{
 					ye = ye-ys;
 				}
 				for(double y=ys;y<=ye;y+=1) {
-					if(x>0 && x<width-1 && y>0 && y<height-1) {
-						if(zBuffer[x][(int)y]>zValue || zBuffer[x][(int)y]==0)
-							context.setRGB(x, (int)y, color);
-						if(zBuffer[x][(int)y]>zValue || zBuffer[x][(int)y]==0)
+					if(x>0 && x<width-1 && y>0 && y<height-1) 
+						if(zBuffer[x][(int)y]>zValue || zBuffer[x][(int)y]==0) {
 							context.setRGB(x, (int)y, color);
 						if(zBuffer[x+1][(int)y]>zValue || zBuffer[x+1][(int)y]==0)
 							context.setRGB(x+1, (int)y, color);
 						if(zBuffer[x][(int)y+1]>zValue || zBuffer[x][(int)y+1]==0)
 							context.setRGB(x, (int)y+1, color);
+						
 						zValue+=zStep;
 					}
 				}
@@ -346,18 +396,9 @@ public class Camera3D{
 		
 		double dy20 = (temp.get(2).y-temp.get(0).y);
 		double dy10 = (temp.get(1).y-temp.get(0).y);
-		if(dy20<=1) {
-			Vertex min = temp.get(0);
-			Vertex max = temp.get(0);
-			if(temp.get(1).x > max.x)
-				max = temp.get(1);
-			if(temp.get(1).x < min.x)
-				min = temp.get(1);
-			if(temp.get(2).x > max.x)
-				max = temp.get(2);
-			if(temp.get(2).x < min.x)
-				min = temp.get(2);
-			drawLine((int)min.x, (int)temp.get(0).y, min.z, (int)max.x, (int)temp.get(0).y, max.z, color);
+		
+		if(Math.abs(dy20)<=1) {
+			drawLine((int)temp.get(0).x, (int)temp.get(0).y, temp.get(0).z, (int)temp.get(2).x, (int)temp.get(2).y, temp.get(2).z, color);
 			return;
 		}
 		double scale = dy10/dy20;

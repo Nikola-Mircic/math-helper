@@ -3,7 +3,7 @@ package app.mathhelper.shape;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GeometryObject {
+public abstract class GeometryObject {
 	protected double area;
 	protected double scope;
 	protected List<Vertex> v;
@@ -18,8 +18,8 @@ public class GeometryObject {
 		this.e = new ArrayList<>();
 	}
 	
-	protected void calculateArea(){}
-	protected void calculateScope() {}
+	protected abstract void calculateArea();
+	protected abstract void calculateScope();
 	
 	public double getArea() {
 		calculateArea();
@@ -53,7 +53,12 @@ public class GeometryObject {
 	}
 	
 	protected void addVertex(int idx,String[] values) {
-		this.v.add(new Vertex("V"+idx,Double.parseDouble(values[1]),Double.parseDouble(values[2]),Double.parseDouble(values[3])+7.0));
+		idx--;
+		String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		String name = ""+alphabet.charAt(idx%26);
+		for(int i=0;i<idx/26;++i) name+="\'";
+		
+		this.v.add(new Vertex(name,Double.parseDouble(values[1]),Double.parseDouble(values[2]),Double.parseDouble(values[3])+7.0));
 		this.center = getCenterCords();
 	}
 	

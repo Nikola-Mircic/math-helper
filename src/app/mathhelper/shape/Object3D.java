@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,7 +113,7 @@ public class Object3D extends GeometryObject{
 		return Math.sqrt(dy*dy+dz*dz);
 	}
 	
-	public static Object3D loadFromFile(String filename) {
+	public static Object3D loadObjectFromFile(String filename) {
 		Object3D temp = new Object3D();
 		
 		try {
@@ -174,6 +175,100 @@ public class Object3D extends GeometryObject{
 		temp.center = temp.getCenter();
 		temp.calculateArea();
 		temp.calculateScope();
+		
+		return temp;
+	}
+	
+	public static Object3D loadObjectFromString(String data) {
+		Object3D temp = new Object3D();
+		
+		try {
+			StringReader reader = new StringReader(data);
+			BufferedReader bf = new BufferedReader(reader);
+			
+			int idx = 1;
+			String line=bf.readLine();
+			if(line==null)
+				return new Cube(0, 0, 0);
+			while(line!=null) {
+				if(line.equals(""))
+					break;
+				if(line.charAt(0)=='v') {
+					String[] values = line.split(" ");
+					if(!values[0].equals("v")) {
+						line = bf.readLine();
+						continue;
+					}
+					
+					temp.addVertex(idx, values);
+					idx++;
+				}else if(line.charAt(0)=='f') {
+					String[] values = line.split(" ");
+					if(!values[0].equals("f")){
+						line = bf.readLine();
+						continue;
+					}
+					
+					int end = values.length-1;
+					Vertex v1,v2,v3;
+					for(int i=1;i<end-1;++i) {
+						if(values[i].indexOf('/')!=-1) {
+							v1 = temp.v.get(Integer.parseInt(values[i].substring(0,values[i].indexOf('/')))-1);
+							v2 = temp.v.get(Integer.parseInt(values[i+1].substring(0,values[i+1].indexOf('/')))-1);
+							v3 = temp.v.get(Integer.parseInt(values[end].substring(0,values[end].indexOf('/')))-1);
+						}else {
+							v1 = temp.v.get(Integer.parseInt(values[i])-1);
+							v2 = temp.v.get(Integer.parseInt(values[i+1])-1);
+							v3 = temp.v.get(Integer.parseInt(values[end])-1);
+						}
+						
+						Triangle t = new Triangle(v1, v2, v3);
+						temp.addTriangle(t);
+					}
+				}
+				line = bf.readLine();
+			}
+			bf.close();
+			reader.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		temp.loadEdgesfromSides();
+		temp.center = temp.getCenter();
+		temp.calculateArea();
+		temp.calculateScope();
+		
+		return temp;
+	}
+	
+	public static String loadDataFromFile(String filename) {
+		String temp = "";
+		
+		try {
+			FileInputStream fis = new FileInputStream(new File(filename));
+			InputStreamReader isr = new InputStreamReader(fis);
+			BufferedReader bf = new BufferedReader(isr);
+		
+			String line=bf.readLine();
+			if(line==null)
+				return "";
+			while(line!=null) {
+				if(line.equals(""))
+					break;
+				
+				temp+=line+"\n";
+				
+				line = bf.readLine();
+			}
+			bf.close();
+			isr.close();
+			fis.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		return temp;
 	}

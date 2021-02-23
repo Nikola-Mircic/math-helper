@@ -5,7 +5,7 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 import app.mathhelper.input.InputListener;
-import app.mathhelper.screen.render.Render;
+import app.mathhelper.screen.render.CameraView;
 import app.mathhelper.shape.*;
 
 public class Screen extends JPanel {
@@ -14,7 +14,7 @@ public class Screen extends JPanel {
 	@SuppressWarnings("unused")
 	private int WIDTH,HEIGHT;
 	
-	private Render render;
+	private CameraView camView;
 	
 	private InputListener il;
 	
@@ -22,11 +22,11 @@ public class Screen extends JPanel {
 		this.WIDTH = width;
 		this.HEIGHT = height;
 		
-		this.render = new Render(width, height);
+		this.camView = new CameraView(width, height);
 		
 		this.il = new InputListener(this);
 		
-		this.add(render);
+		this.add(camView);
 		this.addMouseListener(il);
 		this.addMouseMotionListener(il);
 		this.addMouseWheelListener(il);
@@ -34,23 +34,23 @@ public class Screen extends JPanel {
 	
 	@Override
 	public void paint(Graphics g) {
-		render.renderCameras();
-		g.drawImage(render.getImg(), 0, 0, null);
+		camView.renderCameras();
+		g.drawImage(camView.getImg(), 0, 0, null);
 	}
 	
 	public void update(int width, int height) {
 		this.WIDTH = width;
 		this.HEIGHT = height;
 		
-		this.render.update(width, height);
+		this.camView.update(width, height);
 	}
 
-	public Render getRender() {
-		return render;
+	public CameraView getCameraView() {
+		return camView;
 	}
 
-	public void setRender(Render render) {
-		this.render = render;
+	public void setCameraView(CameraView camView) {
+		this.camView = camView;
 	}
 	
 	public InputListener getInputListener() {
@@ -62,14 +62,14 @@ public class Screen extends JPanel {
 	}
 	
 	public Object3D getObject() {
-		return render.getCamera().getObject();
+		return camView.getCamera().getObject();
 	}
 	
 	public void setObject(Object3D object) {
-		render.setObject(object);
+		camView.setObject(object);
 	}
 
 	public void mousePressed(int x, int y) {
-		render.mousePressed(x, y);
+		camView.mousePressed(x, y);
 	}
 }
