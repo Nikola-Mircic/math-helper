@@ -12,7 +12,7 @@ import app.mathhelper.shape.preset.Cube;
 
 public class Object3D extends GeometryObject{
 	public List<Shape> s;
-	//private double volume;
+	private double volume;
 	
 	public Object3D() {
 		this.v = new ArrayList<>();
@@ -38,6 +38,7 @@ public class Object3D extends GeometryObject{
 	protected void createSides(){};
 	protected void createEdges(){};
 	
+	//Rotation 53 - 116 
 	public void rotateVertical(double rotation) {
 		double[] angleVert = getVerticalAngle();
 		
@@ -113,6 +114,7 @@ public class Object3D extends GeometryObject{
 		return Math.sqrt(dy*dy+dz*dz);
 	}
 	
+	//Object loading 119 - 308
 	public static Object3D loadObjectFromFile(String filename) {
 		Object3D temp = new Object3D();
 		
@@ -304,6 +306,7 @@ public class Object3D extends GeometryObject{
 		}
 	}
 	
+	//Object data ( area, scope & volume ) 311 - 339
 	@Override
 	protected void calculateArea(){
 		this.area = 0;
@@ -321,15 +324,26 @@ public class Object3D extends GeometryObject{
 		}
 	}
 	
+	public void calculateVolume() {
+		
+	}
+	
+	@Override
 	public List<Vertex> getVerticies(){
 		return this.v;
 	}
 	
+	@Override
 	public List<Edge> getEdges() {
 		return this.e;
 	}
 	
 	public List<Shape> getSides(){
 		return this.s;
+	}
+
+	
+	public double getVolume() {
+		return volume;
 	}
 }

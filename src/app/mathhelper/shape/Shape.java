@@ -14,6 +14,7 @@ public class Shape extends GeometryObject{
 		for(Triangle temp : triangles) {
 			this.triangles.add(temp);
 			addEdgeFromTriangle(temp);
+			addVertexFromTriangle(temp);
 		}
 		
 		this.area = getArea();
@@ -21,6 +22,10 @@ public class Shape extends GeometryObject{
 	}
 	
 	public Shape(Vertex[] verticies){
+		super();
+		for(Vertex vertex : verticies) {
+			this.v.add(vertex);
+		}
 		this.triangles = new ArrayList<>();
 		for(int i=2;i<verticies.length;++i) {
 			triangles.add(new Triangle(verticies[i], verticies[i-1], verticies[i-2]));
@@ -51,9 +56,21 @@ public class Shape extends GeometryObject{
 		}
 	}
 	
+	private void addVertexFromTriangle(Triangle t) {
+		A : for(Vertex vertex : t.v) {
+			for(Vertex test : this.v) {
+				if(test.equals(vertex)) {
+					continue A;
+				}
+			}
+			this.v.add(vertex);
+		}
+	}
+	
 	public void addTriangle(Triangle t) {
 		this.triangles.add(t);
 		addEdgeFromTriangle(t);
+		addVertexFromTriangle(t);
 	}
 	
 	@Override
@@ -83,5 +100,15 @@ public class Shape extends GeometryObject{
 
 	public void setTriangles(List<Triangle> triangles) {
 		this.triangles = triangles;
+	}
+	
+	@Override
+	public String toString() {
+		String msg = "Shape : [ ";
+		for(Vertex vertex: this.v) {
+			msg += vertex.name + " ";
+		}
+		msg += "]";
+		return msg;
 	}
 }
