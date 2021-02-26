@@ -24,16 +24,16 @@ public class Window extends JFrame implements Runnable{
 		this.MIN_HEIGHT = 400;
 		
 		this.TITLE = "Math helper";
-		
-		this.setTitle(TITLE);
 		this.setMinimumSize(new Dimension(MIN_WIDTH,MIN_HEIGHT));
+		this.setMaximumSize(new Dimension(JFrame.getWindows()[0].getWidth(), JFrame.getWindows()[0].getHeight()));
 		this.setExtendedState(MAXIMIZED_BOTH);
+		this.setTitle(TITLE);
 		this.setResizable(true);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setLocationRelativeTo(null);
 		
-		this.WIDTH = this.getWidth();
-		this.HEIGHT = this.getHeight();
+		this.WIDTH = getMaximumSize().width;
+		this.HEIGHT = getMaximumSize().height;
 		
 		this.screen = new Screen(WIDTH,HEIGHT);
 		

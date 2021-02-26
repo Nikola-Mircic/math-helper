@@ -122,7 +122,7 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 			break;
 		case KeyEvent.VK_T:
 			camera.renderMode++;
-			camera.renderMode%=3;
+			camera.renderMode%=2;
 			camera.drawContext();
 			break;
 		case KeyEvent.VK_C:

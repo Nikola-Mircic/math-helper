@@ -9,9 +9,7 @@ import app.mathhelper.shape.preset.*;
 import java.util.*;
 import java.util.List;
 
-public class CameraView extends Canvas{
-	private static final long serialVersionUID = 1L;
-	
+public class CameraView{
 	public int WIDTH,HEIGHT;
 	
 	private List<Camera3D> cameras;
@@ -37,12 +35,6 @@ public class CameraView extends Canvas{
 	}
 	
 	public void renderCameras() {
-		BufferStrategy bs = getBufferStrategy();
-		do {
-			createBufferStrategy(3);
-			bs=getBufferStrategy();
-		}while(bs==null);
-		
 		Graphics g = img.getGraphics();
 		
 		for(int i=0;i<cameras.size();++i) {
@@ -52,6 +44,8 @@ public class CameraView extends Canvas{
 				g.fillOval((i+1)*WIDTH/cameraCount-30, HEIGHT-55, 10, 10);
 			}
 		}
+		
+		g.dispose();
 	}
 	
 	public void update(int width, int height) {
@@ -86,7 +80,11 @@ public class CameraView extends Canvas{
 	}
 
 	public void mousePressed(int x, int y) {
-		this.activeCamera = x/(this.WIDTH/cameraCount);
+		int temp = x/(this.WIDTH/cameraCount);
+		if(temp == this.activeCamera) {
+			cameras.get(activeCamera).checkOnClick(x, y);
+		}
+		this.activeCamera = temp;
 	}
 	
 	public void addCamera() {
