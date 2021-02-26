@@ -82,7 +82,7 @@ public class CameraView{
 	public void mousePressed(int x, int y) {
 		int temp = x/(this.WIDTH/cameraCount);
 		if(temp == this.activeCamera) {
-			cameras.get(activeCamera).checkOnClick(x, y);
+			cameras.get(activeCamera).checkOnClick(x-(WIDTH/cameraCount)*activeCamera, y);
 		}
 		this.activeCamera = temp;
 	}
