@@ -8,7 +8,7 @@ import app.mathhelper.input.InputListener;
 import app.mathhelper.screen.render.CameraView;
 import app.mathhelper.shape.*;
 
-public class Screen extends JPanel {
+public class Screen extends JPanel{
 	private static final long serialVersionUID = 1L;
 	
 	@SuppressWarnings("unused")
@@ -26,7 +26,6 @@ public class Screen extends JPanel {
 		
 		this.il = new InputListener(this);
 		
-		this.add(camView);
 		this.addMouseListener(il);
 		this.addMouseMotionListener(il);
 		this.addMouseWheelListener(il);

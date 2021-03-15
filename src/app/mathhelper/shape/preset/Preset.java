@@ -12,11 +12,9 @@ public enum Preset {
 	BALL("presets/ball.obj");
 	
 	public String modelData;
-	private String path;
 	
 	private Preset(String path) {
 		this.modelData = Object3D.loadDataFromFile(path);
-		this.path = path;
 	}
 	
 	public Object3D getObject() {
