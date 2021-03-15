@@ -6,7 +6,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
-import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -121,19 +120,6 @@ public class Camera3D{
 			}
 		}
 		
-		/*for(Object3D object : this.objectSet) {
-			for(Shape s : object.getSides()) {
-				if(renderMode == 0) {
-					fill3DShape(s, g);
-				}else if(renderMode == 1){
-					draw3DEdges(s, g, filled);
-				}else {
-					fill3DShape(s, g);
-					draw3DEdges(s, g, filled);
-				}
-			}
-		}*/
-		
 		g.setColor(Color.WHITE);
 		g.setFont(new Font("mono", Font.PLAIN, 15));
 		g.drawString("Camera id: "+id, 10, this.height-50);
@@ -205,21 +191,20 @@ public class Camera3D{
 			g.setColor(Color.BLACK);
 			for(int i=0;i<temp.length;++i) {
 				drawLine((int)temp[i].a.x, (int)temp[i].a.y, temp[i].a.z, (int)temp[i].b.x, (int)temp[i].b.y, temp[i].b.z, 0);
-				//g.drawLine((int)temp[i].a.x, (int)temp[i].a.y, (int)temp[i].b.x, (int)temp[i].b.y);
 				filled.add(temp[i]);
 			}
 		}
 		
-		/*g.setFont(new Font("Serif", Font.PLAIN, 20));
+		g.setFont(new Font("Serif", Font.PLAIN, 20));
 		for(int i=0;i<temp.length;++i) {
 			if(dotProduct<0 || renderMode == 1) {
 				g.fillOval((int)temp[i].a.x-3, (int)temp[i].a.y-3, 6, 6);
-				//g.drawString((object.getEdges().get(i).a.name), (int)temp[i].a.x-15, (int)temp[i].a.y-3);	
+				g.drawString((object.getEdges().get(i).a.name), (int)temp[i].a.x-15, (int)temp[i].a.y-3);	
 				
 				g.fillOval((int)temp[i].b.x-3, (int)temp[i].b.y-3, 6, 6);
-				//g.drawString((object.getEdges().get(i).b.name), (int)temp[i].b.x-15, (int)temp[i].b.y-3);
+				g.drawString((object.getEdges().get(i).b.name), (int)temp[i].b.x-15, (int)temp[i].b.y-3);
 			}
-		}*/
+		}
 		
 		if(clickedVertex!=null) {
 			String data = clickedVertex.name+"( "+Math.round(clickedVertex.x*100)/100.0+", "+Math.round(clickedVertex.y*100)/100.0+")";
@@ -288,44 +273,41 @@ public class Camera3D{
 		double zValue;
 		double zStep;
 		
-		Clipper clipper = new Clipper(0, 0, width, height);
-		Line2D.Double line;
 		if(x1==x2) {
 			a = new Vertex("a", x1, y1, z1);
 			b = new Vertex("b", x2, y2, z2);
 			if(a.y<b.y) {
-				line = new Line2D.Double(x1, y1, x2, y2);
-				line = clipper.clip(line);
-				if(line == null)
-					return;
-				a.x = (int)line.getX1();
-				a.y = (int)line.getY1();
-				b.x = (int)line.getX2();
-				b.y = (int)line.getY2();
 				zValue = a.z;
 				zStep = (b.z-a.z)/(b.y-a.y);
+				for(int y=(int)a.y;y<b.y;++y) {
+					if(x1<0 || x1>=width || y<0 || y>=height)
+						return;
+					if(zBuffer[x1][y]>zValue || zBuffer[x1][y]==0) {
+						context.setRGB(x1, y, color);
+						zBuffer[x1][y]=zValue;	
+					}
+					if(zBuffer[x1+1][y]<zValue || zBuffer[x1+1][y]==0) {
+						context.setRGB(x1+1, y, color);
+						zBuffer[x1+1][y]=zValue;
+					}
+					zValue+=zStep;
+				}
 			}else {
-				line = new Line2D.Double(x2, y2, x1, y1);
-				line = clipper.clip(line);
-				if(line == null)
-					return;
-				a.x = (int)line.getX1();
-				a.y = (int)line.getY1();
-				b.x = (int)line.getX2();
-				b.y = (int)line.getY2();
 				zValue = b.z;
 				zStep = (a.z-b.z)/(a.y-b.y);
-			}
-			for(int y=(int)a.y;y<b.y;++y) {
-				if(zBuffer[x1][y]>zValue || zBuffer[x1][y]==0) {
-					context.setRGB(x1, y, color);
-					zBuffer[x1][y]=zValue;	
+				for(int y=(int)b.y;y<a.y;++y) {
+					if(x1<0 || x1>=width || y<0 || y>=height)
+						return;
+					if(zBuffer[x1][y]>zValue || zBuffer[x1][y]==0) {
+						context.setRGB(x1, y, color);
+						zBuffer[x1][y]=zValue;	
+					}
+					if(zBuffer[x1+1][y]<zValue || zBuffer[x1+1][y]==0) {
+						context.setRGB(x1+1, y, color);
+						zBuffer[x1+1][y]=zValue;
+					}
+					zValue+=zStep;
 				}
-				if(zBuffer[x1+1][y]<zValue || zBuffer[x1+1][y]==0) {
-					context.setRGB(x1+1, y, color);
-					zBuffer[x1+1][y]=zValue;
-				}
-				zValue+=zStep;
 			}
 		}else if(x1<x2) {
 			double k = (y2-y1)/(double)(x2-x1);
@@ -509,6 +491,91 @@ public class Camera3D{
 		x-=(int)temp1.x;
 		double scale = x/xDif;
 		return temp1.z+(temp2.z-temp1.z)*scale;
+	}
+	
+	public void checkOnClick(int x, int y) {
+		for(Vertex vertex : objectSet.get(object).getVerticies()) {
+			Vertex temp = convertTo2D(vertex);
+			if(Math.abs(x-temp.x)<=3 && Math.abs(y-temp.y)<=3) {
+				System.out.println(vertex.name +" "+ vertex.x + " "+vertex.y+" "+vertex.z);
+				return;
+			}
+		}
+		
+		for(Edge e : objectSet.get(object).getEdges()) {
+			Vertex p1 = convertTo2D(e.a);
+			Vertex p2 = convertTo2D(e.b);
+			double a,b,c;
+			
+			if(p1.x == p2.x) {
+				a = 1;
+				b = 0;
+				c = -p1.x;
+				if(Math.min(p1.y, p2.y) < y && y < Math.max(p1.y, p2.y)) {
+					if(a*x+b*y+c<3) {
+						System.out.println(e.a.name + " - " + e.b.name);
+						return;
+					}
+				}
+			}else {
+				if(p2.x < p1.x) {
+					Vertex temp = p1;
+					p1 = p2;
+					p2 = temp;
+				}
+				double k = (p2.y - p1.y)/(p2.x - p1.x);
+				double n = p1.y-k*p1.x;
+				a = -k;
+				b = 1;
+				c = -n;
+				if(Math.min(p1.y, p2.y) < y && y < Math.max(p1.y, p2.y) && Math.min(p1.x, p2.x) < x && x < Math.max(p1.x, p2.x)) {
+					if(a*x+b*y+c<3) {
+						System.out.println(e.a.name + " - " + e.b.name);
+						return;
+					}
+				}
+			}
+		}
+		
+		for(Shape s: objectSet.get(object).s) {
+			Edge normal = s.getNormal();
+			Vertex v1 = normal.a;
+			Vertex v2 = normal.b;
+			
+			double visible = Vertex.getDotProduct(v1.add(postition), v2);
+			
+			if(visible < 0) {
+				for(Triangle t : s.triangles) {
+					if(isInTriangle(x, y, t)) {
+						System.out.println(s);
+					}
+				}
+			}
+		}
+	}
+	
+	private boolean isInTriangle(int x, int y, Triangle t) {
+		Vertex v = new Vertex("click", x, y, 0);
+		double d1, d2, d3;
+	    boolean has_neg, has_pos;
+	    
+	    Vertex v1 = convertTo2D(t.getVerticies().get(0));
+	    Vertex v2 = convertTo2D(t.getVerticies().get(1));
+	    Vertex v3 = convertTo2D(t.getVerticies().get(2));
+
+	    d1 = test(v, v1, v2);
+	    d2 = test(v, v2, v3);
+	    d3 = test(v, v3, v1);
+
+	    has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+	    has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+
+	    return !(has_neg && has_pos);
+	}
+	
+	private double test(Vertex p1, Vertex p2, Vertex p3)
+	{
+	    return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
 	}
 	
 	public Object3D getObject() {
