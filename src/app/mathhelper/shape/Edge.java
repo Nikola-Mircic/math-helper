@@ -16,12 +16,6 @@ public class Edge {
 		this.weight = Vertex.dist(a, b);
 	}
 	
-	public boolean equals(Edge edge) {
-		boolean flag1 = a.equals(edge.a) && b.equals(edge.b);
-		boolean flag2 = a.equals(edge.b) && b.equals(edge.a);
-		return (flag1 || flag2);
-	}
-	
 	public boolean equalsByName(Edge edge) {
 		boolean flag1 = a.name.equals(edge.a.name) && b.name.equals(edge.b.name);
 		boolean flag2 = a.name.equals(edge.b.name) && b.name.equals(edge.a.name);
