@@ -1,9 +1,9 @@
 package app.mathhelper.shape.preset;
 
 import app.mathhelper.shape.Edge;
-import app.mathhelper.shape.Object3D;
 import app.mathhelper.shape.Shape;
-import app.mathhelper.shape.Vertex;
+import app.mathhelper.shape.shape3d.Object3D;
+import app.mathhelper.shape.shape3d.Vertex3D;
 
 public class Tetrahedron extends Object3D {
 
@@ -13,10 +13,10 @@ public class Tetrahedron extends Object3D {
 	
 	@Override
 	protected void createVerticies(int x, int y, int z) {
-		v.add(new Vertex("A", x-0.5, y-0.5, z-0.5));
-		v.add(new Vertex("B", x+0.5, y-0.5, z-0.5));
-		v.add(new Vertex("C", x-0.5, y-0.5, z+0.5));
-		v.add(new Vertex("D", x-0.5, y+0.5, z-0.5));
+		v.add(new Vertex3D("A", x-0.5, y-0.5, z-0.5));
+		v.add(new Vertex3D("B", x+0.5, y-0.5, z-0.5));
+		v.add(new Vertex3D("C", x-0.5, y-0.5, z+0.5));
+		v.add(new Vertex3D("D", x-0.5, y+0.5, z-0.5));
 	}
 	
 	@Override
@@ -31,10 +31,10 @@ public class Tetrahedron extends Object3D {
 	
 	@Override
 	protected void createSides() {
-		Vertex[] side1 = {v.get(2), v.get(1), v.get(0)};
-		Vertex[] side2 = {v.get(0), v.get(1), v.get(3)};
-		Vertex[] side3 = {v.get(1), v.get(2), v.get(3)};
-		Vertex[] side4 = {v.get(2), v.get(0), v.get(3)};
+		Vertex3D[] side1 = {v.get(2), v.get(1), v.get(0)};
+		Vertex3D[] side2 = {v.get(0), v.get(1), v.get(3)};
+		Vertex3D[] side3 = {v.get(1), v.get(2), v.get(3)};
+		Vertex3D[] side4 = {v.get(2), v.get(0), v.get(3)};
 		
 		s.add(new Shape(side1));
 		s.add(new Shape(side2));

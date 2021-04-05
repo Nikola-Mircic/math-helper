@@ -3,19 +3,23 @@ package app.mathhelper.shape;
 import java.util.ArrayList;
 import java.util.List;
 
+import app.mathhelper.shape.shape3d.Vertex3D;
+
 public abstract class GeometryObject {
 	protected double area;
 	protected double scope;
-	protected List<Vertex> v;
+	protected List<Vertex3D> v;
 	protected List<Edge> e;
+	protected ObjectInfo info;
 	
-	protected Vertex center;
+	protected Vertex3D center;
 	
 	protected GeometryObject() {	
 		this.area = -1;
 		this.scope = -1;
 		this.v = new ArrayList<>();
 		this.e = new ArrayList<>();
+		this.info = new ObjectInfo(this);
 	}
 	
 	protected abstract void calculateArea();
@@ -31,8 +35,8 @@ public abstract class GeometryObject {
 		return this.scope;
 	}
 	
-	protected Vertex getCenterCords() {
-		Vertex temp;
+	protected Vertex3D getCenterCords() {
+		Vertex3D temp;
 		if(v.size()==0) {
 			return null;
 		}
@@ -41,13 +45,13 @@ public abstract class GeometryObject {
 		double ysum = 0;
 		double zsum = 0;
 		
-		for(Vertex vertex : this.v) {
+		for(Vertex3D vertex : this.v) {
 			xsum += vertex.x;
 			ysum += vertex.y;
 			zsum += vertex.z;
 		}
 		
-		temp = new Vertex("center",xsum/v.size(), ysum/v.size(), zsum/v.size());
+		temp = new Vertex3D("center",xsum/v.size(), ysum/v.size(), zsum/v.size());
 		
 		return temp;
 	}
@@ -58,11 +62,11 @@ public abstract class GeometryObject {
 		String name = ""+alphabet.charAt(idx%26);
 		for(int i=0;i<idx/26;++i) name+="\'";
 		
-		this.v.add(new Vertex(name,Double.parseDouble(values[1]),Double.parseDouble(values[2]),Double.parseDouble(values[3])+7.0));
+		this.v.add(new Vertex3D(name,Double.parseDouble(values[1]),Double.parseDouble(values[2]),Double.parseDouble(values[3])));
 		this.center = getCenterCords();
 	}
 	
-	public List<Vertex> getVerticies(){
+	public List<Vertex3D> getVertices(){
 		return this.v;
 	}
 	
@@ -70,11 +74,11 @@ public abstract class GeometryObject {
 		return this.e;
 	}
 
-	public Vertex getCenter() {
+	public Vertex3D getCenter() {
 		return center;
 	}
 
-	public void setCenter(Vertex center) {
+	public void setCenter(Vertex3D center) {
 		this.center = center;
 	}
 }

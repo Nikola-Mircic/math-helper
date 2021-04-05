@@ -1,6 +1,6 @@
 package app.mathhelper.shape.preset;
 
-import app.mathhelper.shape.Object3D;
+import app.mathhelper.shape.shape3d.Object3D;
 
 public enum Preset {
 	CUBE("presets/cube.obj"),
@@ -9,7 +9,8 @@ public enum Preset {
 	CONE("presets/cone.obj"),
 	ICOSPHERE("presets/icosphere.obj"),
 	CYLINDER("presets/cylinder.obj"),
-	BALL("presets/ball.obj");
+	BALL("presets/ball.obj"),
+	DIAMOND("presets/diamond.obj");
 	
 	public String modelData;
 	

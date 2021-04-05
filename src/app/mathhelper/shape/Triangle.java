@@ -2,8 +2,10 @@ package app.mathhelper.shape;
 
 import java.util.List;
 
+import app.mathhelper.shape.shape3d.Vertex3D;
+
 public class Triangle extends GeometryObject{
-	public Triangle(Vertex a, Vertex b, Vertex c) {
+	public Triangle(Vertex3D a, Vertex3D b, Vertex3D c) {
 		super();
 		v.add(a);
 		v.add(b);
@@ -16,7 +18,7 @@ public class Triangle extends GeometryObject{
 		this.scope = getScope();
 	}
 	
-	public Triangle(Vertex[] verticies) {
+	public Triangle(Vertex3D[] verticies) {
 		this(verticies[0], verticies[1], verticies[2]);
 	}
 	
@@ -45,10 +47,10 @@ public class Triangle extends GeometryObject{
 		
 	}
 	
-	public Vertex getCrossProduct() {
-		Vertex temp = new Vertex("Normal", 0, 0, 0);
-		Vertex A = v.get(1).add(v.get(0).getOpositeVector());
-		Vertex B = v.get(2).add(v.get(0).getOpositeVector());
+	public Vertex3D getCrossProduct() {
+		Vertex3D temp = new Vertex3D("Normal", 0, 0, 0);
+		Vertex3D A = v.get(1).add(v.get(0).getOpositeVector());
+		Vertex3D B = v.get(2).add(v.get(0).getOpositeVector());
 		
 		temp.x = A.y*B.z - A.z*B.y;
 		temp.y = A.z*B.x - A.x*B.z;

@@ -1,4 +1,4 @@
-package app.mathhelper.shape;
+package app.mathhelper.shape.shape3d;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -8,6 +8,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import app.mathhelper.shape.*;
 import app.mathhelper.shape.preset.Cube;
 
 public class Object3D extends GeometryObject{
@@ -18,7 +19,7 @@ public class Object3D extends GeometryObject{
 		this.v = new ArrayList<>();
 		this.e = new ArrayList<>();
 		this.s = new ArrayList<>();
-		this.center = new Vertex("center", 0, 0, 7);
+		this.center = new Vertex3D("center", 0, 0, 7);
 	}
 	
 	public Object3D(int x, int y, int z) {
@@ -27,7 +28,7 @@ public class Object3D extends GeometryObject{
 		this.s = new ArrayList<>();
 		//this.volume = -1;
 		
-		this.createVerticies(x, y, z+5);
+		this.createVerticies(x, y, z);
 		this.createEdges();
 		this.createSides();
 		
@@ -102,13 +103,13 @@ public class Object3D extends GeometryObject{
 		return temp;
 	}
 	
-	private double getDistHorizontal(Vertex a,Vertex b) {
+	private double getDistHorizontal(Vertex3D a,Vertex3D b) {
 		double dx = a.x-b.x;
 		double dz = a.z-b.z;
 		return Math.sqrt(dx*dx+dz*dz);
 	}
 	
-	private double getDistVertical(Vertex a,Vertex b) {
+	private double getDistVertical(Vertex3D a,Vertex3D b) {
 		double dy = a.y-b.y;
 		double dz = a.z-b.z;
 		return Math.sqrt(dy*dy+dz*dz);
@@ -147,7 +148,7 @@ public class Object3D extends GeometryObject{
 					}
 					
 					int end = values.length-1;
-					Vertex v1,v2,v3;
+					Vertex3D v1,v2,v3;
 					for(int i=1;i<end-1;++i) {
 						if(values[i].indexOf('/')!=-1) {
 							v1 = temp.v.get(Integer.parseInt(values[i].substring(0,values[i].indexOf('/')))-1);
@@ -212,7 +213,7 @@ public class Object3D extends GeometryObject{
 					}
 					
 					int end = values.length-1;
-					Vertex v1,v2,v3;
+					Vertex3D v1,v2,v3;
 					for(int i=1;i<end-1;++i) {
 						if(values[i].indexOf('/')!=-1) {
 							v1 = temp.v.get(Integer.parseInt(values[i].substring(0,values[i].indexOf('/')))-1);
@@ -277,8 +278,8 @@ public class Object3D extends GeometryObject{
 	
 	private void addTriangle(Triangle t) {
 		double diff = 5*Math.pow(10, -13);
-		Vertex test = t.getCrossProduct();
-		Vertex temp;
+		Vertex3D test = t.getCrossProduct();
+		Vertex3D temp;
 		for(Shape side : this.s) {
 			temp = side.getNormal().b;
 			if(Math.abs(temp.getDotProduct(test)-temp.getLenght()*test.getLenght())<diff) {
@@ -296,12 +297,14 @@ public class Object3D extends GeometryObject{
 	}
 	
 	private void addEdgeFromShape(Shape s) {	
-		A:for(Edge temp : s.e) {
+		A:for(Edge temp : s.getEdges()) {
 			for(Edge edge : this.e) {
-				if(edge.equals(temp)) {
+				if(edge.equalsByName(temp)) {
 					continue A;
 				}
 			}
+			temp.a.numOfCon++;
+			temp.b.numOfCon++;
 			this.e.add(temp);
 		}
 	}
@@ -329,7 +332,7 @@ public class Object3D extends GeometryObject{
 	}
 	
 	@Override
-	public List<Vertex> getVerticies(){
+	public List<Vertex3D> getVertices(){
 		return this.v;
 	}
 	

@@ -13,10 +13,13 @@ import java.util.List;
 
 import app.mathhelper.shape.Edge;
 import app.mathhelper.shape.GeometryObject;
-import app.mathhelper.shape.Object3D;
+import app.mathhelper.shape.ObjectInfo;
+import app.mathhelper.shape.ObjectInfoCalculator;
 import app.mathhelper.shape.Shape;
 import app.mathhelper.shape.Triangle;
-import app.mathhelper.shape.Vertex;
+import app.mathhelper.shape.preset.Preset;
+import app.mathhelper.shape.shape3d.Object3D;
+import app.mathhelper.shape.shape3d.Vertex3D;
 
 public class Camera3D{
 	public static int id = 0;
@@ -27,12 +30,13 @@ public class Camera3D{
 	public BufferedImage context;
 	private double[][] zBuffer;
 	
-	public Vertex postition;
-	public Vertex light;
+	public Vertex3D postition;
+	public Vertex3D light;
 	
 	private int object;
+	private ObjectInfo info;
 	private List<Object3D> objectSet;
-	private Vertex clickedVertex;
+	private Vertex3D clickedVertex;
 	
 	public boolean renderingCenter;
 	public int renderMode;
@@ -42,7 +46,7 @@ public class Camera3D{
 	private double angle = 0;
 	
 	public Camera3D(int width,int height,Object3D object) {
-		this(width, height, 0, 0, 0,object);
+		this(width, height, 0, 0, 7,object);
 	}
 	
 	public Camera3D(int width, int height, double x, double y, double z, Object3D object) {
@@ -54,8 +58,8 @@ public class Camera3D{
 		this.context = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		this.zBuffer = new double[width][height];
 		
-		this.postition = new Vertex("camera"+id, x, y, z);
-		this.light = new Vertex("light"+id,2,1.5,2);
+		this.postition = new Vertex3D("camera"+id, x, y, z);
+		this.light = new Vertex3D("light"+id,2,1.5,-5);
 		
 		this.objectSet = new ArrayList<>();
 		objectSet.add(object);
@@ -63,6 +67,8 @@ public class Camera3D{
 		
 		renderingCenter = false;
 		renderMode = 0;
+		
+		this.info = ObjectInfoCalculator.getObjectInfo(object);
 		
 		drawContext();
 	}
@@ -86,7 +92,7 @@ public class Camera3D{
 		
 		if(LIGHT_EFFECT) {
 			angle = (System.currentTimeMillis()%(lightPeriod*1000))/1000.0*(2*Math.PI/lightPeriod);
-			this.light = new Vertex("light"+id, 5*Math.cos(angle), this.postition.y, 5+5*Math.sin(angle));
+			this.light = new Vertex3D("light"+id, 5*Math.cos(angle), this.postition.y, 5*Math.sin(angle));
 		}
 		
 		g.setColor(Color.BLACK);
@@ -139,13 +145,13 @@ public class Camera3D{
 	
 	public void fill3DShape(Shape s, Graphics g) {
 		Edge normal = s.getNormal();
-		Vertex v1 = normal.a;
-		Vertex v2 = normal.b;
+		Vertex3D v1 = normal.a;
+		Vertex3D v2 = normal.b;
 		
-		double visible = Vertex.getDotProduct(v1.add(postition), v2);
+		double visible = Vertex3D.getDotProduct(v1.add(postition), v2);
 		
 		if(visible < 0) {
-			double dotProduct = Vertex.getDotProduct(v1.add(light.getOpositeVector()), v2);
+			double dotProduct = Vertex3D.getDotProduct(v1.add(light.getOpositeVector()), v2);
 			double cos = dotProduct/(v1.add(light.getOpositeVector()).getLenght()*v2.getLenght());
 			
 			int c = (int)(130-cos*90);
@@ -153,17 +159,17 @@ public class Camera3D{
 			c=Math.max(0, c);
 			int color = (new Color(c, c, c)).getRGB();
 			for(Triangle t : s.triangles) {
-				fillTriangle(t.getVerticies().get(0), t.getVerticies().get(1), t.getVerticies().get(2), color);
+				fillTriangle(t.getVertices().get(0), t.getVertices().get(1), t.getVertices().get(2), color);
 			}
 		}
 	}
 	
 	public void draw3DEdges(GeometryObject object, Graphics g, List<Edge> filled) {
 		Edge normal = ((Shape) object).getNormal();
-		Vertex v1 = normal.a;
-		Vertex v2 = normal.b;
+		Vertex3D v1 = normal.a;
+		Vertex3D v2 = normal.b;
 		
-		double dotProduct = Vertex.getDotProduct(v1.add(postition.getOpositeVector()), v2);
+		double dotProduct = Vertex3D.getDotProduct(v1.add(postition), v2);
 
 		Edge temp[] = new Edge[object.getEdges().size()];
 		Edge toConvert;
@@ -213,8 +219,8 @@ public class Camera3D{
 		}
 	}
 	
-	private Vertex convertTo2D(Vertex v) {
-		Vertex temp = new Vertex(v.name+"_c", 0, 0, 0);
+	private Vertex3D convertTo2D(Vertex3D v) {
+		Vertex3D temp = new Vertex3D(v.name+"_c", 0, 0, 0);
 		
 		double zFar = 100000;
 		double zNear = 0.1;
@@ -235,7 +241,7 @@ public class Camera3D{
 	}
 	
 	private void renderObjectCenter(GeometryObject object, Graphics g) {
-		Vertex center = new Vertex();
+		Vertex3D center = new Vertex3D();
 		
 		g.setColor(Color.GREEN);
 		
@@ -257,25 +263,21 @@ public class Camera3D{
 	private void printObjectData(GeometryObject object, Graphics g) {
 		g.setColor(Color.WHITE);
 		g.setFont(new Font("Serif", Font.PLAIN, 25));
-		g.drawString("Object data: ", 30, 25);
-		g.drawString("- Object area: "+Math.round(object.getArea()*100)/100.0, 35, 55);
-		g.drawString("- Object scope: "+Math.round(object.getScope()*100)/100.0, 35, 85);
-		g.drawString("- Verticies: "+object.getVerticies().size(), 35, 115);
-		g.drawString("- Edges: "+object.getEdges().size(), 35, 145);
-		if(object instanceof Object3D) {
-			g.drawString("- Sides: "+((Object3D) object).getSides().size(), 35, 175);
-		}
+		
+		String[] temp = info.toString().split("\n");
+		for(int i=0;i<temp.length;++i)
+			g.drawString(temp[i], 30, 25+i*30);
 	}
 	
 	private void drawLine(int x1, int y1,double z1, int x2, int y2,double z2, int color) {
-		Vertex a = new Vertex("a", (double)x1, (double)y1, z1);
-		Vertex b = new Vertex("b", (double)x2, (double)y2, z2);
+		Vertex3D a = new Vertex3D("a", (double)x1, (double)y1, z1);
+		Vertex3D b = new Vertex3D("b", (double)x2, (double)y2, z2);
 		double zValue;
 		double zStep;
 		
 		if(x1==x2) {
-			a = new Vertex("a", x1, y1, z1);
-			b = new Vertex("b", x2, y2, z2);
+			a = new Vertex3D("a", x1, y1, z1);
+			b = new Vertex3D("b", x2, y2, z2);
 			if(a.y<b.y) {
 				zValue = a.z;
 				zStep = (b.z-a.z)/(b.y-a.y);
@@ -364,14 +366,14 @@ public class Camera3D{
 		}
 	}
 	
-	private void fillTriangle(Vertex a, Vertex b, Vertex c, int color) {
-		List<Vertex> temp = new ArrayList<>();
+	private void fillTriangle(Vertex3D a, Vertex3D b, Vertex3D c, int color) {
+		List<Vertex3D> temp = new ArrayList<>();
 		temp.add(convertTo2D(a));
 		temp.add(convertTo2D(b));
 		temp.add(convertTo2D(c));
-		temp.sort(new Comparator<Vertex>() {
+		temp.sort(new Comparator<Vertex3D>() {
 			@Override
-			public int compare(Vertex o1, Vertex o2) {
+			public int compare(Vertex3D o1, Vertex3D o2) {
 				return (int)(o1.y-o2.y);
 			}
 		});
@@ -386,7 +388,7 @@ public class Camera3D{
 		double scale = dy10/dy20;
 		double middleX = temp.get(0).x+(temp.get(2).x-temp.get(0).x)*scale;
 		double middleZ = temp.get(0).z+(temp.get(2).z-temp.get(0).z)*scale;
-		Vertex middle = new Vertex("middle", middleX, temp.get(1).y, middleZ);
+		Vertex3D middle = new Vertex3D("middle", middleX, temp.get(1).y, middleZ);
 		
 		fillBottomFlatTriangle(temp.get(0), temp.get(1), middle, color);
 		fillTopFlatTriangle(temp.get(1), middle, temp.get(2), color);
@@ -394,9 +396,9 @@ public class Camera3D{
 	
 	//a - vertex on the top of the triangle
 	//b,c - vertices on the bottom edge of the triangle
-	private void fillBottomFlatTriangle(Vertex a, Vertex b,Vertex c, int color) {
-		Vertex ab = new Vertex("ab", a.x, a.y, a.z);
-		Vertex ac = new Vertex("ac", a.x, a.y, a.z);
+	private void fillBottomFlatTriangle(Vertex3D a, Vertex3D b,Vertex3D c, int color) {
+		Vertex3D ab = new Vertex3D("ab", a.x, a.y, a.z);
+		Vertex3D ac = new Vertex3D("ac", a.x, a.y, a.z);
 		double dy = b.y-a.y;
 		if(dy<=1) {
 			return;
@@ -407,8 +409,8 @@ public class Camera3D{
 		double dzAB = (b.z-a.z)/dy;
 		double dzAC = (c.z-a.z)/dy;
 		
-		Vertex stepAC = new Vertex("step", dxAC, 0, dzAC);
-		Vertex stepAB = new Vertex("step", dxAB, 0, dzAB);
+		Vertex3D stepAC = new Vertex3D("step", dxAC, 0, dzAC);
+		Vertex3D stepAB = new Vertex3D("step", dxAB, 0, dzAB);
 		
 		double zValue;
 		for(int y=(int)a.y; y<(int)(a.y+dy); ++y) {
@@ -438,9 +440,9 @@ public class Camera3D{
 	
 	//a,b - vertices on the top edge of the triangle
 	//c - vertex on the bottom  of the triangle
-	private void fillTopFlatTriangle(Vertex a, Vertex b,Vertex c, int color) {
-		Vertex ac = new Vertex("ac", a.x, a.y, a.z);
-		Vertex bc = new Vertex("bc", b.x, b.y, b.z);
+	private void fillTopFlatTriangle(Vertex3D a, Vertex3D b,Vertex3D c, int color) {
+		Vertex3D ac = new Vertex3D("ac", a.x, a.y, a.z);
+		Vertex3D bc = new Vertex3D("bc", b.x, b.y, b.z);
 		double dy = c.y-a.y;
 		if(dy<=1) {
 			return;
@@ -451,8 +453,8 @@ public class Camera3D{
 		double dzBC = (c.z-b.z)/dy;
 		double dzAC = (c.z-a.z)/dy;
 		
-		Vertex stepAC = new Vertex("step", dxAC, 0, dzAC);
-		Vertex stepBC = new Vertex("step", dxBC, 0, dzBC);
+		Vertex3D stepAC = new Vertex3D("step", dxAC, 0, dzAC);
+		Vertex3D stepBC = new Vertex3D("step", dxBC, 0, dzBC);
 		
 		double zValue;
 		for(int y=(int)a.y; y<(int)(a.y+dy);++y) {
@@ -480,9 +482,9 @@ public class Camera3D{
 		}
 	}
 	
-	private double calculateZ(Vertex a,Vertex b,int x) {
-		Vertex temp1 = a;
-		Vertex temp2 = b;
+	private double calculateZ(Vertex3D a,Vertex3D b,int x) {
+		Vertex3D temp1 = a;
+		Vertex3D temp2 = b;
 		if(a.x>b.x) {
 			temp1 = b;
 			temp2 = a;
@@ -494,17 +496,17 @@ public class Camera3D{
 	}
 	
 	public void checkOnClick(int x, int y) {
-		for(Vertex vertex : objectSet.get(object).getVerticies()) {
-			Vertex temp = convertTo2D(vertex);
+		for(Vertex3D vertex : objectSet.get(object).getVertices()) {
+			Vertex3D temp = convertTo2D(vertex);
 			if(Math.abs(x-temp.x)<=3 && Math.abs(y-temp.y)<=3) {
-				System.out.println(vertex.name +" "+ vertex.x + " "+vertex.y+" "+vertex.z);
+				System.out.println(vertex.name +" "+ vertex.x + " "+vertex.y+" "+vertex.z + " ["+vertex.numOfCon+"]");
 				return;
 			}
 		}
 		
 		for(Edge e : objectSet.get(object).getEdges()) {
-			Vertex p1 = convertTo2D(e.a);
-			Vertex p2 = convertTo2D(e.b);
+			Vertex3D p1 = convertTo2D(e.a);
+			Vertex3D p2 = convertTo2D(e.b);
 			double a,b,c;
 			
 			if(p1.x == p2.x) {
@@ -512,14 +514,14 @@ public class Camera3D{
 				b = 0;
 				c = -p1.x;
 				if(Math.min(p1.y, p2.y) < y && y < Math.max(p1.y, p2.y)) {
-					if(a*x+b*y+c<3) {
+					if((a*x+b*y+c)/Math.sqrt(a*a+b*b)<3) {
 						System.out.println(e.a.name + " - " + e.b.name);
 						return;
 					}
 				}
 			}else {
 				if(p2.x < p1.x) {
-					Vertex temp = p1;
+					Vertex3D temp = p1;
 					p1 = p2;
 					p2 = temp;
 				}
@@ -529,7 +531,7 @@ public class Camera3D{
 				b = 1;
 				c = -n;
 				if(Math.min(p1.y, p2.y) < y && y < Math.max(p1.y, p2.y) && Math.min(p1.x, p2.x) < x && x < Math.max(p1.x, p2.x)) {
-					if(a*x+b*y+c<3) {
+					if((a*x+b*y+c)/Math.sqrt(a*a+b*b)<3) {
 						System.out.println(e.a.name + " - " + e.b.name);
 						return;
 					}
@@ -539,10 +541,10 @@ public class Camera3D{
 		
 		for(Shape s: objectSet.get(object).s) {
 			Edge normal = s.getNormal();
-			Vertex v1 = normal.a;
-			Vertex v2 = normal.b;
+			Vertex3D v1 = normal.a;
+			Vertex3D v2 = normal.b;
 			
-			double visible = Vertex.getDotProduct(v1.add(postition), v2);
+			double visible = Vertex3D.getDotProduct(v1.add(postition), v2);
 			
 			if(visible < 0) {
 				for(Triangle t : s.triangles) {
@@ -555,13 +557,13 @@ public class Camera3D{
 	}
 	
 	private boolean isInTriangle(int x, int y, Triangle t) {
-		Vertex v = new Vertex("click", x, y, 0);
+		Vertex3D v = new Vertex3D("click", x, y, 0);
 		double d1, d2, d3;
 	    boolean has_neg, has_pos;
 	    
-	    Vertex v1 = convertTo2D(t.getVerticies().get(0));
-	    Vertex v2 = convertTo2D(t.getVerticies().get(1));
-	    Vertex v3 = convertTo2D(t.getVerticies().get(2));
+	    Vertex3D v1 = convertTo2D(t.getVertices().get(0));
+	    Vertex3D v2 = convertTo2D(t.getVertices().get(1));
+	    Vertex3D v3 = convertTo2D(t.getVertices().get(2));
 
 	    d1 = test(v, v1, v2);
 	    d2 = test(v, v2, v3);
@@ -573,7 +575,7 @@ public class Camera3D{
 	    return !(has_neg && has_pos);
 	}
 	
-	private double test(Vertex p1, Vertex p2, Vertex p3)
+	private double test(Vertex3D p1, Vertex3D p2, Vertex3D p3)
 	{
 	    return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
 	}

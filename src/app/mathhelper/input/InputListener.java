@@ -166,6 +166,10 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 			object = Preset.BALL;
 			screen.setObject(object.getObject());
 			break;
+		case KeyEvent.VK_8:
+			object = Preset.DIAMOND;
+			screen.setObject(object.getObject());
+			break;
 		case KeyEvent.VK_CONTROL:
 			camera.renderingCenter = true;
 			break;
