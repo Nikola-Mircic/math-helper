@@ -1,6 +1,6 @@
 package app.mathhelper.shape.preset;
 
-import app.mathhelper.shape.Object3D;
+import app.mathhelper.shape.shape3d.Object3D;
 
 public enum Preset {
 	CUBE("presets/cube.obj"),

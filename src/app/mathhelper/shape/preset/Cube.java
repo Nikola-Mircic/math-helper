@@ -3,53 +3,54 @@ package app.mathhelper.shape.preset;
 import java.util.ArrayList;
 
 import app.mathhelper.shape.Edge;
-import app.mathhelper.shape.Object3D;
 import app.mathhelper.shape.Shape;
-import app.mathhelper.shape.Vertex;
+import app.mathhelper.shape.shape3d.Object3D;
+import app.mathhelper.shape.shape3d.Vertex3D;
 
 public class Cube extends Object3D {
 	
 	private double edgeLenght;
 	
 	public Cube(int x, int y, int z) {
-		super(x, y, z);
-		this.edgeLenght = 0.5;
+		this(x, y, z, 0.5);
 	}
 	
 	public Cube(int x, int y, int z, double edgeLenght) {
-		super();
+		super(x, y, z);
 		
 		this.s = new ArrayList<>();
-		//this.volume = -1;
 		
 		this.edgeLenght = edgeLenght;
-		this.createVerticies(x, y, z+5);
+		this.createVerticies(x, y, z);
 		this.createEdges();
 		this.createSides();
 		
 		this.center = getCenterCords();
+		
+		System.out.println(this.getArea());
+		System.out.println(this.getScope());
 	}
 	
 	@Override
 	protected void createVerticies(int x, int y, int z) {
-		v.add( new Vertex("A", x-edgeLenght, y-edgeLenght, z-edgeLenght));
-		v.add( new Vertex("B", x+edgeLenght, y-edgeLenght, z-edgeLenght));
-		v.add( new Vertex("C", x+edgeLenght, y-edgeLenght, z+edgeLenght));
-		v.add( new Vertex("D", x-edgeLenght, y-edgeLenght, z+edgeLenght));
-		v.add( new Vertex("A'", x-edgeLenght, y+edgeLenght, z-edgeLenght));
-		v.add( new Vertex("B'", x+edgeLenght, y+edgeLenght, z-edgeLenght));
-		v.add( new Vertex("C'", x+edgeLenght, y+edgeLenght, z+edgeLenght));
-		v.add( new Vertex("D'", x-edgeLenght, y+edgeLenght, z+edgeLenght));
+		v.add( new Vertex3D("A", x-edgeLenght, y-edgeLenght, z-edgeLenght));
+		v.add( new Vertex3D("B", x+edgeLenght, y-edgeLenght, z-edgeLenght));
+		v.add( new Vertex3D("C", x+edgeLenght, y-edgeLenght, z+edgeLenght));
+		v.add( new Vertex3D("D", x-edgeLenght, y-edgeLenght, z+edgeLenght));
+		v.add( new Vertex3D("A'", x-edgeLenght, y+edgeLenght, z-edgeLenght));
+		v.add( new Vertex3D("B'", x+edgeLenght, y+edgeLenght, z-edgeLenght));
+		v.add( new Vertex3D("C'", x+edgeLenght, y+edgeLenght, z+edgeLenght));
+		v.add( new Vertex3D("D'", x-edgeLenght, y+edgeLenght, z+edgeLenght));
 	}
 	
 	@Override
 	protected void createSides() {
-		Vertex[] nearSide = {v.get(5), v.get(4), v.get(1), v.get(0)};
-		Vertex[] farSide = {v.get(7), v.get(6), v.get(3), v.get(2)};
-		Vertex[] topSide = {v.get(6), v.get(7), v.get(5), v.get(4)};
-		Vertex[] bottomSide = {v.get(1), v.get(0), v.get(2), v.get(3)};
-		Vertex[] leftSide = {v.get(4), v.get(7), v.get(0), v.get(3)};
-		Vertex[] rightSide = {v.get(6), v.get(5), v.get(2), v.get(1)};
+		Vertex3D[] nearSide = {v.get(5), v.get(4), v.get(1), v.get(0)};
+		Vertex3D[] farSide = {v.get(7), v.get(6), v.get(3), v.get(2)};
+		Vertex3D[] topSide = {v.get(6), v.get(7), v.get(5), v.get(4)};
+		Vertex3D[] bottomSide = {v.get(1), v.get(0), v.get(2), v.get(3)};
+		Vertex3D[] leftSide = {v.get(4), v.get(7), v.get(0), v.get(3)};
+		Vertex3D[] rightSide = {v.get(6), v.get(5), v.get(2), v.get(1)};
 		
 		s.add( new Shape(nearSide));
 		s.add( new Shape(farSide));

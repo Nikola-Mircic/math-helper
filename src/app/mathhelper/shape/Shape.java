@@ -3,6 +3,8 @@ package app.mathhelper.shape;
 import java.util.ArrayList;
 import java.util.List;
 
+import app.mathhelper.shape.shape3d.Vertex3D;
+
 public class Shape extends GeometryObject{	
 	public List<Triangle> triangles;
 	
@@ -21,9 +23,9 @@ public class Shape extends GeometryObject{
 		this.scope = getScope();
 	}
 	
-	public Shape(Vertex[] verticies){
+	public Shape(Vertex3D[] verticies){
 		super();
-		for(Vertex vertex : verticies) {
+		for(Vertex3D vertex : verticies) {
 			this.v.add(vertex);
 		}
 		this.triangles = new ArrayList<>();
@@ -43,11 +45,12 @@ public class Shape extends GeometryObject{
 				toDelete = null;
 			}
 			for(Edge edge : this.e) {
-				if(edge.equals(temp)) {
+				if(edge.equalsByName(temp)) {
 					toDelete = edge;
 					continue A;
 				}
 			}
+			
 			this.e.add(temp);
 		}
 		if(toDelete!=null) {
@@ -57,8 +60,8 @@ public class Shape extends GeometryObject{
 	}
 	
 	private void addVertexFromTriangle(Triangle t) {
-		A : for(Vertex vertex : t.v) {
-			for(Vertex test : this.v) {
+		A : for(Vertex3D vertex : t.v) {
+			for(Vertex3D test : this.v) {
 				if(test.equals(vertex)) {
 					continue A;
 				}
@@ -77,7 +80,7 @@ public class Shape extends GeometryObject{
 	protected void calculateArea() {
 		this.area = 0;
 		for(Triangle t : triangles) {
-			area += t.getArea();
+			this.area += t.getArea();
 		}
 	}
 	
@@ -105,7 +108,7 @@ public class Shape extends GeometryObject{
 	@Override
 	public String toString() {
 		String msg = "Shape : [ ";
-		for(Vertex vertex: this.v) {
+		for(Vertex3D vertex: this.v) {
 			msg += vertex.name + " ";
 		}
 		msg += "]";
