@@ -79,7 +79,7 @@ public class Vertex3D{
 	
 	@Override
 	public String toString() {
-		return this.name+" ("+this.x+", "+this.y+", "+this.z+")";
+		return this.name+" ("+Math.round(this.x*1000)/1000.0+", "+Math.round(this.y*1000)/1000.0+", "+Math.round(this.z*1000)/1000.0+")";
 	}
 	
 	@Override

@@ -1,15 +1,12 @@
 package app.mathhelper.shape;
 
-import java.lang.reflect.Executable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import javax.lang.model.element.VariableElement;
-import javax.print.attribute.Size2DSyntax;
 
 import app.mathhelper.shape.shape3d.Object3D;
 import app.mathhelper.shape.shape3d.Vertex3D;
@@ -41,20 +38,14 @@ public class ObjectInfoCalculator {
 	 * 	</ol>
 	 * */
 	private static ObjectInfo getObject3Dinfo(Object3D o) {
-		HashMap<String, String> info = new HashMap<>();
+		HashMap<String, String> info = new LinkedHashMap<>();
 		
 		info.put("vertices", ""+o.getVertices().size());
 		info.put("edges", ""+o.getEdges().size());
 		info.put("sides", ""+o.getSides().size());
 		info.put("scope", ""+getObjectScope(o));
 		info.put("surface", ""+getObjectSurfaceArea(o));
-		try {
-			info.put("volume", ""+getObjectVolume(o));
-		} catch (Exception e) {
-			e.printStackTrace();
-			info.put("volume", "-"+1);
-		}
-		
+		info.put("volume", ""+getObjectVolume(o));
 		
 		return new ObjectInfo(o, info);
 	}
@@ -110,12 +101,14 @@ public class ObjectInfoCalculator {
 				sides.get(i).add(vertex.getCopy());
 			}
 		}
+		
 		double volume = 0;
 		
 		try {
 			volume = Math.round(getObjectVolume(connections, vertices, sides)*1000)/1000.0;
 		} catch (Exception e) {
 			e.printStackTrace();
+			return -1;
 		}
 		
 		return volume;
@@ -124,7 +117,6 @@ public class ObjectInfoCalculator {
 	private static double getObjectVolume(List<List<Vertex3D>> connections, List<Vertex3D> vertexOrder, List<ArrayList<Vertex3D>> sides) {
 		double volume = 0;
 		while(connections.size()>0) {
-			ArrayList<Vertex3D> newSide = new ArrayList<>();
 			System.out.println("------------------------------------------");
 			System.out.println("Processing object: ");
 			System.out.println("Current volume :"+Math.round(volume*100)/100.0);
@@ -136,6 +128,9 @@ public class ObjectInfoCalculator {
 				}
 				System.out.print("\n");
 			}
+			
+			ArrayList<Vertex3D> newSide = new ArrayList<>();
+			
 			if(connections.get(0).size()==3) {
 				//Volume of tetrahedron
 				Vertex3D v0 = connections.get(0).get(0).add(vertexOrder.get(0).getOpositeVector());
@@ -148,46 +143,31 @@ public class ObjectInfoCalculator {
 				newSide.add(connections.get(0).get(1));
 				newSide.add(connections.get(0).get(2));
 				
-				//Remove vertex from object
-				int listIdx = -1,//index of list new connection will be added in
-					temp = -1;//variable to check if connection already exists
-				for(int k=0;k<connections.get(0).size();++k) {
-					listIdx = vertexOrder.indexOf(connections.get(0).get(k));
-					
-					//Add new edges
-					for(int t=0;t<connections.get(0).size();++t) {
-						if(k==t) continue;
+				for(int i=0;i<connections.get(0).size();++i) {
+					int idx1 = vertexOrder.indexOf(connections.get(0).get(i));
+					for(int j=0;j<connections.get(0).size();++j) {
+						if(i==j) continue;
 						
-						if(vertexOrder.get(listIdx)==connections.get(0).get(t)) continue;
+						int idx2 = vertexOrder.indexOf(connections.get(0).get(j));
 						
-						temp = connections.get(listIdx).indexOf(connections.get(0).get(t));
+						if(!connections.get(idx1).contains(connections.get(0).get(j))){
+							connections.get(idx1).add(connections.get(0).get(j));
+						}
 						
-						if(temp == -1) {
-							connections.get(listIdx).add(connections.get(0).get(t));
-							temp = vertexOrder.indexOf(connections.get(0).get(t));
-							connections.get(vertexOrder.indexOf(connections.get(0).get(t))).add(vertexOrder.get(listIdx));
+						if(!connections.get(idx2).contains(connections.get(0).get(i))){
+							connections.get(idx2).add(connections.get(0).get(i));
 						}
 					}
-					
-					//Remove old edges
-					connections.get(listIdx).remove(vertexOrder.get(0));
 				}
 				
-				for(int i=0;i<sides.size();) {
-					if(sides.get(i).contains(vertexOrder.get(0))) {
-						if(sides.get(i).size() == 3) {
-							System.out.print("Side [");
-							for(Vertex3D v : sides.get(i)) {
-								System.out.print(v.name+", ");
-							}
-							System.out.println("] is"+(sides.remove(sides.get(i))?"":"n't")+" removed!");
-						}else {
-							sides.get(i).remove(vertexOrder.get(0));
-							i++;
-						}
-					}else {
-						i++;
-					}
+				int conRemoved = 0;
+				for(int i=1;i<connections.size();++i) {
+					conRemoved += connections.get(i).remove(vertexOrder.get(0)) ? 1 : 0;
+				}
+				System.out.println("Removed "+conRemoved+" connections from object");
+				
+				for(ArrayList<Vertex3D> side : sides) {
+					side.remove(vertexOrder.get(0));
 				}
 			}else if(connections.get(0).size()>3) {
 				Vertex3D start = connections.get(0).remove(0);
@@ -244,13 +224,14 @@ public class ObjectInfoCalculator {
 				System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>");
 				System.out.println("There are "+sidesToCheck.size()+" sides around "+vertexOrder.get(0).name);
 				
-				for(int i=0;i<sidesToCheck.size();++i) {
+				A:for(int i=0;i<sidesToCheck.size();++i) {
 					for(Vertex3D vertex : sidesToCheck.get(i)) {
 						if(vertex.equals(vertexOrder.get(0)) || vertex.equals(start))
 							continue;
 						if(connections.get(0).contains(vertex)){
 							if(a == null) {
 								a = vertex;
+								addConnection(connections, vertexOrder, a, start);
 								System.out.println("Found A : "+a.name);
 							}else {
 								b = vertex;
@@ -261,22 +242,18 @@ public class ObjectInfoCalculator {
 								
 								volume += Math.abs(v0.getDotProduct(v1.getCrossProduct(v2)))/6.0;
 								
+								addConnection(connections, vertexOrder, a, b);
 								a = b;
 							}
 							
 							connections.get(0).remove(vertex);
 							newSide.add(vertex);
-							
-							
-							int vertexIdx = vertexOrder.indexOf(vertex);
-							connections.get(vertexIdx).remove(vertexOrder.get(0));
+							continue A;
 						}
 					}
 				}
 				
 				addConnection(connections, vertexOrder, a, start);
-				int startIdx = vertexOrder.indexOf(start);
-				connections.get(startIdx).remove(vertexOrder.get(0));
 			}
 			
 			sides.add(newSide);
@@ -287,6 +264,12 @@ public class ObjectInfoCalculator {
 			}
 			System.out.println("]");
 			
+			int conRemoved = 0;
+			for(int i=1;i<connections.size();++i) {
+				conRemoved += connections.get(i).remove(vertexOrder.get(0)) ? 1 : 0;
+			}
+			System.out.println("Removed "+conRemoved+" connections from object");
+			
 			for(ArrayList<Vertex3D> side : sides) {
 				side.remove(vertexOrder.get(0));
 			}
@@ -295,9 +278,13 @@ public class ObjectInfoCalculator {
 			
 			List<ArrayList<Vertex3D>> temp = sides.stream().filter(valid).collect(Collectors.toList());
 			
+			System.out.println("There were "+(sides.size()-temp.size())+" sides with 2 corners");
+			
 			sides = temp;
 			
-			System.out.println("There were "+(sides.size()-temp.size())+" sides with 2 corners");
+			for(List<Vertex3D> list: connections) {
+				list.remove(vertexOrder.get(0));
+			}
 			
 			connections.remove(0);
 			vertexOrder.remove(0);
@@ -309,6 +296,9 @@ public class ObjectInfoCalculator {
 	private static void addConnection(List<List<Vertex3D>> connections, List<Vertex3D> vertexOrder, Vertex3D a, Vertex3D b) {
 		int aIdx = vertexOrder.indexOf(a);
 		int bIdx = vertexOrder.indexOf(b);
+		
+		if(aIdx < 0 || bIdx < 0)
+			return;
 		
 		boolean conn1 = connections.get(bIdx).contains(a);
 		boolean conn2 = connections.get(aIdx).contains(b);
@@ -325,10 +315,24 @@ public class ObjectInfoCalculator {
 	}
 	
 	private static ObjectInfo getShapeInfo(Shape s) {
-		return null;
+		HashMap<String, String> info = new LinkedHashMap<>();
+		
+		info.put("vertices", ""+s.getVertices().size());
+		info.put("edges", ""+s.getEdges().size());
+		info.put("triangles", ""+s.getTriangles().size());
+		info.put("scope", ""+s.getScope());
+		info.put("surface", ""+s.getArea());
+		
+		return new ObjectInfo(s, info);
 	}
 
 	private static ObjectInfo getEdgeInfo(Edge e) {
-		return null;
+		HashMap<String, String> info = new LinkedHashMap<>();
+		
+		info.put("vertex 1", ""+e.a);
+		info.put("vertex 2", ""+e.b);
+		info.put("weight", ""+e.weight);
+		
+		return new ObjectInfo(e, info);
 	}
 }

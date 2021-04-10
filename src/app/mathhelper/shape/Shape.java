@@ -80,7 +80,7 @@ public class Shape extends GeometryObject{
 	protected void calculateArea() {
 		this.area = 0;
 		for(Triangle t : triangles) {
-			area += t.getArea();
+			this.area += t.getArea();
 		}
 	}
 	

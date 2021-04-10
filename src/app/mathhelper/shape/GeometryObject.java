@@ -46,12 +46,12 @@ public abstract class GeometryObject {
 		double zsum = 0;
 		
 		for(Vertex3D vertex : this.v) {
-			xsum += vertex.x;
-			ysum += vertex.y;
-			zsum += vertex.z;
+			xsum += vertex.x/v.size();
+			ysum += vertex.y/v.size();
+			zsum += vertex.z/v.size();
 		}
 		
-		temp = new Vertex3D("center",xsum/v.size(), ysum/v.size(), zsum/v.size());
+		temp = new Vertex3D("center",xsum, ysum, zsum);
 		
 		return temp;
 	}

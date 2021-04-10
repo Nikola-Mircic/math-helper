@@ -7,10 +7,6 @@ import java.awt.event.ComponentListener;
 import javax.swing.JFrame;
 
 import app.mathhelper.screen.Screen;
-import app.mathhelper.shape.ObjectInfo;
-import app.mathhelper.shape.ObjectInfoCalculator;
-import app.mathhelper.shape.preset.Cube;
-import app.mathhelper.shape.preset.Preset;
 
 public class Window extends JFrame implements Runnable{
 	private static final long serialVersionUID = 1L;

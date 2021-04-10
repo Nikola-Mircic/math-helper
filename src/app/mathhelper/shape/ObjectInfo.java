@@ -26,7 +26,7 @@ public class ObjectInfo {
 	
 	@Override
 	public String toString() {
-		String rez = "Object of type : ["+object.getClass().getSimpleName()+"] \n"+
+		String rez = "Object of type : ["+object.getClass().getSimpleName()+"] "+object.getCenter()+" \n"+
 					 "Info : \n";
 		for(Entry<String, String> e : info.entrySet()) {
 			rez += "  -"+e.getKey()+": "+e.getValue()+"\n";

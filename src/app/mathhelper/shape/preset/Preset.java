@@ -9,8 +9,7 @@ public enum Preset {
 	CONE("presets/cone.obj"),
 	ICOSPHERE("presets/icosphere.obj"),
 	CYLINDER("presets/cylinder.obj"),
-	BALL("presets/ball.obj"),
-	DIAMOND("presets/diamond.obj");
+	BALL("presets/ball.obj");
 	
 	public String modelData;
 	

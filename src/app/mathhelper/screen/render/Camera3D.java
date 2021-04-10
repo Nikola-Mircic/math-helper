@@ -17,7 +17,6 @@ import app.mathhelper.shape.ObjectInfo;
 import app.mathhelper.shape.ObjectInfoCalculator;
 import app.mathhelper.shape.Shape;
 import app.mathhelper.shape.Triangle;
-import app.mathhelper.shape.preset.Preset;
 import app.mathhelper.shape.shape3d.Object3D;
 import app.mathhelper.shape.shape3d.Vertex3D;
 
@@ -515,7 +514,7 @@ public class Camera3D{
 				c = -p1.x;
 				if(Math.min(p1.y, p2.y) < y && y < Math.max(p1.y, p2.y)) {
 					if((a*x+b*y+c)/Math.sqrt(a*a+b*b)<3) {
-						System.out.println(e.a.name + " - " + e.b.name);
+						System.out.println(e.a.name + " - " + e.b.name +" : "+Math.round(e.weight*1000)/1000.0);
 						return;
 					}
 				}
@@ -532,7 +531,7 @@ public class Camera3D{
 				c = -n;
 				if(Math.min(p1.y, p2.y) < y && y < Math.max(p1.y, p2.y) && Math.min(p1.x, p2.x) < x && x < Math.max(p1.x, p2.x)) {
 					if((a*x+b*y+c)/Math.sqrt(a*a+b*b)<3) {
-						System.out.println(e.a.name + " - " + e.b.name);
+						System.out.println(e.a.name + " - " + e.b.name +" : "+Math.round(e.weight*1000)/1000.0);
 						return;
 					}
 				}

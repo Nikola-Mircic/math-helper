@@ -3,7 +3,6 @@ package app.mathhelper.screen.render;
 import java.awt.*;
 import java.awt.image.*;
 
-import app.mathhelper.shape.*;
 import app.mathhelper.shape.preset.*;
 import app.mathhelper.shape.shape3d.Object3D;
 

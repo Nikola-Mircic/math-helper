@@ -6,7 +6,6 @@ import javax.swing.JPanel;
 
 import app.mathhelper.input.InputListener;
 import app.mathhelper.screen.render.CameraView;
-import app.mathhelper.shape.*;
 import app.mathhelper.shape.shape3d.Object3D;
 
 public class Screen extends JPanel{

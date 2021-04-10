@@ -175,7 +175,7 @@ public class Object3D extends GeometryObject{
 		}
 		
 		temp.loadEdgesfromSides();
-		temp.center = temp.getCenter();
+		temp.center = temp.getCenterCords();
 		temp.calculateArea();
 		temp.calculateScope();
 		
@@ -239,7 +239,7 @@ public class Object3D extends GeometryObject{
 		}
 		
 		temp.loadEdgesfromSides();
-		temp.center = temp.getCenter();
+		temp.center = temp.getCenterCords();
 		temp.calculateArea();
 		temp.calculateScope();
 		
