@@ -2,9 +2,9 @@
 #### Author: [Nikola-Mircic](https://github.com/Nikola-Mircic)
 
 ## Table of content
-  - **[Intro](#-intro)**
-  - **[Controls](#-controls)**
-  - **[Install](#-install)**
+  - **[Intro](#intro)**
+  - **[Controls](#controls)**
+  - **[Install](#install)**
 
 ### Intro:
 Do you have a problem with geometry?You can't visualize an object?Math helper gives you ability to draw an object even in 3D space.
