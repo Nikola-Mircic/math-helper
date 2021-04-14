@@ -1,8 +1,8 @@
 package app.mathhelper.shape.preset;
 
-import app.mathhelper.shape.Edge;
-import app.mathhelper.shape.Shape;
+import app.mathhelper.shape.shape3d.Edge3D;
 import app.mathhelper.shape.shape3d.Object3D;
+import app.mathhelper.shape.shape3d.Shape3D;
 import app.mathhelper.shape.shape3d.Vertex3D;
 
 public class Tetrahedron extends Object3D {
@@ -21,24 +21,24 @@ public class Tetrahedron extends Object3D {
 	
 	@Override
 	protected void createEdges() {
-		e.add(new Edge(v.get(0), v.get(1)));//0 1
-		e.add(new Edge(v.get(1), v.get(2)));//1 2
-		e.add(new Edge(v.get(2), v.get(0)));//2 0
-		e.add(new Edge(v.get(0), v.get(3)));//0 3
-		e.add(new Edge(v.get(1), v.get(3)));//1 3
-		e.add(new Edge(v.get(2), v.get(3)));//2 3
+		e.add(new Edge3D((Vertex3D) v.get(0), (Vertex3D) v.get(1)));//0 1
+		e.add(new Edge3D((Vertex3D) v.get(1), (Vertex3D) v.get(2)));//1 2
+		e.add(new Edge3D((Vertex3D) v.get(2), (Vertex3D) v.get(0)));//2 0
+		e.add(new Edge3D((Vertex3D) v.get(0), (Vertex3D) v.get(3)));//0 3
+		e.add(new Edge3D((Vertex3D) v.get(1), (Vertex3D) v.get(3)));//1 3
+		e.add(new Edge3D((Vertex3D) v.get(2), (Vertex3D) v.get(3)));//2 3
 	}
 	
 	@Override
 	protected void createSides() {
-		Vertex3D[] side1 = {v.get(2), v.get(1), v.get(0)};
-		Vertex3D[] side2 = {v.get(0), v.get(1), v.get(3)};
-		Vertex3D[] side3 = {v.get(1), v.get(2), v.get(3)};
-		Vertex3D[] side4 = {v.get(2), v.get(0), v.get(3)};
+		Vertex3D[] side1 = {(Vertex3D) v.get(2), (Vertex3D) v.get(1), (Vertex3D) v.get(0)};
+		Vertex3D[] side2 = {(Vertex3D) v.get(0), (Vertex3D) v.get(1), (Vertex3D) v.get(3)};
+		Vertex3D[] side3 = {(Vertex3D) v.get(1), (Vertex3D) v.get(2), (Vertex3D) v.get(3)};
+		Vertex3D[] side4 = {(Vertex3D) v.get(2), (Vertex3D) v.get(0), (Vertex3D) v.get(3)};
 		
-		s.add(new Shape(side1));
-		s.add(new Shape(side2));
-		s.add(new Shape(side3));
-		s.add(new Shape(side4));
+		s.add(new Shape3D(side1));
+		s.add(new Shape3D(side2));
+		s.add(new Shape3D(side3));
+		s.add(new Shape3D(side4));
 	}
 }

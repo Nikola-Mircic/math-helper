@@ -8,16 +8,18 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import app.mathhelper.shape.shape3d.Edge3D;
 import app.mathhelper.shape.shape3d.Object3D;
+import app.mathhelper.shape.shape3d.Shape3D;
 import app.mathhelper.shape.shape3d.Vertex3D;
 
 public class ObjectInfoCalculator {
 	public static ObjectInfo getObjectInfo(GeometryObject object) {
-		if(object instanceof Edge) {
-			return getEdgeInfo((Edge) object);
+		if(object instanceof Edge3D) {
+			return getEdgeInfo((Edge3D) object);
 		}
-		if(object instanceof Shape) {
-			return getShapeInfo((Shape) object);
+		if(object instanceof Shape3D) {
+			return getShapeInfo((Shape3D) object);
 		}
 		if(object instanceof Object3D) {
 			return getObject3Dinfo((Object3D) object);
@@ -60,7 +62,7 @@ public class ObjectInfoCalculator {
 	
 	private static double getObjectSurfaceArea(Object3D o) {
 		double area = 0;
-		for(Shape s : o.s) {
+		for(Shape3D s : o.s) {
 			area += s.getArea();
 		}
 		return Math.round(area*1000)/1000.0;
@@ -74,30 +76,30 @@ public class ObjectInfoCalculator {
 		if(!(V + S == E + 2))
 			return 0;
 		
-		List<List<Vertex3D>> connections = new ArrayList<>();
+		List<List<Vertex>> connections = new ArrayList<>();
 		
 		for(int i=0;i<o.getVertices().size();++i) {
 			connections.add(new ArrayList<>());
 		}
 		
-		for(Edge e : o.getEdges()) {
+		for(Edge e : o.e) {
 			int i = o.getVertices().indexOf(e.a);
 			int j = o.getVertices().indexOf(e.b);
 			connections.get(i).add(e.b.getCopy());
 			connections.get(j).add(e.a.getCopy());
 		}
 		
-		List<Vertex3D> vertices = new ArrayList<>();
+		List<Vertex> vertices = new ArrayList<>();
 		
-		for(Vertex3D v : o.getVertices()) {
+		for(Vertex v : o.v) {
 			vertices.add(v.getCopy());
 		}
 		
-		List<ArrayList<Vertex3D>> sides = new ArrayList<>();
+		List<ArrayList<Vertex>> sides = new ArrayList<>();
 		
 		for(int i=0;i<o.getSides().size();++i) {
 			sides.add(new ArrayList<>());
-			for(Vertex3D vertex : o.getSides().get(i).getVertices()) {
+			for(Vertex vertex : o.getSides().get(i).getVertices()) {
 				sides.get(i).add(vertex.getCopy());
 			}
 		}
@@ -114,28 +116,28 @@ public class ObjectInfoCalculator {
 		return volume;
 	}
 	
-	private static double getObjectVolume(List<List<Vertex3D>> connections, List<Vertex3D> vertexOrder, List<ArrayList<Vertex3D>> sides) {
+	private static double getObjectVolume(List<List<Vertex>> connections, List<Vertex> vertexOrder, List<ArrayList<Vertex>> sides) {
 		double volume = 0;
 		while(connections.size()>0) {
 			System.out.println("------------------------------------------");
 			System.out.println("Processing object: ");
 			System.out.println("Current volume :"+Math.round(volume*100)/100.0);
 			System.out.println("Current vertex :"+vertexOrder.get(0));
-			for(List<Vertex3D> list : connections) {
+			for(List<Vertex> list : connections) {
 				System.out.print(vertexOrder.get(connections.indexOf(list)).name+": ");
-				for(Vertex3D v : list) {
+				for(Vertex v : list) {
 					System.out.print(v.name + " ");
 				}
 				System.out.print("\n");
 			}
 			
-			ArrayList<Vertex3D> newSide = new ArrayList<>();
+			ArrayList<Vertex> newSide = new ArrayList<>();
 			
 			if(connections.get(0).size()==3) {
 				//Volume of tetrahedron
-				Vertex3D v0 = connections.get(0).get(0).add(vertexOrder.get(0).getOpositeVector());
-				Vertex3D v1 = connections.get(0).get(1).add(vertexOrder.get(0).getOpositeVector());
-				Vertex3D v2 = connections.get(0).get(2).add(vertexOrder.get(0).getOpositeVector());
+				Vertex3D v0 = (Vertex3D) connections.get(0).get(0).add(vertexOrder.get(0).getOpositeVector());
+				Vertex3D v1 = (Vertex3D) connections.get(0).get(1).add(vertexOrder.get(0).getOpositeVector());
+				Vertex3D v2 = (Vertex3D) connections.get(0).get(2).add(vertexOrder.get(0).getOpositeVector());
 				
 				volume += Math.abs(v0.getDotProduct(v1.getCrossProduct(v2)))/6.0;
 				
@@ -166,21 +168,21 @@ public class ObjectInfoCalculator {
 				}
 				System.out.println("Removed "+conRemoved+" connections from object");
 				
-				for(ArrayList<Vertex3D> side : sides) {
+				for(ArrayList<Vertex> side : sides) {
 					side.remove(vertexOrder.get(0));
 				}
 			}else if(connections.get(0).size()>3) {
-				Vertex3D start = connections.get(0).remove(0);
-				Vertex3D a = null, b = null;
+				Vertex start = connections.get(0).remove(0);
+				Vertex a = null, b = null;
 				
 				newSide.add(start);
 				
 				System.out.println(vertexOrder.get(0).name);
 				
 				//Create list of sides connected to the corner
-				List<ArrayList<Vertex3D>> sidesToCheck = new ArrayList<>();
+				List<ArrayList<Vertex>> sidesToCheck = new ArrayList<>();
 				
-				for(ArrayList<Vertex3D> s : sides) {
+				for(ArrayList<Vertex> s : sides) {
 					if(s.contains(vertexOrder.get(0))) {
 						sidesToCheck.add(new ArrayList<>());
 						sidesToCheck.set(sidesToCheck.size()-1, s);
@@ -190,7 +192,7 @@ public class ObjectInfoCalculator {
 				for(int i=0;i<sidesToCheck.size();++i) {
 					if(sidesToCheck.get(i).contains(start)) {
 						System.out.print("Start ["+start.name+"] ");
-						for(Vertex3D v : sidesToCheck.get(i)) {
+						for(Vertex v : sidesToCheck.get(i)) {
 							System.out.print(v.name+" ");
 						}
 						System.out.println("");
@@ -203,7 +205,7 @@ public class ObjectInfoCalculator {
 				
 				for(int i=1;i<sidesToCheck.size();++i) {
 					for(int j=i+1;j<sidesToCheck.size();++j) {
-						for(Vertex3D v : sidesToCheck.get(i-1)) {
+						for(Vertex v : sidesToCheck.get(i-1)) {
 							if(v.equals(vertexOrder.get(0)) || v.equals(start))
 								continue;
 							
@@ -216,7 +218,7 @@ public class ObjectInfoCalculator {
 				
 				System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>");
 				for(int i=0;i<sidesToCheck.size();++i) {
-					for(Vertex3D v : sidesToCheck.get(i)) {
+					for(Vertex v : sidesToCheck.get(i)) {
 						System.out.print(v.name+" ");
 					}
 					System.out.println("");
@@ -225,7 +227,7 @@ public class ObjectInfoCalculator {
 				System.out.println("There are "+sidesToCheck.size()+" sides around "+vertexOrder.get(0).name);
 				
 				A:for(int i=0;i<sidesToCheck.size();++i) {
-					for(Vertex3D vertex : sidesToCheck.get(i)) {
+					for(Vertex vertex : sidesToCheck.get(i)) {
 						if(vertex.equals(vertexOrder.get(0)) || vertex.equals(start))
 							continue;
 						if(connections.get(0).contains(vertex)){
@@ -236,9 +238,9 @@ public class ObjectInfoCalculator {
 							}else {
 								b = vertex;
 								
-								Vertex3D v0 = a.add(vertexOrder.get(0).getOpositeVector());
-								Vertex3D v1 = b.add(vertexOrder.get(0).getOpositeVector());
-								Vertex3D v2 = start.add(vertexOrder.get(0).getOpositeVector());
+								Vertex3D v0 = (Vertex3D) a.add(vertexOrder.get(0).getOpositeVector());
+								Vertex3D v1 = (Vertex3D) b.add(vertexOrder.get(0).getOpositeVector());
+								Vertex3D v2 = (Vertex3D) start.add(vertexOrder.get(0).getOpositeVector());
 								
 								volume += Math.abs(v0.getDotProduct(v1.getCrossProduct(v2)))/6.0;
 								
@@ -259,7 +261,7 @@ public class ObjectInfoCalculator {
 			sides.add(newSide);
 			
 			System.out.print("New side [");
-			for(Vertex3D v : newSide) {
+			for(Vertex v : newSide) {
 				System.out.print(v.name+", ");
 			}
 			System.out.println("]");
@@ -270,19 +272,19 @@ public class ObjectInfoCalculator {
 			}
 			System.out.println("Removed "+conRemoved+" connections from object");
 			
-			for(ArrayList<Vertex3D> side : sides) {
+			for(ArrayList<Vertex> side : sides) {
 				side.remove(vertexOrder.get(0));
 			}
 			
-			Predicate<ArrayList<Vertex3D>> valid = toCheck -> toCheck.size()>2;
+			Predicate<ArrayList<Vertex>> valid = toCheck -> toCheck.size()>2;
 			
-			List<ArrayList<Vertex3D>> temp = sides.stream().filter(valid).collect(Collectors.toList());
+			List<ArrayList<Vertex>> temp = sides.stream().filter(valid).collect(Collectors.toList());
 			
 			System.out.println("There were "+(sides.size()-temp.size())+" sides with 2 corners");
 			
 			sides = temp;
 			
-			for(List<Vertex3D> list: connections) {
+			for(List<Vertex> list: connections) {
 				list.remove(vertexOrder.get(0));
 			}
 			
@@ -293,7 +295,7 @@ public class ObjectInfoCalculator {
 		return volume;
 	}
 	
-	private static void addConnection(List<List<Vertex3D>> connections, List<Vertex3D> vertexOrder, Vertex3D a, Vertex3D b) {
+	private static void addConnection(List<List<Vertex>> connections, List<Vertex> vertexOrder, Vertex a, Vertex b) {
 		int aIdx = vertexOrder.indexOf(a);
 		int bIdx = vertexOrder.indexOf(b);
 		
@@ -314,7 +316,7 @@ public class ObjectInfoCalculator {
 		}
 	}
 	
-	private static ObjectInfo getShapeInfo(Shape s) {
+	private static ObjectInfo getShapeInfo(Shape3D s) {
 		HashMap<String, String> info = new LinkedHashMap<>();
 		
 		info.put("vertices", ""+s.getVertices().size());
@@ -326,7 +328,7 @@ public class ObjectInfoCalculator {
 		return new ObjectInfo(s, info);
 	}
 
-	private static ObjectInfo getEdgeInfo(Edge e) {
+	private static ObjectInfo getEdgeInfo(Edge3D e) {
 		HashMap<String, String> info = new LinkedHashMap<>();
 		
 		info.put("vertex 1", ""+e.a);

@@ -1,8 +1,8 @@
 package app.mathhelper.shape.preset;
 
-import app.mathhelper.shape.Edge;
-import app.mathhelper.shape.Shape;
+import app.mathhelper.shape.shape3d.Edge3D;
 import app.mathhelper.shape.shape3d.Object3D;
+import app.mathhelper.shape.shape3d.Shape3D;
 import app.mathhelper.shape.shape3d.Vertex3D;
 
 //This class has been used for testing purpose only!!!
@@ -29,21 +29,21 @@ public class TestTraingles extends Object3D {
 	}
 	@Override
 	protected void createSides(){
-		s.add(new Shape(new Vertex3D[]{v.get(0), v.get(2), v.get(1)}));
-		s.add(new Shape(new Vertex3D[]{v.get(3), v.get(5), v.get(4)}));
+		s.add(new Shape3D(new Vertex3D[]{(Vertex3D) v.get(0), (Vertex3D) v.get(2), (Vertex3D) v.get(1)}));
+		s.add(new Shape3D(new Vertex3D[]{(Vertex3D) v.get(3), (Vertex3D) v.get(5), (Vertex3D) v.get(4)}));
 		
-		s.add(new Shape(new Vertex3D[]{v.get(0), v.get(1), v.get(2)}));
-		s.add(new Shape(new Vertex3D[]{v.get(3), v.get(4), v.get(5)}));
+		s.add(new Shape3D(new Vertex3D[]{(Vertex3D) v.get(0), (Vertex3D) v.get(1), (Vertex3D) v.get(2)}));
+		s.add(new Shape3D(new Vertex3D[]{(Vertex3D) v.get(3), (Vertex3D) v.get(4), (Vertex3D) v.get(5)}));
 	};
 	@Override
 	protected void createEdges(){
-		e.add(new Edge(v.get(0), v.get(1)));
-		e.add(new Edge(v.get(1), v.get(2)));
-		e.add(new Edge(v.get(2), v.get(0)));
+		e.add(new Edge3D((Vertex3D) v.get(0), (Vertex3D) v.get(1)));
+		e.add(new Edge3D((Vertex3D) v.get(1), (Vertex3D) v.get(2)));
+		e.add(new Edge3D((Vertex3D) v.get(2), (Vertex3D) v.get(0)));
 		
-		e.add(new Edge(v.get(3), v.get(4)));
-		e.add(new Edge(v.get(4), v.get(5)));
-		e.add(new Edge(v.get(5), v.get(3)));
+		e.add(new Edge3D((Vertex3D) v.get(3), (Vertex3D) v.get(4)));
+		e.add(new Edge3D((Vertex3D) v.get(4), (Vertex3D) v.get(5)));
+		e.add(new Edge3D((Vertex3D) v.get(5), (Vertex3D) v.get(3)));
 	};
 
 }

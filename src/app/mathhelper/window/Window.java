@@ -82,9 +82,10 @@ public class Window extends JFrame implements Runnable{
 
 	@Override
 	public void run() {
-		/*System.out.println(ObjectInfoCalculator.getObjectInfo(Preset.TETRAHEDRON.getObject()));*/
-		/*System.out.println("Surface : "+c.getArea());
+		/*System.out.println(ObjectInfoCalculator.getObjectInfo(Preset.TETRAHEDRON.getObject()));
+		System.out.println("Surface : "+c.getArea());
 		System.out.println("Scope : " + c.getScope());*/
+		System.out.println("Program started...");
 		while (true) {
 			screen.repaint();
 		}

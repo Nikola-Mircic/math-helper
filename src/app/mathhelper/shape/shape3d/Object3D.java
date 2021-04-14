@@ -12,7 +12,12 @@ import app.mathhelper.shape.*;
 import app.mathhelper.shape.preset.Cube;
 
 public class Object3D extends GeometryObject{
-	public List<Shape> s;
+	protected double area;
+	protected double scope;
+	
+	public List<Vertex> v;
+	public List<Edge> e;
+	public List<Shape3D> s;
 	private double volume;
 	
 	public Object3D() {
@@ -39,6 +44,28 @@ public class Object3D extends GeometryObject{
 	protected void createSides(){};
 	protected void createEdges(){};
 	
+	protected Vertex3D getCenterCords() {
+		Vertex3D temp;
+		if(v.size()==0) {
+			return null;
+		}
+		
+		double xsum = 0;
+		double ysum = 0;
+		double zsum = 0;
+		
+		for(Vertex vertex : this.v) {
+			Vertex3D v2 = (Vertex3D) vertex;
+			xsum += v2.x/v.size();
+			ysum += v2.y/v.size();
+			zsum += v2.z/v.size();
+		}
+		
+		temp = new Vertex3D("center",xsum, ysum, zsum);
+		
+		return temp;
+	}
+	
 	//Rotation 53 - 116 
 	public void rotateVertical(double rotation) {
 		double[] angleVert = getVerticalAngle();
@@ -46,9 +73,9 @@ public class Object3D extends GeometryObject{
 		double dist;
 		
 		for(int i=0;i<v.size();++i) {
-			dist = getDistVertical(center, v.get(i));
-			v.get(i).y = center.y + Math.sin(angleVert[i]+rotation)*dist;
-			v.get(i).z = center.z + Math.cos(angleVert[i]+rotation)*dist;
+			dist = getDistVertical(center, (Vertex3D) v.get(i));
+			((Vertex3D) v.get(i)).y = center.y + Math.sin(angleVert[i]+rotation)*dist;
+			((Vertex3D) v.get(i)).z = center.z + Math.cos(angleVert[i]+rotation)*dist;
 		}
 	}
 	
@@ -58,9 +85,9 @@ public class Object3D extends GeometryObject{
 		double dist;
 		
 		for(int i=0;i<v.size();++i) {
-			dist = getDistHorizontal(center, v.get(i));
-			v.get(i).x = center.x + Math.cos(angleHoriz[i]+rotation)*dist;
-			v.get(i).z = center.z + Math.sin(angleHoriz[i]+rotation)*dist;
+			dist = getDistHorizontal(center, (Vertex3D) v.get(i));
+			((Vertex3D) v.get(i)).x = center.x + Math.cos(angleHoriz[i]+rotation)*dist;
+			((Vertex3D) v.get(i)).z = center.z + Math.sin(angleHoriz[i]+rotation)*dist;
 		}
 		
 	}
@@ -69,9 +96,9 @@ public class Object3D extends GeometryObject{
 		double[] temp = new double[v.size()];
 		
 		for(int i=0;i<v.size();++i) {
-			double dist = getDistHorizontal(center, v.get(i));
-			double sin = (v.get(i).z-center.z)/dist;
-			double cos = (v.get(i).x-center.x)/dist;
+			double dist = getDistHorizontal(center, (Vertex3D) v.get(i));
+			double sin = (((Vertex3D) v.get(i)).z-center.z)/dist;
+			double cos = (((Vertex3D) v.get(i)).x-center.x)/dist;
 			double asin = Math.asin(sin);
 			
 			if(cos>=0) {
@@ -88,9 +115,9 @@ public class Object3D extends GeometryObject{
 		double[] temp = new double[v.size()];
 		
 		for(int i=0;i<v.size();++i) {
-			double dist = getDistVertical(center, v.get(i));
-			double cos = (v.get(i).z-center.z)/dist;
-			double sin = (v.get(i).y-center.y)/dist;
+			double dist = getDistVertical(center, (Vertex3D) v.get(i));
+			double cos = (((Vertex3D) v.get(i)).z-center.z)/dist;
+			double sin = (((Vertex3D) v.get(i)).y-center.y)/dist;
 			double asin = Math.asin(sin);
 			
 			if(cos>=0) {
@@ -151,16 +178,16 @@ public class Object3D extends GeometryObject{
 					Vertex3D v1,v2,v3;
 					for(int i=1;i<end-1;++i) {
 						if(values[i].indexOf('/')!=-1) {
-							v1 = temp.v.get(Integer.parseInt(values[i].substring(0,values[i].indexOf('/')))-1);
-							v2 = temp.v.get(Integer.parseInt(values[i+1].substring(0,values[i+1].indexOf('/')))-1);
-							v3 = temp.v.get(Integer.parseInt(values[end].substring(0,values[end].indexOf('/')))-1);
+							v1 = (Vertex3D) temp.v.get(Integer.parseInt(values[i].substring(0,values[i].indexOf('/')))-1);
+							v2 = (Vertex3D) temp.v.get(Integer.parseInt(values[i+1].substring(0,values[i+1].indexOf('/')))-1);
+							v3 = (Vertex3D) temp.v.get(Integer.parseInt(values[end].substring(0,values[end].indexOf('/')))-1);
 						}else {
-							v1 = temp.v.get(Integer.parseInt(values[i])-1);
-							v2 = temp.v.get(Integer.parseInt(values[i+1])-1);
-							v3 = temp.v.get(Integer.parseInt(values[end])-1);
+							v1 = (Vertex3D) temp.v.get(Integer.parseInt(values[i])-1);
+							v2 = (Vertex3D) temp.v.get(Integer.parseInt(values[i+1])-1);
+							v3 = (Vertex3D) temp.v.get(Integer.parseInt(values[end])-1);
 						}
 						
-						Triangle t = new Triangle(v1, v2, v3);
+						Triangle3D t = new Triangle3D(v1, v2, v3);
 						temp.addTriangle(t);
 					}
 				}
@@ -216,16 +243,16 @@ public class Object3D extends GeometryObject{
 					Vertex3D v1,v2,v3;
 					for(int i=1;i<end-1;++i) {
 						if(values[i].indexOf('/')!=-1) {
-							v1 = temp.v.get(Integer.parseInt(values[i].substring(0,values[i].indexOf('/')))-1);
-							v2 = temp.v.get(Integer.parseInt(values[i+1].substring(0,values[i+1].indexOf('/')))-1);
-							v3 = temp.v.get(Integer.parseInt(values[end].substring(0,values[end].indexOf('/')))-1);
+							v1 = (Vertex3D) temp.v.get(Integer.parseInt(values[i].substring(0,values[i].indexOf('/')))-1);
+							v2 = (Vertex3D) temp.v.get(Integer.parseInt(values[i+1].substring(0,values[i+1].indexOf('/')))-1);
+							v3 = (Vertex3D) temp.v.get(Integer.parseInt(values[end].substring(0,values[end].indexOf('/')))-1);
 						}else {
-							v1 = temp.v.get(Integer.parseInt(values[i])-1);
-							v2 = temp.v.get(Integer.parseInt(values[i+1])-1);
-							v3 = temp.v.get(Integer.parseInt(values[end])-1);
+							v1 = (Vertex3D) temp.v.get(Integer.parseInt(values[i])-1);
+							v2 = (Vertex3D) temp.v.get(Integer.parseInt(values[i+1])-1);
+							v3 = (Vertex3D) temp.v.get(Integer.parseInt(values[end])-1);
 						}
 						
-						Triangle t = new Triangle(v1, v2, v3);
+						Triangle3D t = new Triangle3D(v1, v2, v3);
 						temp.addTriangle(t);
 					}
 				}
@@ -276,49 +303,54 @@ public class Object3D extends GeometryObject{
 		return temp;
 	}
 	
-	private void addTriangle(Triangle t) {
+	private void addVertex(int idx,String[] values) {
+		idx--;
+		String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		String name = ""+alphabet.charAt(idx%26);
+		for(int i=0;i<idx/26;++i) name+="\'";
+		
+		this.v.add(new Vertex3D(name,Double.parseDouble(values[1]),Double.parseDouble(values[2]),Double.parseDouble(values[3])));
+	}
+	
+	private void addTriangle(Triangle3D t) {
 		double diff = 5*Math.pow(10, -13);
 		Vertex3D test = t.getCrossProduct();
 		Vertex3D temp;
-		for(Shape side : this.s) {
-			temp = side.getNormal().b;
+		for(Shape3D side : this.s) {
+			temp = (Vertex3D) side.getNormal().b;
 			if(Math.abs(temp.getDotProduct(test)-temp.getLenght()*test.getLenght())<diff) {
 				side.addTriangle(t);
 				return;
 			}
 		}
-		this.s.add(new Shape(new Triangle[] {t}));
+		this.s.add(new Shape3D(new Triangle3D[] {t}));
 	}
 	
 	private void loadEdgesfromSides() {
-		for(Shape s : this.s) {
+		for(Shape3D s : this.s) {
 			addEdgeFromShape(s);
 		}
 	}
 	
-	private void addEdgeFromShape(Shape s) {	
-		A:for(Edge temp : s.getEdges()) {
+	private void addEdgeFromShape(Shape3D s) {	
+		A:for(Edge temp :  s.getEdges()) {
 			for(Edge edge : this.e) {
 				if(edge.equalsByName(temp)) {
 					continue A;
 				}
 			}
-			temp.a.numOfCon++;
-			temp.b.numOfCon++;
 			this.e.add(temp);
 		}
 	}
 	
 	//Object data ( area, scope & volume ) 311 - 339
-	@Override
 	protected void calculateArea(){
 		this.area = 0;
-		for(Shape s : this.s) {
+		for(Shape3D s : this.s) {
 			area += s.getArea();
 		}
 	}
 	
-	@Override
 	protected void calculateScope(){
 		this.scope = 0;
 		
@@ -327,24 +359,31 @@ public class Object3D extends GeometryObject{
 		}
 	}
 	
-	public void calculateVolume() {
-		
+	public double getArea() {
+		calculateArea();
+		return this.area;
 	}
 	
-	@Override
-	public List<Vertex3D> getVertices(){
+	public double getScope() {
+		calculateScope();
+		return this.scope;
+	}
+	
+	public List<Vertex> getVertices(){
 		return this.v;
 	}
 	
-	@Override
 	public List<Edge> getEdges() {
 		return this.e;
 	}
 	
-	public List<Shape> getSides(){
+	public List<Shape3D> getSides(){
 		return this.s;
 	}
 
+	public Vertex3D getCenter() {
+		return center;
+	}
 	
 	public double getVolume() {
 		return volume;

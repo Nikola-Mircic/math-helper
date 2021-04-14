@@ -1,31 +1,27 @@
 package app.mathhelper.shape;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import app.mathhelper.shape.shape3d.Vertex3D;
 
 public abstract class GeometryObject {
-	protected double area;
-	protected double scope;
-	protected List<Vertex3D> v;
-	protected List<Edge> e;
 	protected ObjectInfo info;
 	
 	protected Vertex3D center;
 	
 	protected GeometryObject() {	
-		this.area = -1;
-		this.scope = -1;
-		this.v = new ArrayList<>();
-		this.e = new ArrayList<>();
 		this.info = new ObjectInfo(this);
 	}
 	
-	protected abstract void calculateArea();
-	protected abstract void calculateScope();
+	public static interface InfoHandler{
+		public void handle(ObjectInfo info);
+	}
 	
-	public double getArea() {
+	public void handleInfo(InfoHandler handler) {
+		handler.handle(this.info);
+	}
+	/*protected abstract void calculateArea();
+	protected abstract void calculateScope();*/
+	
+	/*public double getArea() {
 		calculateArea();
 		return this.area;
 	}
@@ -35,26 +31,7 @@ public abstract class GeometryObject {
 		return this.scope;
 	}
 	
-	protected Vertex3D getCenterCords() {
-		Vertex3D temp;
-		if(v.size()==0) {
-			return null;
-		}
-		
-		double xsum = 0;
-		double ysum = 0;
-		double zsum = 0;
-		
-		for(Vertex3D vertex : this.v) {
-			xsum += vertex.x/v.size();
-			ysum += vertex.y/v.size();
-			zsum += vertex.z/v.size();
-		}
-		
-		temp = new Vertex3D("center",xsum, ysum, zsum);
-		
-		return temp;
-	}
+	
 	
 	protected void addVertex(int idx,String[] values) {
 		idx--;
@@ -74,11 +51,7 @@ public abstract class GeometryObject {
 		return this.e;
 	}
 
-	public Vertex3D getCenter() {
-		return center;
-	}
-
 	public void setCenter(Vertex3D center) {
 		this.center = center;
-	}
+	}*/
 }

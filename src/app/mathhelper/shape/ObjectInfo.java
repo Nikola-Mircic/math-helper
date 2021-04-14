@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import app.mathhelper.shape.shape3d.Object3D;
+
 public class ObjectInfo {
 	private GeometryObject object;
 	private Map<String, String> info;
@@ -26,8 +28,9 @@ public class ObjectInfo {
 	
 	@Override
 	public String toString() {
-		String rez = "Object of type : ["+object.getClass().getSimpleName()+"] "+object.getCenter()+" \n"+
-					 "Info : \n";
+		String rez = "Object of type : ["+object.getClass().getSimpleName()+"] ";
+		rez+=(object instanceof Object3D)?((Object3D)object).getCenter()+" \n" : "\n";		 
+		rez+="Info : \n";
 		for(Entry<String, String> e : info.entrySet()) {
 			rez += "  -"+e.getKey()+": "+e.getValue()+"\n";
 		}
