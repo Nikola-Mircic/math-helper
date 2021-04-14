@@ -23,14 +23,6 @@ public class Vertex3D extends Vertex{
 	}
 	
 	@Override
-	public boolean equals(Object obj) {
-		if(!(obj instanceof Vertex)) {
-			return false;
-		}
-		return this.equals((Vertex)obj);
-	}
-	
-	@Override
 	public boolean equals(Vertex v) {
 		if(!(v instanceof Vertex3D)) {
 			return false;
@@ -76,6 +68,7 @@ public class Vertex3D extends Vertex{
 				return 0;
 		
 		Vertex3D v3d = (Vertex3D) v;
+		
 		Vertex3D t = new Vertex3D(this.name, v3d.x, v3d.y, v3d.z);
 		
 		return this.x*t.x + this.y*t.y + this.z*t.z;

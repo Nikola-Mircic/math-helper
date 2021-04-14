@@ -5,11 +5,14 @@ import app.mathhelper.shape.shape3d.Vertex3D;
 public abstract class Vertex {
 	public String name;
 	
-	public boolean equals(Vertex v) {
-		if(v == null)
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof Vertex))
 			return false;
-		return this.name.contentEquals(v.name);
+		return this.equals((Vertex)obj);
 	}
+	
+	public abstract boolean equals(Vertex v);
 	
 	public abstract Vertex add(Vertex v);
 	
