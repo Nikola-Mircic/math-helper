@@ -5,7 +5,7 @@ import java.util.List;
 
 import app.mathhelper.shape.Edge;
 import app.mathhelper.shape.Shape;
-import app.mathhelper.shape.Triangle3D;
+import app.mathhelper.shape.Triangle;
 import app.mathhelper.shape.Vertex;
 
 public class Shape3D extends Shape{
@@ -37,7 +37,7 @@ public class Shape3D extends Shape{
 		this.area = -1;
 	}
 	
-	private void addEdgeFromTriangle(Triangle3D t) {
+	private void addEdgeFromTriangle(Triangle t) {
 		Edge3D toDelete = null;
 		
 		A:for(Edge temp : t.e) {
@@ -80,7 +80,7 @@ public class Shape3D extends Shape{
 	@Override
 	protected void calculateArea() {
 		this.area = 0;
-		for(Triangle3D t : triangles) {
+		for(Triangle t : triangles) {
 			this.area += t.getArea();
 		}
 	}
@@ -95,14 +95,14 @@ public class Shape3D extends Shape{
 	}
 	
 	public Edge3D getNormal() {
-		return new Edge3D((Vertex3D) triangles.get(0).v.get(0), triangles.get(0).getCrossProduct());
+		return new Edge3D((Vertex3D) triangles.get(0).v.get(0), ((Triangle3D)triangles.get(0)).getCrossProduct());
 	}
 
-	public List<Triangle3D> getTriangles() {
+	public List<Triangle> getTriangles() {
 		return triangles;
 	}
 
-	public void setTriangles(List<Triangle3D> triangles) {
+	public void setTriangles(List<Triangle> triangles) {
 		this.triangles = triangles;
 	}
 	

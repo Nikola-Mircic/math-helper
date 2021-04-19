@@ -16,11 +16,11 @@ import app.mathhelper.shape.GeometryObject;
 import app.mathhelper.shape.ObjectInfo;
 import app.mathhelper.shape.ObjectInfoCalculator;
 import app.mathhelper.shape.Triangle;
-import app.mathhelper.shape.Triangle3D;
 import app.mathhelper.shape.Vertex;
 import app.mathhelper.shape.shape3d.Edge3D;
 import app.mathhelper.shape.shape3d.Object3D;
 import app.mathhelper.shape.shape3d.Shape3D;
+import app.mathhelper.shape.shape3d.Triangle3D;
 import app.mathhelper.shape.shape3d.Vertex3D;
 
 public class Camera3D{
@@ -160,7 +160,7 @@ public class Camera3D{
 			c=Math.min(255, c);
 			c=Math.max(0, c);
 			int color = (new Color(c, c, c)).getRGB();
-			for(Triangle3D t : s.getTriangles()) {
+			for(Triangle t : s.getTriangles()) {
 				fillTriangle((Vertex3D) t.getVertices().get(0), (Vertex3D) t.getVertices().get(1),(Vertex3D)  t.getVertices().get(2), color);
 			}
 		}
@@ -207,10 +207,10 @@ public class Camera3D{
 		for(int i=0;i<temp.length;++i) {
 			if(dotProduct<0 || renderMode == 1) {
 				g.fillOval((int)((Vertex3D) temp[i].a).x-3, (int)((Vertex3D) temp[i].a).y-3, 6, 6);
-				g.drawString((shape.getEdges().get(i).a.name), (int)((Vertex3D) temp[i].a).x-15, (int)((Vertex3D) temp[i].a).y-3);	
+				//g.drawString((shape.getEdges().get(i).a.name), (int)((Vertex3D) temp[i].a).x-15, (int)((Vertex3D) temp[i].a).y-3);	
 				
 				g.fillOval((int)((Vertex3D) temp[i].b).x-3, (int)((Vertex3D) temp[i].b).y-3, 6, 6);
-				g.drawString((shape.getEdges().get(i).b.name), (int)((Vertex3D) temp[i].b).x-15, (int)((Vertex3D) temp[i].b).y-3);
+				//g.drawString((shape.getEdges().get(i).b.name), (int)((Vertex3D) temp[i].b).x-15, (int)((Vertex3D) temp[i].b).y-3);
 			}
 		}
 		
@@ -236,8 +236,6 @@ public class Camera3D{
 	
 		temp.x = a*fov*(v.x+this.postition.x)/temp.z*width+width/2;
 		temp.y = -fov*(v.y+this.postition.y)/temp.z*height+height/2;
-		
-		//temp.z = v.z;
 		
 		return temp;
 	}
@@ -467,11 +465,6 @@ public class Camera3D{
 						context.setRGB(x, y, color);
 						zBuffer[x][y] = zValue;
 					}
-					/*zValue = calculateZ(ac, bc, x+1);
-					if(zBuffer[x+1][y]>zValue || zBuffer[x+1][y]==0) {
-						context.setRGB(x+1, y, color);
-						zBuffer[x+1][y] = zValue;
-					}*/
 					zValue = calculateZ((Vertex3D) ac.add(stepAC), (Vertex3D) bc.add(stepBC), x);
 					if(zBuffer[x][y+1]>zValue || zBuffer[x][y+1]==0) {
 						context.setRGB(x, y+1, color);

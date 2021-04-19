@@ -1,9 +1,9 @@
-package app.mathhelper.shape;
+package app.mathhelper.shape.shape3d;
 
 import java.util.List;
 
-import app.mathhelper.shape.shape3d.Edge3D;
-import app.mathhelper.shape.shape3d.Vertex3D;
+import app.mathhelper.shape.Edge;
+import app.mathhelper.shape.Triangle;
 
 public class Triangle3D extends Triangle{
 	public Triangle3D(Vertex3D a, Vertex3D b, Vertex3D c) {

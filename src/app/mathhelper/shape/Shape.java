@@ -9,7 +9,7 @@ public abstract class Shape extends GeometryObject{
 	
 	protected List<Vertex> v;
 	protected List<Edge> e;
-	protected List<Triangle3D> triangles;
+	protected List<Triangle> triangles;
 	
 	protected abstract void calculateArea();
 	protected abstract void calculateScope();

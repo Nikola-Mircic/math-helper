@@ -7,7 +7,7 @@ public class Vertex3D extends Vertex{
 	public int numOfCon;
 	
 	public Vertex3D() {
-		this("?", 0 ,0 ,0);
+		this("", 0 ,0 ,0);
 	}
 	
 	public Vertex3D(String name,double x, double y, double z) {
