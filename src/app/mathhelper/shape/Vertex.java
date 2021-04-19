@@ -22,7 +22,7 @@ public abstract class Vertex {
 	
 	public abstract double getLenght();
 	
-	public abstract Vertex3D getCopy();
+	public abstract Vertex getCopy();
 
 	public abstract Vertex getOpositeVector();
 }
