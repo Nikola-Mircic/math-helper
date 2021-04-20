@@ -23,13 +23,7 @@ import app.mathhelper.shape.shape3d.Shape3D;
 import app.mathhelper.shape.shape3d.Triangle3D;
 import app.mathhelper.shape.shape3d.Vertex3D;
 
-public class Camera3D{
-	public static int id = 0;
-	public int currentId;
-	
-	private int width;
-	private int height;
-	public BufferedImage context;
+public class Camera3D extends Camera{
 	private double[][] zBuffer;
 	
 	public Vertex3D postition;
@@ -52,12 +46,8 @@ public class Camera3D{
 	}
 	
 	public Camera3D(int width, int height, double x, double y, double z, Object3D object) {
-		Camera3D.id++;
-		this.currentId = id;
+		super(width, height);
 		
-		this.width = width;
-		this.height = height;
-		this.context = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		this.zBuffer = new double[width][height];
 		
 		this.postition = new Vertex3D("camera"+id, x, y, z);
@@ -75,6 +65,7 @@ public class Camera3D{
 		drawContext();
 	}
 	
+	@Override
 	public void drawContext() {
 		if(this.objectSet.isEmpty()) {
 			return;
@@ -133,6 +124,7 @@ public class Camera3D{
 		g.drawString("Camera id: "+id, 10, this.height-50);
 	}
 	
+	@Override
 	public BufferedImage getToDrawContex(int width, int height, int xOffset, int yOffset) {
 		if(LIGHT_EFFECT)
 			this.drawContext();
@@ -490,7 +482,8 @@ public class Camera3D{
 		return temp1.z+(temp2.z-temp1.z)*scale;
 	}
 	
-	public void checkOnClick(int x, int y) {
+	@Override
+	public void mouseClick(int x, int y) {
 		for(Vertex vertex : objectSet.get(object).v) {
 			Vertex3D temp = convertTo2D((Vertex3D)vertex);
 			if(Math.abs(x-temp.x)<=3 && Math.abs(y-temp.y)<=3) {
@@ -550,7 +543,22 @@ public class Camera3D{
 			}
 		}
 	}
+
+	@Override
+	public void mouseScroll(int d) {
+		this.moveZ(d/10.0);
+	}
 	
+	@Override
+	public void mouseDragged(int dx, int dy) {
+		double rotationX = (dx/180.0*Math.PI);
+		double rotationY = (dy/180.0*Math.PI);
+		
+		this.getObject().rotateHorizontal(rotationX/4);
+		this.getObject().rotateVertical(rotationY/4);
+		this.drawContext();
+	}
+
 	private boolean isInTriangle(int x, int y, Triangle3D t) {
 		Vertex3D v = new Vertex3D("click", x, y, 0);
 		double d1, d2, d3;

@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 import app.mathhelper.input.InputListener;
+import app.mathhelper.screen.render.Camera3D;
 import app.mathhelper.screen.render.CameraView;
 import app.mathhelper.shape.shape3d.Object3D;
 
@@ -61,7 +62,12 @@ public class Screen extends JPanel{
 	}
 	
 	public Object3D getObject() {
-		return camView.getCamera().getObject();
+		try {
+			return ((Camera3D) camView.getCamera()).getObject();
+		} catch (Exception e) {
+			return null;
+		}
+		//return camView.getCamera().getObject();
 	}
 	
 	public void setObject(Object3D object) {

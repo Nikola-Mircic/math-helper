@@ -4,6 +4,10 @@ import java.awt.*;
 import java.awt.image.*;
 
 import app.mathhelper.shape.preset.*;
+import app.mathhelper.shape.shape2d.Edge2D;
+import app.mathhelper.shape.shape2d.Shape2D;
+import app.mathhelper.shape.shape2d.Triangle2D;
+import app.mathhelper.shape.shape2d.Vertex2D;
 import app.mathhelper.shape.shape3d.Object3D;
 
 import java.util.*;
@@ -12,7 +16,7 @@ import java.util.List;
 public class CameraView{
 	public int WIDTH,HEIGHT;
 	
-	private List<Camera3D> cameras;
+	private List<Camera> cameras;
 	private int activeCamera;
 	public int cameraCount;
 	
@@ -28,10 +32,12 @@ public class CameraView{
 		
 		this.cameras = new ArrayList<>();
 		this.activeCamera = 0;
-		this.cameraCount = 1;
-		for(int i=0;i<cameraCount;++i) {
+		this.cameraCount = 2;
+		/*for(int i=0;i<cameraCount;++i) {
 			cameras.add(new Camera3D(this.WIDTH/cameraCount, this.HEIGHT, Preset.CUBE.getObject()));
-		}
+		}*/
+		cameras.add(new Camera3D(this.WIDTH/cameraCount, this.HEIGHT, Preset.CUBE.getObject()));
+		cameras.add(new Camera2D(this.WIDTH/cameraCount, this.HEIGHT, new Test2D()));
 	}
 	
 	public void renderCameras() {
@@ -54,8 +60,8 @@ public class CameraView{
 		
 		this.img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 		
-		for(Camera3D camera : cameras) {
-			camera.update(width, height);
+		for(Camera camera : cameras) {
+			camera.update(width/cameraCount, height);
 		}
 	}
 	
@@ -67,7 +73,7 @@ public class CameraView{
 		this.img = img;
 	}
 
-	public Camera3D getCamera() {
+	public Camera getCamera() {
 		return this.cameras.get(activeCamera);
 	}
 
@@ -82,7 +88,7 @@ public class CameraView{
 	public void mousePressed(int x, int y) {
 		int temp = x/(this.WIDTH/cameraCount);
 		if(temp == this.activeCamera) {
-			cameras.get(activeCamera).checkOnClick(x-(WIDTH/cameraCount)*activeCamera, y);
+			cameras.get(activeCamera).mouseClick(x-(WIDTH/cameraCount)*activeCamera, y);
 		}
 		this.activeCamera = temp;
 	}
@@ -90,7 +96,11 @@ public class CameraView{
 	public void addCamera() {
 		if(cameraCount<5 && MULTIPLE_CAMERA_ENABLED) {
 			for(int i=0;i<cameraCount;++i) {
-				cameras.set(i, new Camera3D(this.WIDTH/(cameraCount+1), this.HEIGHT, cameras.get(i).getObject()));
+				if(cameras.get(i) instanceof Camera2D) {
+					cameras.set(i, new Camera2D(this.WIDTH/(cameraCount+1), this.HEIGHT, ((Camera2D)cameras.get(i)).getShape()));
+				}else {
+					cameras.set(i, new Camera3D(this.WIDTH/(cameraCount+1), this.HEIGHT, ((Camera3D)cameras.get(i)).getObject()));
+				}
 			}
 			this.cameraCount++;
 			cameras.add(new Camera3D(this.WIDTH/cameraCount, this.HEIGHT, Preset.CUBE.getObject()));
@@ -102,7 +112,11 @@ public class CameraView{
 	public void removeCamera() {
 		if(cameraCount>1) {
 			for(int i=0;i<cameraCount;++i) {
-				cameras.set(i, new Camera3D(this.WIDTH/(cameraCount-1), this.HEIGHT, cameras.get(i).getObject()));
+				if(cameras.get(i) instanceof Camera2D) {
+					cameras.set(i, new Camera2D(this.WIDTH/(cameraCount-1), this.HEIGHT, ((Camera2D)cameras.get(i)).getShape()));
+				}else {
+					cameras.set(i, new Camera3D(this.WIDTH/(cameraCount-1), this.HEIGHT, ((Camera3D)cameras.get(i)).getObject()));
+				}
 			}
 			this.cameraCount--;
 			cameras.remove(activeCamera);
@@ -112,3 +126,34 @@ public class CameraView{
 	}
 	
 }
+
+class Test2D extends Shape2D {
+	public Test2D() {
+		super();
+		
+		loadVertices();
+		loadEdges();
+		loadTriangles();
+	}
+	
+	private void loadTriangles() {
+		this.triangles.add(new Triangle2D((Vertex2D)v.get(0), (Vertex2D)v.get(3), (Vertex2D)v.get(1)));
+		this.triangles.add(new Triangle2D((Vertex2D)v.get(1), (Vertex2D)v.get(3), (Vertex2D)v.get(2)));
+	}
+
+	private void loadEdges() {
+		this.e.add(new Edge2D((Vertex2D)v.get(0), (Vertex2D)v.get(1)));
+		this.e.add(new Edge2D((Vertex2D)v.get(1), (Vertex2D)v.get(2)));
+		this.e.add(new Edge2D((Vertex2D)v.get(2), (Vertex2D)v.get(3)));
+		this.e.add(new Edge2D((Vertex2D)v.get(3), (Vertex2D)v.get(0)));
+	}
+
+	private void loadVertices() {
+		this.v.add(new Vertex2D("A", -100, 100));
+		this.v.add(new Vertex2D("A",  100, 100));
+		this.v.add(new Vertex2D("A",  100, -100));
+		this.v.add(new Vertex2D("A", -100, -100));
+	}
+}
+
+
