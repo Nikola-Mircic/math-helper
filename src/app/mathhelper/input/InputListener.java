@@ -13,6 +13,7 @@ import java.io.File;
 import javax.imageio.ImageIO;
 
 import app.mathhelper.screen.Screen;
+import app.mathhelper.screen.render.Camera;
 import app.mathhelper.screen.render.Camera3D;
 import app.mathhelper.shape.preset.Preset;
 
@@ -42,20 +43,13 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 		}else {
 			int x = e.getX()-lastX;
 			int y = e.getY()-lastY;
-			/*render.setRotationX(render.getRotationX() + (x/180.0*Math.PI));
-			render.setRotationY(render.getRotationY() + (y/180.0*Math.PI));*/
 			
-			double rotationX = (x/180.0*Math.PI);
-			double rotationY = (y/180.0*Math.PI);
-			
-			if(!disabledRotation[1]) {
-				screen.getObject().rotateHorizontal(rotationX/4);
-				screen.getCameraView().getCamera().drawContext();
-			}
-				
-			if(!disabledRotation[2]) {
-				screen.getObject().rotateVertical(rotationY/4);
-				screen.getCameraView().getCamera().drawContext();
+			if(disabledRotation[2]) {
+				screen.getCameraView().getCamera().mouseDragged(x, 0);
+			}else if(disabledRotation[1]) {
+				screen.getCameraView().getCamera().mouseDragged(0, y);
+			}else {
+				screen.getCameraView().getCamera().mouseDragged(x, y);
 			}
 			
 			lastX = e.getX();
@@ -104,16 +98,17 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 	
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		screen.getCameraView().getCamera().moveZ(e.getWheelRotation()/10.0);
+		//screen.getCameraView().getCamera().moveZ(e.getWheelRotation()/10.0);
+		screen.getCameraView().getCamera().mouseScroll(e.getWheelRotation());
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		Camera3D camera = screen.getCameraView().getCamera();
+		Camera camera = screen.getCameraView().getCamera();
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_R:
 			if(e.isControlDown() && e.isShiftDown()) {
-				int mode = screen.getCameraView().getCamera().renderMode;
+				int mode = ((Camera3D) screen.getCameraView().getCamera()).renderMode;
 				Camera3D newCamera = new Camera3D(screen.getCameraView().WIDTH/screen.getCameraView().cameraCount, screen.getCameraView().HEIGHT, object.getObject());
 				newCamera.renderMode = mode;
 				newCamera.drawContext();
@@ -121,12 +116,15 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 			}
 			break;
 		case KeyEvent.VK_T:
-			camera.renderMode++;
-			camera.renderMode%=2;
-			camera.drawContext();
+			if(screen.getCameraView().getCamera() instanceof Camera3D) {
+				((Camera3D) camera).renderMode++;
+				((Camera3D) camera).renderMode%=2;
+				camera.drawContext();
+			}
 			break;
 		case KeyEvent.VK_C:
-			screen.getCameraView().getCamera().switchLightEffect();
+			if(screen.getCameraView().getCamera() instanceof Camera3D)
+				((Camera3D) screen.getCameraView().getCamera()).switchLightEffect();
 			break;
 		case KeyEvent.VK_1:
 			if(e.isShiftDown()) {
@@ -167,7 +165,8 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 			screen.setObject(object.getObject());
 			break;
 		case KeyEvent.VK_CONTROL:
-			camera.renderingCenter = true;
+			if(screen.getCameraView().getCamera() instanceof Camera3D)
+				((Camera3D)camera).renderingCenter = true;
 			break;
 		case KeyEvent.VK_UP:
 			camera.moveY(0.1);
@@ -203,7 +202,8 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 	public void keyReleased(KeyEvent e) {
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_CONTROL:
-			screen.getCameraView().getCamera().renderingCenter = false;
+			if(screen.getCameraView().getCamera() instanceof Camera3D)
+				((Camera3D)screen.getCameraView().getCamera()).renderingCenter = false;
 			break;
 
 		default:
