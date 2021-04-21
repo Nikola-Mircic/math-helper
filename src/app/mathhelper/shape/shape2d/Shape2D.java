@@ -2,13 +2,9 @@ package app.mathhelper.shape.shape2d;
 
 import java.util.ArrayList;
 
-import app.mathhelper.shape.Edge;
 import app.mathhelper.shape.Shape;
-import app.mathhelper.shape.Triangle;
-import app.mathhelper.shape.Vertex;
-import app.mathhelper.shape.shape3d.Edge3D;
 
-public class Shape2D extends Shape {
+public class Shape2D extends Shape<Vertex2D, Edge2D, Triangle2D> {
 
 	public Shape2D() {
 		super();
@@ -19,7 +15,7 @@ public class Shape2D extends Shape {
 		
 		this.triangles = new ArrayList<>();
 				
-		for(Triangle temp : triangles) {
+		for(Triangle2D temp : triangles) {
 			this.triangles.add(temp);
 			addEdgeFromTriangle(temp);
 			addVertexFromTriangle(temp);
@@ -29,9 +25,9 @@ public class Shape2D extends Shape {
 		this.scope = getScope();
 	}
 	
-	private void addVertexFromTriangle(Triangle t) {
-		A : for(Vertex vertex : t.v) {
-			for(Vertex test : this.v) {
+	private void addVertexFromTriangle(Triangle2D t) {
+		A : for(Vertex2D vertex : t.v) {
+			for(Vertex2D test : this.v) {
 				if(test.equals(vertex)) {
 					continue A;
 				}
@@ -40,17 +36,17 @@ public class Shape2D extends Shape {
 		}
 	}
 	
-	private void addEdgeFromTriangle(Triangle t) {
-		Edge3D toDelete = null;
+	private void addEdgeFromTriangle(Triangle2D t) {
+		Edge2D toDelete = null;
 		
-		A:for(Edge temp : t.e) {
+		A:for(Edge2D temp : t.e) {
 			if(toDelete!=null) {
 				e.remove(toDelete);
 				toDelete = null;
 			}
-			for(Edge edge : this.e) {
+			for(Edge2D edge : this.e) {
 				if(edge.equalsByName(temp)) {
-					toDelete = (Edge3D)edge;
+					toDelete = edge;
 					continue A;
 				}
 			}
@@ -66,7 +62,7 @@ public class Shape2D extends Shape {
 	@Override
 	protected void calculateArea() {
 		this.area = 0;
-		for(Triangle t : this.triangles) {
+		for(Triangle2D t : this.triangles) {
 			area += t.getArea();
 		}
 	}
@@ -74,7 +70,7 @@ public class Shape2D extends Shape {
 	@Override
 	protected void calculateScope() {
 		this.scope = 0;
-		for(Edge edge : this.e) {
+		for(Edge2D edge : this.e) {
 			this.scope += edge.weight;
 		}
 	}
@@ -89,7 +85,7 @@ public class Shape2D extends Shape {
 		this.v.add(new Vertex2D(name,Double.parseDouble(values[1]),Double.parseDouble(values[2])));
 	}
 	
-	public void addTriangle(Triangle t) {
+	public void addTriangle(Triangle2D t) {
 		this.triangles.add(t);
 		addEdgeFromTriangle(t);
 		addVertexFromTriangle(t);

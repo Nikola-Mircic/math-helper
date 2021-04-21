@@ -11,17 +11,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import app.mathhelper.shape.Edge;
-import app.mathhelper.shape.GeometryObject;
-import app.mathhelper.shape.ObjectInfo;
-import app.mathhelper.shape.ObjectInfoCalculator;
-import app.mathhelper.shape.Triangle;
-import app.mathhelper.shape.Vertex;
-import app.mathhelper.shape.shape3d.Edge3D;
-import app.mathhelper.shape.shape3d.Object3D;
-import app.mathhelper.shape.shape3d.Shape3D;
-import app.mathhelper.shape.shape3d.Triangle3D;
-import app.mathhelper.shape.shape3d.Vertex3D;
+import app.mathhelper.shape.*;
+import app.mathhelper.shape.shape3d.*;
 
 public class Camera3D extends Camera{
 	private double[][] zBuffer;
@@ -132,7 +123,7 @@ public class Camera3D extends Camera{
 		context.getGraphics().drawRect(0, 0, width, height);
 		BufferedImage temp = context.getSubimage((this.width-width)/2+xOffset, (this.height-height)/2+yOffset, width, height);
 		
-		printObjectData(this.objectSet.get(object), temp.getGraphics());
+		printObjectData(temp.getGraphics());
 		
 		return temp;
 	}
@@ -152,7 +143,7 @@ public class Camera3D extends Camera{
 			c=Math.min(255, c);
 			c=Math.max(0, c);
 			int color = (new Color(c, c, c)).getRGB();
-			for(Triangle t : s.getTriangles()) {
+			for(Triangle3D t : s.getTriangles()) {
 				fillTriangle((Vertex3D) t.getVertices().get(0), (Vertex3D) t.getVertices().get(1),(Vertex3D)  t.getVertices().get(2), color);
 			}
 		}
@@ -252,7 +243,7 @@ public class Camera3D extends Camera{
 		g.fillOval((int)center.x, (int)center.y, 5, 5);
 	}
 	
-	private void printObjectData(GeometryObject object, Graphics g) {
+	private void printObjectData(Graphics g) {
 		g.setColor(Color.WHITE);
 		g.setFont(new Font("Serif", Font.PLAIN, 25));
 		
@@ -274,13 +265,13 @@ public class Camera3D extends Camera{
 				zValue = a.z;
 				zStep = (b.z-a.z)/(b.y-a.y);
 				for(int y=(int)a.y;y<b.y;++y) {
-					if(x1<0 || x1>=width || y<0 || y>=height)
+					if(x1<0 || x1>=width-1 || y<0 || y>=height)
 						return;
 					if(zBuffer[x1][y]>zValue || zBuffer[x1][y]==0) {
 						context.setRGB(x1, y, color);
 						zBuffer[x1][y]=zValue;	
 					}
-					if(zBuffer[x1+1][y]<zValue || zBuffer[x1+1][y]==0) {
+					if(zBuffer[x1+1][y]>zValue || zBuffer[x1+1][y]==0) {
 						context.setRGB(x1+1, y, color);
 						zBuffer[x1+1][y]=zValue;
 					}
@@ -290,22 +281,58 @@ public class Camera3D extends Camera{
 				zValue = b.z;
 				zStep = (a.z-b.z)/(a.y-b.y);
 				for(int y=(int)b.y;y<a.y;++y) {
-					if(x1<0 || x1>=width || y<0 || y>=height)
+					if(x1<0 || x1>=width-1 || y<0 || y>=height)
 						return;
 					if(zBuffer[x1][y]>zValue || zBuffer[x1][y]==0) {
 						context.setRGB(x1, y, color);
 						zBuffer[x1][y]=zValue;	
 					}
-					if(zBuffer[x1+1][y]<zValue || zBuffer[x1+1][y]==0) {
+					if(zBuffer[x1+1][y]>zValue || zBuffer[x1+1][y]==0) {
 						context.setRGB(x1+1, y, color);
 						zBuffer[x1+1][y]=zValue;
 					}
 					zValue+=zStep;
 				}
 			}
-		}else if(x1<x2) {
+		}else if(y1 == y2) {
+			a = new Vertex3D("a", x1, y1, z1);
+			b = new Vertex3D("b", x2, y2, z2);
+			if(a.x<b.x) {
+				zValue = a.z;
+				zStep = (b.z-a.z)/(b.x-a.x);
+				for(int x=(int)a.x;x<b.x;++x) {
+					if(x<0 || x>=width || y1<0 || y1>=height-1)
+						return;
+					if(zBuffer[x][y1]>zValue || zBuffer[x][y1]==0) {
+						context.setRGB(x, y1, color);
+						zBuffer[x][y1]=zValue;	
+					}
+					if(zBuffer[x][y1+1]>zValue || zBuffer[x][y1+1]==0) {
+						context.setRGB(x, y1+1, color);
+						zBuffer[x][y1+1]=zValue;
+					}
+					zValue+=zStep;
+				}
+			}else {
+				zValue = b.z;
+				zStep = (a.z-b.z)/(a.x-b.x);
+				for(int x=(int)b.x;x<a.x;++x) {
+					if(x<0 || x>=width || y1<0 || y1>=height-1)
+						return;
+					if(zBuffer[x][y1]>zValue || zBuffer[x][y1]==0) {
+						context.setRGB(x, y1, color);
+						zBuffer[x][y1]=zValue;	
+					}
+					if(zBuffer[x][y1+1]>zValue || zBuffer[x][y1+1]==0) {
+						context.setRGB(x, y1+1, color);
+						zBuffer[x][y1+1]=zValue;
+					}
+					zValue+=zStep;
+				}
+			}
+		} else if(x1<x2) {
 			double k = (y2-y1)/(double)(x2-x1);
-			double n = y1-k*x1;
+			double n = y1*1.0-k*x1;
 			zValue = z1;
 			zStep = (z2-z1)/(Math.max(x2-x1, Math.abs(y2-y1)));
 			for(int x=x1;x<x2;++x) {
@@ -377,6 +404,7 @@ public class Camera3D extends Camera{
 			drawLine((int)temp.get(0).x, (int)temp.get(0).y, temp.get(0).z, (int)temp.get(2).x, (int)temp.get(2).y, temp.get(2).z, color);
 			return;
 		}
+		
 		double scale = dy10/dy20;
 		double middleX = temp.get(0).x+(temp.get(2).x-temp.get(0).x)*scale;
 		double middleZ = temp.get(0).z+(temp.get(2).z-temp.get(0).z)*scale;
@@ -391,10 +419,14 @@ public class Camera3D extends Camera{
 	private void fillBottomFlatTriangle(Vertex3D a, Vertex3D b,Vertex3D c, int color) {
 		Vertex3D ab = new Vertex3D("ab", a.x, a.y, a.z);
 		Vertex3D ac = new Vertex3D("ac", a.x, a.y, a.z);
+		
 		double dy = b.y-a.y;
+		
 		if(dy<=1) {
+			drawLine((int)b.x, (int)b.y, b.z, (int)c.x, (int)c.y, c.z, color);
 			return;
 		}
+		
 		double dxAB = (b.x-a.x)/dy;
 		double dxAC = (c.x-a.x)/dy;
 		
@@ -413,11 +445,6 @@ public class Camera3D extends Camera{
 						context.setRGB(x, y, color);
 						zBuffer[x][y] = zValue;
 					}
-					/*zValue = calculateZ(ac, ab, x+1);
-					if(zBuffer[x+1][y]>zValue || zBuffer[x+1][y]==0) {
-						context.setRGB(x+1, y, color);
-						zBuffer[x+1][y] = zValue;
-					}*/
 					zValue = calculateZ((Vertex3D) ac.add(stepAC), (Vertex3D) ab.add(stepAB), x);
 					if(zBuffer[x][y+1]>zValue || zBuffer[x][y+1]==0) {
 						context.setRGB(x, y+1, color);
@@ -427,6 +454,16 @@ public class Camera3D extends Camera{
 			}
 			ab = (Vertex3D) ab.add(stepAB);
 			ac = (Vertex3D) ac.add(stepAC);
+			
+			if((int)ab.add(a.getOpositeVector()).getLenght() >= (int)Vertex3D.dist(a, b)) {
+				ab.x = b.x;
+				ab.z = b.z;
+			}
+			
+			if((int)ac.add(a.getOpositeVector()).getLenght() >= (int)Vertex3D.dist(a, c)) {
+				ac.x = c.x;
+				ac.z = c.z;
+			}
 		}
 	}
 	
@@ -435,8 +472,10 @@ public class Camera3D extends Camera{
 	private void fillTopFlatTriangle(Vertex3D a, Vertex3D b,Vertex3D c, int color) {
 		Vertex3D ac = new Vertex3D("ac", a.x, a.y, a.z);
 		Vertex3D bc = new Vertex3D("bc", b.x, b.y, b.z);
+		
 		double dy = c.y-a.y;
 		if(dy<=1) {
+			drawLine((int)a.x, (int)a.y, a.z, (int)b.x, (int)b.y, b.z, color);
 			return;
 		}
 		double dxAC = (c.x-a.x)/dy;
@@ -449,8 +488,8 @@ public class Camera3D extends Camera{
 		Vertex3D stepBC = new Vertex3D("step", dxBC, 0, dzBC);
 		
 		double zValue;
-		for(int y=(int)a.y; y<(int)(a.y+dy);++y) {
-			for(int x=(int)Math.min(ac.x, bc.x);x<Math.max(ac.x, bc.x);++x) {
+		for(int y=(int)a.y; y<=(int)(a.y+dy);++y) {
+			for(int x=(int)Math.min(ac.x, bc.x);x<=Math.max(ac.x, bc.x);++x) {
 				if(y>0 && y<this.height-1 && x>0 && x<this.width-1) {
 					zValue = calculateZ(ac, bc, x);
 					if(zBuffer[x][y]>zValue || zBuffer[x][y]==0) {
@@ -464,8 +503,18 @@ public class Camera3D extends Camera{
 					}
 				}
 			}
-			ac = (Vertex3D) ac.add(stepAC);
-			bc = (Vertex3D) bc.add(stepBC);
+			ac = ac.add(stepAC);
+			bc = bc.add(stepBC);
+			
+			if((int)ac.add(a.getOpositeVector()).getLenght() >= (int)Vertex3D.dist(a, c)) {
+				ac.x = c.x;
+				ac.z = c.z;
+			}
+			
+			if((int)bc.add(b.getOpositeVector()).getLenght() >= (int)Vertex3D.dist(b, c)) {
+				bc.x = c.x;
+				bc.z = c.z;
+			}
 		}
 	}
 	
@@ -492,9 +541,9 @@ public class Camera3D extends Camera{
 			}
 		}
 		
-		for(Edge e : objectSet.get(object).e) {
-			Vertex3D p1 = convertTo2D((Vertex3D) e.a);
-			Vertex3D p2 = convertTo2D((Vertex3D) e.b);
+		for(Edge3D e : objectSet.get(object).e) {
+			Vertex3D p1 = convertTo2D(e.a);
+			Vertex3D p2 = convertTo2D(e.b);
 			double a,b,c;
 			
 			if(p1.x == p2.x) {
@@ -535,7 +584,7 @@ public class Camera3D extends Camera{
 			double visible = v2.getDotProduct((Vertex3D) v1.add(postition));
 			
 			if(visible < 0) {
-				for(Triangle t : s.getTriangles()) {
+				for(Triangle3D t : s.getTriangles()) {
 					if(isInTriangle(x, y, (Triangle3D)t)) {
 						System.out.println(s);
 					}

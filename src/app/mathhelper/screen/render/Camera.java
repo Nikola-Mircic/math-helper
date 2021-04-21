@@ -2,8 +2,6 @@ package app.mathhelper.screen.render;
 
 import java.awt.image.BufferedImage;
 
-import app.mathhelper.shape.shape3d.Object3D;
-
 public abstract class Camera {
 	public static int id = 0;
 	public int currentId;

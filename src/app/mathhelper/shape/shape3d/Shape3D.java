@@ -1,14 +1,11 @@
 package app.mathhelper.shape.shape3d;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import app.mathhelper.shape.Edge;
 import app.mathhelper.shape.Shape;
-import app.mathhelper.shape.Triangle;
 import app.mathhelper.shape.Vertex;
 
-public class Shape3D extends Shape{
+public class Shape3D extends Shape<Vertex3D, Edge3D, Triangle3D>{
 	public Shape3D(Triangle3D[] triangles) {
 		super();
 		
@@ -37,17 +34,17 @@ public class Shape3D extends Shape{
 		this.area = -1;
 	}
 	
-	private void addEdgeFromTriangle(Triangle t) {
+	private void addEdgeFromTriangle(Triangle3D t) {
 		Edge3D toDelete = null;
 		
-		A:for(Edge temp : t.e) {
+		A:for(Edge3D temp : t.e) {
 			if(toDelete!=null) {
 				e.remove(toDelete);
 				toDelete = null;
 			}
-			for(Edge edge : this.e) {
+			for(Edge3D edge : this.e) {
 				if(edge.equalsByName(temp)) {
-					toDelete = (Edge3D)edge;
+					toDelete = edge;
 					continue A;
 				}
 			}
@@ -61,8 +58,8 @@ public class Shape3D extends Shape{
 	}
 	
 	private void addVertexFromTriangle(Triangle3D t) {
-		A : for(Vertex vertex : t.v) {
-			for(Vertex test : this.v) {
+		A : for(Vertex3D vertex : t.v) {
+			for(Vertex3D test : this.v) {
 				if(test.equals(vertex)) {
 					continue A;
 				}
@@ -80,7 +77,7 @@ public class Shape3D extends Shape{
 	@Override
 	protected void calculateArea() {
 		this.area = 0;
-		for(Triangle t : triangles) {
+		for(Triangle3D t : triangles) {
 			this.area += t.getArea();
 		}
 	}
@@ -89,21 +86,13 @@ public class Shape3D extends Shape{
 	protected void calculateScope() {
 		this.scope = 0;
 		
-		for(Edge edge : this.e) {
+		for(Edge3D edge : this.e) {
 			scope += edge.weight;
 		}
 	}
 	
 	public Edge3D getNormal() {
 		return new Edge3D((Vertex3D) triangles.get(0).v.get(0), ((Triangle3D)triangles.get(0)).getCrossProduct());
-	}
-
-	public List<Triangle> getTriangles() {
-		return triangles;
-	}
-
-	public void setTriangles(List<Triangle> triangles) {
-		this.triangles = triangles;
 	}
 	
 	@Override

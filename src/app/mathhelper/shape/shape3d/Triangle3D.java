@@ -2,10 +2,9 @@ package app.mathhelper.shape.shape3d;
 
 import java.util.List;
 
-import app.mathhelper.shape.Edge;
 import app.mathhelper.shape.Triangle;
 
-public class Triangle3D extends Triangle{
+public class Triangle3D extends Triangle<Vertex3D, Edge3D>{
 	public Triangle3D(Vertex3D a, Vertex3D b, Vertex3D c) {
 		super();
 		v.add(a);
@@ -43,7 +42,7 @@ public class Triangle3D extends Triangle{
 		this.scope = (a+b+c);
 	}
 
-	public List<Edge> getEdges() {
+	public List<Edge3D> getEdges() {
 		return this.e;
 	}
 	

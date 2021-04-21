@@ -48,7 +48,7 @@ public class Vertex3D extends Vertex{
 	}
 	
     @Override
-	public Vertex add(Vertex v) {
+	public Vertex3D add(Vertex v) {
     	if(!(v instanceof Vertex3D))
 			return new Vertex3D("", 0, 0, 0);
     	

@@ -15,8 +15,8 @@ public class Object3D extends GeometryObject{
 	protected double area;
 	protected double scope;
 	
-	public List<Vertex> v;
-	public List<Edge> e;
+	public List<Vertex3D> v;
+	public List<Edge3D> e;
 	public List<Shape3D> s;
 	private double volume;
 	
@@ -333,8 +333,8 @@ public class Object3D extends GeometryObject{
 	}
 	
 	private void addEdgeFromShape(Shape3D s) {	
-		A:for(Edge temp :  s.getEdges()) {
-			for(Edge edge : this.e) {
+		A:for(Edge3D temp :  s.getEdges()) {
+			for(Edge3D edge : this.e) {
 				if(edge.equalsByName(temp)) {
 					continue A;
 				}
@@ -354,7 +354,7 @@ public class Object3D extends GeometryObject{
 	protected void calculateScope(){
 		this.scope = 0;
 		
-		for(Edge edge : this.e) {
+		for(Edge3D edge : this.e) {
 			scope += edge.weight;
 		}
 	}
@@ -369,11 +369,11 @@ public class Object3D extends GeometryObject{
 		return this.scope;
 	}
 	
-	public List<Vertex> getVertices(){
+	public List<Vertex3D> getVertices(){
 		return this.v;
 	}
 	
-	public List<Edge> getEdges() {
+	public List<Edge3D> getEdges() {
 		return this.e;
 	}
 	
