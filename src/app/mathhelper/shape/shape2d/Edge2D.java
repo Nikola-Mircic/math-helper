@@ -2,7 +2,7 @@ package app.mathhelper.shape.shape2d;
 
 import app.mathhelper.shape.Edge;
 
-public class Edge2D extends Edge {
+public class Edge2D extends Edge<Vertex2D> {
 	
 	public Edge2D() {
 		this(new Vertex2D("a", 0, 0), new Vertex2D("b", 0, 0));

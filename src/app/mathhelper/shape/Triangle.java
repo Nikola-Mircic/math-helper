@@ -3,12 +3,13 @@ package app.mathhelper.shape;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Triangle extends GeometryObject {
+@SuppressWarnings("rawtypes")
+public abstract class Triangle<TT extends Vertex, ET extends Edge> extends GeometryObject {
 	protected double area;
 	protected double scope;
 	
-	public List<Vertex> v;
-	public List<Edge> e;
+	public List<TT> v;
+	public List<ET> e;
 	
 	public Triangle() {
 		this.v = new ArrayList<>();
@@ -31,11 +32,11 @@ public abstract class Triangle extends GeometryObject {
 		return this.scope;
 	}
 	
-	public List<Vertex> getVertices(){
+	public List<TT> getVertices(){
 		return this.v;
 	}
 	
-	public List<Edge> getEdges() {
+	public List<ET> getEdges() {
 		return this.e;
 	}
 }
