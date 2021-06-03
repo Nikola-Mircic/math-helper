@@ -274,7 +274,7 @@ public class Camera3D extends Camera{
 				zValue = a.z;
 				zStep = (b.z-a.z)/(b.y-a.y);
 				for(int y=(int)a.y;y<b.y;++y) {
-					if(x1<0 || x1>=width || y<0 || y>=height)
+					if(x1<0 || x1+1>=width || y<0 || y+1>=height)
 						return;
 					if(zBuffer[x1][y]>zValue || zBuffer[x1][y]==0) {
 						context.setRGB(x1, y, color);
@@ -290,7 +290,7 @@ public class Camera3D extends Camera{
 				zValue = b.z;
 				zStep = (a.z-b.z)/(a.y-b.y);
 				for(int y=(int)b.y;y<a.y;++y) {
-					if(x1<0 || x1>=width || y<0 || y>=height)
+					if(x1<0 || x1+1>=width || y<0 || y+1>=height)
 						return;
 					if(zBuffer[x1][y]>zValue || zBuffer[x1][y]==0) {
 						context.setRGB(x1, y, color);

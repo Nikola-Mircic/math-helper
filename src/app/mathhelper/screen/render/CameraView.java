@@ -13,7 +13,7 @@ import app.mathhelper.shape.shape3d.Object3D;
 import java.util.*;
 import java.util.List;
 
-public class CameraView{
+public class CameraView extends javafx.scene.canvas.Canvas{
 	public int WIDTH,HEIGHT;
 	
 	private List<Camera> cameras;
