@@ -9,25 +9,51 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import app.mathhelper.shape.shape3d.Edge3D;
-import app.mathhelper.shape.shape3d.Object3D;
-import app.mathhelper.shape.shape3d.Shape3D;
-import app.mathhelper.shape.shape3d.Vertex3D;
+import app.mathhelper.shape.shape3d.*;
+import app.mathhelper.shape.shape2d.*;
 
 public class ObjectInfoCalculator {
 	public static ObjectInfo getObjectInfo(GeometryObject object) {
 		if(object instanceof Edge3D) {
-			return getEdgeInfo((Edge3D) object);
+			return getEdge3DInfo((Edge3D) object);
 		}
 		if(object instanceof Shape3D) {
-			return getShapeInfo((Shape3D) object);
+			return getShape3DInfo((Shape3D) object);
 		}
 		if(object instanceof Object3D) {
 			return getObject3Dinfo((Object3D) object);
 		}
+		if(object instanceof Edge2D) {
+			return getEdge2DInfo((Edge2D) object);
+		}
+		if(object instanceof Shape2D) {
+			return getShape2DInfo((Shape2D) object);
+		}
 		return null;
 	}
 	
+	private static ObjectInfo getEdge2DInfo(Edge2D e) {
+		HashMap<String, String> info = new LinkedHashMap<>();
+		
+		info.put("vertex 1", ""+e.a);
+		info.put("vertex 2", ""+e.b);
+		info.put("weight", ""+e.weight);
+		
+		return new ObjectInfo(e, info);
+	}
+
+	private static ObjectInfo getShape2DInfo(Shape2D s) {
+		HashMap<String, String> info = new LinkedHashMap<>();
+		
+		info.put("vertices", ""+s.getVertices().size());
+		info.put("edges", ""+s.getEdges().size());
+		info.put("triangles", ""+s.getTriangles().size());
+		info.put("scope", ""+s.getScope());
+		info.put("surface", ""+s.getArea());
+		
+		return new ObjectInfo(s, info);
+	}
+
 	//Represents a group of vertices of an side of the object and edges between it 
 	
 	/**
@@ -55,7 +81,7 @@ public class ObjectInfoCalculator {
 	
 	private static double getObjectScope(Object3D o) {
 		double scope = 0;
-		for(Edge edge : o.e){
+		for(Edge3D edge : o.e){
 			scope += edge.weight;
 		}
 		return Math.round(scope*1000)/1000.0;
@@ -77,10 +103,10 @@ public class ObjectInfoCalculator {
 		if(!(V + S == E + 2))
 			return 0;
 		
-		List<Vertex> vertices = new ArrayList<>();
+		List<Vertex3D> vertices = new ArrayList<>();
 		
 		List<List<Integer>> connections = new ArrayList<>();
-		Map<Vertex, Integer> indices = new HashMap<>();
+		Map<Vertex3D, Integer> indices = new HashMap<>();
 		
 		for(int i=0; i<o.v.size(); ++i) {
 			vertices.add(o.v.get(i).getCopy());
@@ -91,7 +117,7 @@ public class ObjectInfoCalculator {
 			connections.add(new ArrayList<>());
 		}
 		
-		for(Edge e : o.e) {
+		for(Edge3D e : o.e) {
 			int i = indices.get(e.a);
 			int j = indices.get(e.b);
 			connections.get(i).add(j);
@@ -102,7 +128,7 @@ public class ObjectInfoCalculator {
 		
 		for(int i=0;i<o.getSides().size();++i) {
 			sides.add(new ArrayList<>());
-			for(Vertex vertex : o.getSides().get(i).getVertices()) {
+			for(Vertex3D vertex : o.getSides().get(i).getVertices()) {
 				sides.get(i).add(indices.get(vertex));
 			}
 		}
@@ -119,20 +145,20 @@ public class ObjectInfoCalculator {
 		return volume;
 	}
 	
-	private static double getObjectVolume(List<List<Integer>> connections, List<Vertex> vertexOrder, List<ArrayList<Integer>> sides) {
+	private static double getObjectVolume(List<List<Integer>> connections, List<Vertex3D> vertexOrder, List<ArrayList<Integer>> sides) {
 		double volume = 0;
 		for(int vertexIdx = 0; vertexIdx < vertexOrder.size(); vertexIdx++) {
 			ArrayList<Integer> newSide = new ArrayList<>();
 			
 			if(connections.get(0).size()==3) {
 				//Volume of tetrahedron
-				Vertex3D v0 = (Vertex3D) vertexOrder.get(connections.get(0).get(0));
-				Vertex3D v1 = (Vertex3D) vertexOrder.get(connections.get(0).get(1));
-				Vertex3D v2 = (Vertex3D) vertexOrder.get(connections.get(0).get(2));
+				Vertex3D v0 = vertexOrder.get(connections.get(0).get(0));
+				Vertex3D v1 = vertexOrder.get(connections.get(0).get(1));
+				Vertex3D v2 = vertexOrder.get(connections.get(0).get(2));
 				
-				v0 = (Vertex3D) v0.add(vertexOrder.get(vertexIdx).getOpositeVector());
-				v1 = (Vertex3D) v1.add(vertexOrder.get(vertexIdx).getOpositeVector());
-				v2 = (Vertex3D) v2.add(vertexOrder.get(vertexIdx).getOpositeVector());
+				v0 = v0.add(vertexOrder.get(vertexIdx).getOpositeVector());
+				v1 = v1.add(vertexOrder.get(vertexIdx).getOpositeVector());
+				v2 = v2.add(vertexOrder.get(vertexIdx).getOpositeVector());
 				
 				volume += Math.abs(v0.getDotProduct(v1.getCrossProduct(v2)))/6.0;
 				
@@ -272,7 +298,7 @@ public class ObjectInfoCalculator {
 		}
 	}
 	
-	private static ObjectInfo getShapeInfo(Shape3D s) {
+	private static ObjectInfo getShape3DInfo(Shape3D s) {
 		HashMap<String, String> info = new LinkedHashMap<>();
 		
 		info.put("vertices", ""+s.getVertices().size());
@@ -284,7 +310,7 @@ public class ObjectInfoCalculator {
 		return new ObjectInfo(s, info);
 	}
 
-	private static ObjectInfo getEdgeInfo(Edge3D e) {
+	private static ObjectInfo getEdge3DInfo(Edge3D e) {
 		HashMap<String, String> info = new LinkedHashMap<>();
 		
 		info.put("vertex 1", ""+e.a);

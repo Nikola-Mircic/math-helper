@@ -1,9 +1,8 @@
 package app.mathhelper.shape.shape2d;
 
-import app.mathhelper.shape.Edge;
 import app.mathhelper.shape.Triangle;
 
-public class Triangle2D extends Triangle {
+public class Triangle2D extends Triangle<Vertex2D, Edge2D> {
 	public Triangle2D() {
 		super();
 	}
@@ -39,7 +38,7 @@ public class Triangle2D extends Triangle {
 	@Override
 	protected void calculateScope() {
 		this.scope = 0;
-		for(Edge edge : this.e) {
+		for(Edge2D edge : this.e) {
 			this.scope += edge.weight;
 		}
 	}
