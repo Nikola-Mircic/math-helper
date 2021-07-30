@@ -5,43 +5,25 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 import app.mathhelper.input.InputListener;
+import app.mathhelper.screen.gui.Controller;
 import app.mathhelper.screen.render.Camera3D;
 import app.mathhelper.screen.render.CameraView;
 import app.mathhelper.shape.shape3d.Object3D;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 
-public class Screen extends JPanel{
-	private static final long serialVersionUID = 1L;
-	
-	@SuppressWarnings("unused")
-	private int WIDTH,HEIGHT;
-	
+public class Screen extends Scene{
 	private CameraView camView;
 	
 	private InputListener il;
 	
-	public Screen(int width, int height) {
-		this.WIDTH = width;
-		this.HEIGHT = height;
-		
-		this.camView = new CameraView(width, height);
-		
-		this.il = new InputListener(this);
-		
-		this.addMouseListener(il);
-		this.addMouseMotionListener(il);
-		this.addMouseWheelListener(il);
-	}
-	
-	@Override
-	public void paint(Graphics g) {
-		camView.renderCameras();
-		g.drawImage(camView.getImg(), 0, 0, null);
+	public Screen(Parent root, Controller controller) {
+		super(root);
 	}
 	
 	public void update(int width, int height) {
-		this.WIDTH = width;
-		this.HEIGHT = height;
-		
 		this.camView.update(width, height);
 	}
 

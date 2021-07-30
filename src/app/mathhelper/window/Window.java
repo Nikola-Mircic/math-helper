@@ -6,8 +6,10 @@ import java.awt.event.ComponentListener;
 import java.beans.JavaBean;
 
 import javax.swing.JFrame;
+import javax.swing.UIManager;
 
 import app.mathhelper.screen.Screen;
+import app.mathhelper.screen.gui.Controller;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -16,38 +18,36 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
 
-public class Window extends Application implements Runnable{
+public class Window extends Stage{
 	private final String TITLE = "Math-helper";
 	
-	private Screen screen;
+	/*private Stage stage;
+	private Screen screen;*/
 	
-	public Window() {
-		
-	}
+	FXMLLoader loader = null;
+	Parent root = null;
 	
-	public static void main(String[] args) {
-		launch(args);
-	}
-
-	@Override
-	public void run() {
+	public Window(Class<?> mainClass) {
+		this.setTitle(TITLE);
+		this.setMaximized(true);
 		
-	}
-
-	@Override
-	public void start(Stage stage) throws Exception {
-		stage.setTitle(TITLE);
-		stage.setMaximized(true);
 		try {
-			Parent root = FXMLLoader.load(getClass().getResource("/app/mathhelper/screen/gui/main.fxml"));
-			Scene s = new Scene(root);
-			s.getStylesheets().add(getClass().getResource("/app/mathhelper/screen/gui/main.css").toExternalForm());
-			stage.setScene(s);
-			stage.show();
+			this.loader = new FXMLLoader(mainClass.getResource("/app/mathhelper/screen/gui/main.fxml"));
+			
+			this.root = loader.load();
+			
+			Screen screen = new Screen(root, loader.getController());
+			
+			screen.getStylesheets().add(getClass().getResource("/app/mathhelper/screen/gui/main.css").toExternalForm());
+			
+			this.setScene(screen);
+			
+			this.show();
+			
+			screen.setCameraView(((Controller)this.loader.getController()).createCVObject());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 	}
 
 }
