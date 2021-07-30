@@ -119,11 +119,7 @@ public class Camera3D extends Camera{
 	public BufferedImage getToDrawContex(int width, int height, int xOffset, int yOffset) {
 		if(LIGHT_EFFECT)
 			this.drawContext();
-		context.getGraphics().setColor(Color.BLACK);
-		context.getGraphics().drawRect(0, 0, width, height);
 		BufferedImage temp = context.getSubimage((this.width-width)/2+xOffset, (this.height-height)/2+yOffset, width, height);
-		
-		printObjectData(temp.getGraphics());
 		
 		return temp;
 	}
@@ -243,15 +239,6 @@ public class Camera3D extends Camera{
 		g.fillOval((int)center.x, (int)center.y, 5, 5);
 	}
 	
-	private void printObjectData(Graphics g) {
-		g.setColor(Color.WHITE);
-		g.setFont(new Font("Serif", Font.PLAIN, 25));
-		
-		String[] temp = info.toString().split("\n");
-		for(int i=0;i<temp.length;++i)
-			g.drawString(temp[i], 30, 25+i*30);
-	}
-	
 	private void drawLine(int x1, int y1,double z1, int x2, int y2,double z2, int color) {
 		Vertex3D a = new Vertex3D("a", (double)x1, (double)y1, z1);
 		Vertex3D b = new Vertex3D("b", (double)x2, (double)y2, z2);
@@ -265,7 +252,7 @@ public class Camera3D extends Camera{
 				zValue = a.z;
 				zStep = (b.z-a.z)/(b.y-a.y);
 				for(int y=(int)a.y;y<b.y;++y) {
-					if(x1<0 || x1>=width-1 || y<0 || y>=height)
+					if(x1<0 || x1+1>=width || y<0 || y+1>=height)
 						return;
 					if(zBuffer[x1][y]>zValue || zBuffer[x1][y]==0) {
 						context.setRGB(x1, y, color);
@@ -281,7 +268,7 @@ public class Camera3D extends Camera{
 				zValue = b.z;
 				zStep = (a.z-b.z)/(a.y-b.y);
 				for(int y=(int)b.y;y<a.y;++y) {
-					if(x1<0 || x1>=width-1 || y<0 || y>=height)
+					if(x1<0 || x1+1>=width || y<0 || y+1>=height)
 						return;
 					if(zBuffer[x1][y]>zValue || zBuffer[x1][y]==0) {
 						context.setRGB(x1, y, color);

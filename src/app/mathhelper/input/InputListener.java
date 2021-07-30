@@ -109,7 +109,7 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 		case KeyEvent.VK_R:
 			if(e.isControlDown() && e.isShiftDown()) {
 				int mode = ((Camera3D) screen.getCameraView().getCamera()).renderMode;
-				Camera3D newCamera = new Camera3D(screen.getCameraView().WIDTH/screen.getCameraView().cameraCount, screen.getCameraView().HEIGHT, object.getObject());
+				Camera3D newCamera = new Camera3D(screen.getCameraView().getWidth()/screen.getCameraView().cameraCount, screen.getCameraView().getHeight(), object.getObject());
 				newCamera.renderMode = mode;
 				newCamera.drawContext();
 				screen.getCameraView().setCamera(newCamera);
@@ -195,7 +195,7 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 			break;
 		}
 		
-		screen.repaint();
+		//screen.repaint();
 	}
 
 	@Override
