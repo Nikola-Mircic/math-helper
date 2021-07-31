@@ -624,9 +624,8 @@ public class Camera3D extends Camera{
 	}
 
 	public void setObject(Object3D object) {
-		int idx = objectSet.indexOf(object);
-		if(idx!=-1)
-			this.object = idx;
+		this.objectSet.clear();
+		objectSet.add(object);
 		drawContext();
 	}
 	
