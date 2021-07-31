@@ -11,8 +11,10 @@ import app.mathhelper.screen.render.CameraView;
 import app.mathhelper.shape.shape3d.Object3D;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyEvent;
 
 public class Screen extends Scene{
 	private CameraView camView;
@@ -21,6 +23,18 @@ public class Screen extends Scene{
 	
 	public Screen(Parent root, Controller controller) {
 		super(root);
+		
+		this.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			public void handle(KeyEvent event) {
+				camView.onKeyEvent(event.getEventType(), event);
+			};
+		});
+		
+		this.setOnKeyReleased(new EventHandler<KeyEvent>() {
+			public void handle(KeyEvent event) {
+				camView.onKeyEvent(event.getEventType(), event);
+			};
+		});
 	}
 	
 	public void update(int width, int height) {
@@ -54,9 +68,5 @@ public class Screen extends Scene{
 	
 	public void setObject(Object3D object) {
 		camView.setObject(object);
-	}
-
-	public void mousePressed(int x, int y) {
-		camView.mousePressed(x, y);
 	}
 }

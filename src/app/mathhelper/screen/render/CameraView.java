@@ -2,6 +2,7 @@ package app.mathhelper.screen.render;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 import app.mathhelper.shape.preset.*;
 import app.mathhelper.shape.shape2d.Edge2D;
@@ -17,6 +18,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -24,6 +27,8 @@ import javafx.scene.text.Font;
 
 import java.util.*;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 public class CameraView{
 	private HBox box;
@@ -46,7 +51,7 @@ public class CameraView{
 		CameraPane temp;
 		
 		for(Camera camera : cameras) {
-			temp = new CameraPane(getWidth()/cameraCount, getHeight(), camera, "Frame "+camera.currentId);
+			temp = new CameraPane(getWidth()/cameraCount, getHeight(), camera, "Frame "+camera.currentId, this);
 			box.getChildren().add(temp);
 		}
 		
@@ -56,6 +61,19 @@ public class CameraView{
 		
 		box.heightProperty().addListener((obs, oldValue, newValue)->{
 			this.update(getWidth(), getHeight());
+		});
+		
+		box.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				int x = (int) event.getX();
+				int y = (int) event.getY();
+				int temp = x/(getWidth()/cameraCount);
+				if(temp == activeCamera) {
+					cameras.get(activeCamera).mouseClick(x-(int)(getWidth()/cameraCount)*activeCamera, y);
+				}
+				activeCamera = temp;
+			}
 		});
 	}
 	
@@ -95,9 +113,33 @@ public class CameraView{
 		
 		for(Camera camera : cameras) {
 			camera.update(width/cameraCount, height);
-			temp = new CameraPane(getWidth()/cameraCount, getHeight(), camera, "Frame "+camera.currentId);
+			temp = new CameraPane(getWidth()/cameraCount, getHeight(), camera, "Frame "+camera.currentId, this);
 			box.getChildren().add(temp);
 		}
+	}
+	
+	public void onKeyEvent(EventType<KeyEvent> type, KeyEvent event) {
+		if(type == KeyEvent.KEY_PRESSED) {
+			switch (event.getCode()) {
+			case F1:
+				addCamera();
+				System.out.println(cameraCount);
+				break;
+			case F2:
+				removeCamera();
+				System.out.println(cameraCount);
+				break;
+			case F3:
+				//TODO saveScreenshot();
+				break;
+			default:
+				((CameraPane) box.getChildren().get(activeCamera)).handleKeyPressed(event);
+				break;
+			}
+		}
+			
+		if(type == KeyEvent.KEY_RELEASED)
+			((CameraPane) box.getChildren().get(activeCamera)).handleKeyReleased(event);
 	}
 	
 	public BufferedImage getImg() {
@@ -120,14 +162,6 @@ public class CameraView{
 		this.cameras.set(activeCamera, new Camera3D(getWidth()/cameraCount, this.getHeight(), object));
 	}
 
-	public void mousePressed(int x, int y) {
-		int temp = x/(getWidth()/cameraCount);
-		if(temp == this.activeCamera) {
-			cameras.get(activeCamera).mouseClick(x-(int)(getWidth()/cameraCount)*activeCamera, y);
-		}
-		this.activeCamera = temp;
-	}
-	
 	public void addCamera() {
 		if(cameraCount<5 && MULTIPLE_CAMERA_ENABLED) {
 			for(int i=0;i<cameraCount;++i) {
@@ -140,7 +174,15 @@ public class CameraView{
 			this.cameraCount++;
 			cameras.add(new Camera3D(getWidth()/cameraCount, this.getHeight(), Preset.CUBE.getObject()));
 			activeCamera = cameraCount-1;
-			System.out.println(cameraCount);
+			
+			box.getChildren().clear();
+			
+			CameraPane temp;
+			
+			for(Camera camera : cameras) {
+				temp = new CameraPane(getWidth()/cameraCount, getHeight(), camera, "Frame "+camera.currentId, this);
+				box.getChildren().add(temp);
+			}
 		}
 	}
 	
@@ -156,7 +198,15 @@ public class CameraView{
 			this.cameraCount--;
 			cameras.remove(activeCamera);
 			activeCamera = cameraCount-1;
-			System.out.println(cameraCount);
+			
+			box.getChildren().clear();
+			
+			CameraPane temp;
+			
+			for(Camera camera : cameras) {
+				temp = new CameraPane(getWidth()/cameraCount, getHeight(), camera, "Frame "+camera.currentId, this);
+				box.getChildren().add(temp);
+			}
 		}
 	}
 	
@@ -177,13 +227,17 @@ class CameraPane extends Pane{
 	Button exit;
 	ImageView view;
 	
-	private double lastMouseX = -1, lastMouseY = -1;
+	CameraView cameraView;
 	
-	public CameraPane(int width, int height, Camera camera, String frameName) { 
+	private double lastMouseX = -1, lastMouseY = -1;
+	private boolean disabledRotation[] = {false, false, false};
+	
+	public CameraPane(int width, int height, Camera camera, String frameName, CameraView cameraView) { 
 		this.setWidth(width);
 		this.setHeight(height);
 		this.setFrameName(frameName);
 		this.setCamera(camera);
+		this.setCameraView(cameraView);
 		
 		this.frameNameLabel = new Label(frameName);
 		frameNameLabel.setLayoutX(5.0);
@@ -207,8 +261,6 @@ class CameraPane extends Pane{
 		this.view = new ImageView(img);
 		view.setLayoutY(imageLayoutY);
 		
-		System.out.println(getHeight()+" = "+img.getHeight()+" + "+imageLayoutY);
-		
 		this.getChildren().add(frameNameLabel);
 		this.getChildren().add(exit);
 		this.getChildren().add(view);
@@ -227,7 +279,13 @@ class CameraPane extends Pane{
 					int dx = (int)(event.getX()-lastMouseX);
 					int dy = (int)(event.getY()-lastMouseY);
 					
-					camera.mouseDragged(dx, dy);
+					if(disabledRotation[2]) {
+						camera.mouseDragged(dx, 0);
+					}else if(disabledRotation[1]) {
+						camera.mouseDragged(0, dy);
+					}else {
+						camera.mouseDragged(dx, dy);
+					}
 					
 					lastMouseX = event.getX();
 					lastMouseY = event.getY();
@@ -258,6 +316,105 @@ class CameraPane extends Pane{
 		this.addEventFilter(MouseEvent.MOUSE_RELEASED, releaseMouse);
 	}
 	
+	public void handleKeyPressed(KeyEvent e) {
+		System.out.println("Key is Pressed");
+		switch (e.getCode()) {
+		case R:
+			if(e.isControlDown() && e.isShiftDown()) {
+				((Camera3D) this.camera).setObject(this.camera.objectType.getObject());
+			}
+			break;
+		case T:
+			if(this.camera instanceof Camera3D) {
+				((Camera3D) camera).renderMode++;
+				((Camera3D) camera).renderMode%=2;
+				camera.drawContext();
+			}
+			break;
+		case C:
+			if(getCameraView().getCamera() instanceof Camera3D)
+				((Camera3D) getCameraView().getCamera()).switchLightEffect();
+			break;
+		case DIGIT1:
+			if(e.isShiftDown()) {
+				System.out.println("SHIFT + 1");
+				disabledRotation[1] = !disabledRotation[1];
+				disabledRotation[2] = false;
+			}else {
+				System.out.println("1");
+				if(this.camera instanceof Camera3D)
+					this.camera.objectType = Preset.CUBE;
+					((Camera3D) this.camera).setObject(Preset.CUBE.getObject());
+			}
+			break;
+		case DIGIT2:
+			if(e.isShiftDown()) {
+				System.out.println("SHIFT + 2");
+				disabledRotation[2] = !disabledRotation[2];
+				disabledRotation[1] = false;
+			}else {
+				System.out.println("2");
+				if(this.camera instanceof Camera3D)
+					this.camera.objectType = Preset.TETRAHEDRON;
+					((Camera3D) this.camera).setObject(Preset.TETRAHEDRON.getObject());
+			}
+			break;
+		case DIGIT3:
+			if(this.camera instanceof Camera3D)
+				this.camera.objectType = Preset.TEAPOT;
+				((Camera3D) this.camera).setObject(Preset.TEAPOT.getObject());
+			break;
+		case DIGIT4:
+			if(this.camera instanceof Camera3D)
+				this.camera.objectType = Preset.CONE;
+				((Camera3D) this.camera).setObject(Preset.CONE.getObject());
+			break;
+		case DIGIT5:
+			if(this.camera instanceof Camera3D)
+				this.camera.objectType = Preset.ICOSPHERE;
+				((Camera3D) this.camera).setObject(Preset.ICOSPHERE.getObject());
+			break;
+		case DIGIT6:
+			if(this.camera instanceof Camera3D)
+				this.camera.objectType = Preset.CYLINDER;
+				((Camera3D) this.camera).setObject(Preset.CYLINDER.getObject());
+			break;
+		case DIGIT7:
+			if(this.camera instanceof Camera3D)
+				this.camera.objectType = Preset.BALL;
+				((Camera3D) this.camera).setObject(Preset.BALL.getObject());
+			break;
+		case CONTROL:
+			if(getCameraView().getCamera() instanceof Camera3D)
+				((Camera3D)camera).renderingCenter = true;
+			break;
+		case UP:
+			camera.moveY(0.1);
+			break;
+		case DOWN:
+			camera.moveY(-0.1);
+			break;
+		case LEFT:
+			camera.moveX(-0.1);
+			break;
+		case RIGHT:
+			camera.moveX(0.1);
+			break;
+		default:
+			break;
+		}
+		
+		updateImage();
+	}
+	
+	public void handleKeyReleased(KeyEvent e) {
+		
+	}
+	
+	private void saveScreenshot() {
+		//TODO
+	}
+	
 	private void updateImage() {
 		int camW = camera.context.getWidth();
 		int camH = camera.context.getHeight();
@@ -284,6 +441,14 @@ class CameraPane extends Pane{
 
 	public void setFrameName(String frameName) {
 		this.frameName = frameName;
+	}
+
+	public CameraView getCameraView() {
+		return cameraView;
+	}
+
+	public void setCameraView(CameraView cameraView) {
+		this.cameraView = cameraView;
 	}
 }
 

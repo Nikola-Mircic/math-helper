@@ -2,6 +2,8 @@ package app.mathhelper.screen.render;
 
 import java.awt.image.BufferedImage;
 
+import app.mathhelper.shape.preset.Preset;
+
 public abstract class Camera {
 	public static int id = 0;
 	public int currentId;
@@ -9,6 +11,8 @@ public abstract class Camera {
 	protected int width;
 	protected int height;
 	public BufferedImage context;
+	
+	public Preset objectType = Preset.CUBE;
 	
 	public Camera(int width, int height) {
 		this.currentId = id++;
