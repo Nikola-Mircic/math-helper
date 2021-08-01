@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 
 import app.mathhelper.screen.Screen;
+import app.mathhelper.shape.GeometryObject;
 import app.mathhelper.shape.ObjectInfo;
 import app.mathhelper.shape.ObjectInfoCalculator;
 import app.mathhelper.shape.preset.*;
@@ -75,9 +76,11 @@ public class CameraView{
 				int x = (int) event.getX();
 				int y = (int) event.getY();
 				int temp = x/(getWidth()/cameraCount);
-				activeCamera = temp;
 				
-				screen.getDataView().setInfo(((CameraPane) box.getChildren().get(activeCamera)).getInfo());
+				if(activeCamera != temp)
+					screen.getDataView().setInfo(((CameraPane) box.getChildren().get(activeCamera)).getInfo());
+				
+				activeCamera = temp;
 			}
 		});
 	}
@@ -327,7 +330,10 @@ class CameraPane extends Pane{
 		EventHandler<MouseEvent> clickMouse = new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				camera.mouseClick((int)event.getX(), (int)event.getY());
+				GeometryObject object = camera.mouseClick((int)event.getX(), (int)event.getY());
+				System.out.println("Get: "+object);
+				if(object != null)
+					cameraView.getScreen().getDataView().setInfo(ObjectInfoCalculator.getObjectInfo(object));
 			}
 		};
 		

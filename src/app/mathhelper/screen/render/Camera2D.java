@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
+import app.mathhelper.shape.GeometryObject;
 import app.mathhelper.shape.ObjectInfo;
 import app.mathhelper.shape.ObjectInfoCalculator;
 import app.mathhelper.shape.Vertex;
@@ -116,9 +117,9 @@ public class Camera2D extends Camera{
 	}
 
 	@Override
-	public void mouseClick(int x, int y) {
+	public GeometryObject mouseClick(int x, int y) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
