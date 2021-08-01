@@ -21,7 +21,6 @@ public class Camera3D extends Camera{
 	public Vertex3D light;
 	
 	private int object;
-	private ObjectInfo info;
 	private List<Object3D> objectSet;
 	private Vertex3D clickedVertex;
 	
@@ -50,8 +49,6 @@ public class Camera3D extends Camera{
 		
 		renderingCenter = false;
 		renderMode = 0;
-		
-		this.info = ObjectInfoCalculator.getObjectInfo(object);
 		
 		drawContext();
 	}

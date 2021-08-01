@@ -1,2 +1,5 @@
 /bin/
 demo.jar
+/demo_lib/
+/lib/
+run.bat
