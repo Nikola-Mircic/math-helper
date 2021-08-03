@@ -26,6 +26,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
@@ -334,6 +335,8 @@ class CameraPane extends Pane{
 				System.out.println("Get: "+object);
 				if(object != null)
 					cameraView.getScreen().getDataView().setInfo(ObjectInfoCalculator.getObjectInfo(object));
+				else
+					cameraView.getScreen().getDataView().setInfo(ObjectInfoCalculator.getObjectInfo(((Camera3D)camera).getObject()));
 			}
 		};
 		
@@ -348,7 +351,14 @@ class CameraPane extends Pane{
 		this.addEventFilter(MouseEvent.MOUSE_DRAGGED, draggMouse);
 		this.addEventFilter(MouseEvent.MOUSE_CLICKED, clickMouse);
 		this.addEventFilter(MouseEvent.MOUSE_RELEASED, releaseMouse);
-	}
+		
+		this.setOnScroll(new EventHandler<ScrollEvent>() {
+			public void handle(ScrollEvent event) {
+				camera.mouseScroll((int)(event.getDeltaY()/event.getMultiplierY()));
+				updateImage();
+			};
+		});
+	}	
 	
 	
 	public void handleKeyPressed(KeyEvent e) {
