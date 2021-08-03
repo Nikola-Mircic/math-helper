@@ -107,9 +107,9 @@
                      </children>
             </AnchorPane>
                   <ScrollPane prefHeight="200.0" prefWidth="200.0">
-                    <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="556.0" prefWidth="133.0" />
-                    </content>
+                     <content>
+                        <VBox fx:id="dataView" prefHeight="551.0" prefWidth="149.0" />
+                     </content>
                   </ScrollPane>
                </items>
             </SplitPane>

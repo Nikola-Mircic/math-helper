@@ -44,7 +44,8 @@ public class Window extends Stage{
 			
 			this.show();
 			
-			screen.setCameraView(((Controller)this.loader.getController()).createCVObject());
+			screen.setCameraView(((Controller)this.loader.getController()).createCVObject(screen));
+			screen.setDataView(((Controller)this.loader.getController()).createDVObject(screen));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

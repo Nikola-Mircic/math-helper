@@ -2,6 +2,7 @@ package app.mathhelper.screen.render;
 
 import java.awt.image.BufferedImage;
 
+import app.mathhelper.shape.GeometryObject;
 import app.mathhelper.shape.preset.Preset;
 
 public abstract class Camera {
@@ -26,7 +27,7 @@ public abstract class Camera {
 	
 	public abstract BufferedImage getToDrawContex(int width, int height, int xOffset, int yOffset);
 	
-	public abstract void mouseClick(int x, int y);
+	public abstract GeometryObject mouseClick(int x, int y);
 	
 	public abstract void mouseScroll(int d);
 	

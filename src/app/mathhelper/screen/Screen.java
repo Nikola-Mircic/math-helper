@@ -1,16 +1,10 @@
 package app.mathhelper.screen;
 
-import java.awt.Graphics;
-
-import javax.swing.JPanel;
-
-import app.mathhelper.input.InputListener;
 import app.mathhelper.screen.gui.Controller;
 import app.mathhelper.screen.render.Camera3D;
 import app.mathhelper.screen.render.CameraView;
+import app.mathhelper.screen.render.DataView;
 import app.mathhelper.shape.shape3d.Object3D;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -18,8 +12,7 @@ import javafx.scene.input.KeyEvent;
 
 public class Screen extends Scene{
 	private CameraView camView;
-	
-	private InputListener il;
+	private DataView dataView;
 	
 	public Screen(Parent root, Controller controller) {
 		super(root);
@@ -49,21 +42,20 @@ public class Screen extends Scene{
 		this.camView = camView;
 	}
 	
-	public InputListener getInputListener() {
-		return il;
+	public DataView getDataView() {
+		return dataView;
 	}
 
-	public void setInputListener(InputListener il) {
-		this.il = il;
+	public void setDataView(DataView dataView) {
+		this.dataView = dataView;
 	}
-	
+
 	public Object3D getObject() {
 		try {
 			return ((Camera3D) camView.getCamera()).getObject();
 		} catch (Exception e) {
 			return null;
 		}
-		//return camView.getCamera().getObject();
 	}
 	
 	public void setObject(Object3D object) {

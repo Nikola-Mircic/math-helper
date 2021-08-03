@@ -54,7 +54,6 @@ public class ObjectInfoCalculator {
 		return new ObjectInfo(s, info);
 	}
 
-	//Represents a group of vertices of an side of the object and edges between it 
 	
 	/**
 	 * Function for calculating data of Object3D <br>

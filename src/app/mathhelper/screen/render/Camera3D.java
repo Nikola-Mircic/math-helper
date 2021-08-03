@@ -21,7 +21,6 @@ public class Camera3D extends Camera{
 	public Vertex3D light;
 	
 	private int object;
-	private ObjectInfo info;
 	private List<Object3D> objectSet;
 	private Vertex3D clickedVertex;
 	
@@ -50,8 +49,6 @@ public class Camera3D extends Camera{
 		
 		renderingCenter = false;
 		renderMode = 0;
-		
-		this.info = ObjectInfoCalculator.getObjectInfo(object);
 		
 		drawContext();
 	}
@@ -519,12 +516,12 @@ public class Camera3D extends Camera{
 	}
 	
 	@Override
-	public void mouseClick(int x, int y) {
+	public GeometryObject mouseClick(int x, int y) {
 		for(Vertex vertex : objectSet.get(object).v) {
 			Vertex3D temp = convertTo2D((Vertex3D)vertex);
 			if(Math.abs(x-temp.x)<=3 && Math.abs(y-temp.y)<=3) {
 				System.out.println(vertex.name +" "+ ((Vertex3D)vertex).x + " "+((Vertex3D)vertex).y+" "+ ((Vertex3D)vertex).z);
-				return;
+				return null;
 			}
 		}
 		
@@ -540,7 +537,7 @@ public class Camera3D extends Camera{
 				if(Math.min(p1.y, p2.y) < y && y < Math.max(p1.y, p2.y)) {
 					if((a*x+b*y+c)/Math.sqrt(a*a+b*b)<3) {
 						System.out.println(e.a.name + " - " + e.b.name +" : "+Math.round(e.weight*1000)/1000.0);
-						return;
+						return e;
 					}
 				}
 			}else {
@@ -557,7 +554,7 @@ public class Camera3D extends Camera{
 				if(Math.min(p1.y, p2.y) < y && y < Math.max(p1.y, p2.y) && Math.min(p1.x, p2.x) < x && x < Math.max(p1.x, p2.x)) {
 					if((a*x+b*y+c)/Math.sqrt(a*a+b*b)<3) {
 						System.out.println(e.a.name + " - " + e.b.name +" : "+Math.round(e.weight*1000)/1000.0);
-						return;
+						return e;
 					}
 				}
 			}
@@ -574,10 +571,13 @@ public class Camera3D extends Camera{
 				for(Triangle3D t : s.getTriangles()) {
 					if(isInTriangle(x, y, (Triangle3D)t)) {
 						System.out.println(s);
+						return s;
 					}
 				}
 			}
 		}
+		
+		return null;
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package app.mathhelper.screen.gui;
 
+import app.mathhelper.screen.Screen;
 import app.mathhelper.screen.render.CameraView;
+import app.mathhelper.screen.render.DataView;
 import javafx.fxml.FXML;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -16,10 +18,16 @@ public class Controller{
 	@FXML
 	public HBox objectTypes;
 	
-	public CameraView createCVObject() {
+	public CameraView createCVObject(Screen screen) {
 		if(cameras == null)
 			System.out.println("Can't find HBox");
-		return new CameraView(cameras);
+		return new CameraView(cameras, screen);
+	}
+	
+	public DataView createDVObject(Screen screen) {
+		if(dataView == null)
+			System.out.println("Can't find VBox");
+		return new DataView(dataView, screen);
 	}
 	
 }

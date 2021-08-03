@@ -26,6 +26,6 @@ Do you have a problem with geometry?You can't visualize an object?Math helper gi
 To install the program click on the link below and you should get zipped file with application as .jar file and folder with meshes 
 of the presets
 
-> **NOTE!** Link below leads to the older version of the program. To see the latest changes you need to clone this repo and run code in an IDE
+> **NOTE!** Start progmram by running **run.bat** file!
 
-<a href="demo.jar">Download application</a>
+<a href="https://github.com/Nikola-Mircic/math-helper/raw/ui-design/demo.zip">Download application</a>
