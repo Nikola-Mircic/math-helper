@@ -106,11 +106,15 @@
                         <HBox fx:id="cameras" prefHeight="551.0" prefWidth="845.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                      </children>
             </AnchorPane>
-                  <ScrollPane prefHeight="200.0" prefWidth="200.0">
-                     <content>
-                        <VBox fx:id="dataView" prefHeight="551.0" prefWidth="149.0" />
-                     </content>
-                  </ScrollPane>
+                  <AnchorPane fx:id="dataContainer" prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <ScrollPane prefHeight="551.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <content>
+                              <VBox fx:id="dataView" prefHeight="551.0" prefWidth="149.0" />
+                           </content>
+                        </ScrollPane>
+                     </children>
+                  </AnchorPane>
                </items>
             </SplitPane>
       </items>
