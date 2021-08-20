@@ -11,11 +11,14 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 
 public class Screen extends Scene{
+	private Controller controller;
 	private CameraView camView;
 	private DataView dataView;
 	
 	public Screen(Parent root, Controller controller) {
 		super(root);
+		
+		this.setController(controller);
 		
 		this.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			public void handle(KeyEvent event) {
@@ -32,6 +35,14 @@ public class Screen extends Scene{
 	
 	public void update(int width, int height) {
 		this.camView.update(width, height);
+	}
+
+	public Controller getController() {
+		return controller;
+	}
+
+	public void setController(Controller controller) {
+		this.controller = controller;
 	}
 
 	public CameraView getCameraView() {

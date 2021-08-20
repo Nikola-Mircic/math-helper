@@ -4,10 +4,14 @@ import app.mathhelper.screen.Screen;
 import app.mathhelper.screen.render.CameraView;
 import app.mathhelper.screen.render.DataView;
 import javafx.fxml.FXML;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class Controller{
+	
+	@FXML
+	public AnchorPane dataContainer;
 	
 	@FXML
     private HBox cameras;

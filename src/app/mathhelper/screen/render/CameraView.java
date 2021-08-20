@@ -19,6 +19,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.geometry.Insets;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -201,6 +202,40 @@ public class CameraView{
 		}
 	}
 	
+	public void removeCamera(CameraPane pane) {
+		if(cameraCount > 1) {
+			for(int i=0;i<cameraCount;++i) {
+				if(cameras.get(i).equals(pane.getCamera())) {
+					//To avoid redrawing removed camera
+					if(i == activeCamera)
+						activeCamera = -1;
+					continue;
+				}
+				if(cameras.get(i) instanceof Camera2D) {
+					cameras.set(i, new Camera2D(getWidth()/(cameraCount-1), this.getHeight(), ((Camera2D)cameras.get(i)).getShape()));
+				}else {
+					cameras.set(i, new Camera3D(getWidth()/(cameraCount-1), this.getHeight(), ((Camera3D)cameras.get(i)).getObject()));
+				}
+			}
+			
+			this.cameraCount--;
+			cameras.remove(pane.getCamera());
+			
+			if(activeCamera == -1 || activeCamera == cameraCount)
+				activeCamera = cameraCount-1;
+			
+			box.getChildren().clear();
+			
+			CameraPane temp;
+			
+			for(Camera camera : cameras) {
+				temp = new CameraPane(getWidth()/cameraCount, getHeight(), camera, "Frame "+camera.currentId, this);
+				box.getChildren().add(temp);
+			}
+			
+			screen.getDataView().setInfo(((CameraPane) box.getChildren().get(activeCamera)).getInfo());
+		}
+	}
 	
 	public void removeCamera() {
 		if(cameraCount>1) {
@@ -278,6 +313,14 @@ class CameraPane extends Pane{
 		exit.setLayoutY(5.0);
 		exit.setPrefWidth(15.0);
 		exit.setPrefHeight(15.0);
+		
+		final CameraPane ref = this;
+		exit.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent e) {
+				cameraView.removeCamera(ref);
+			}
+		});
 		
 		Pane p = new Pane(frameNameLabel, exit);
 		p.setPrefWidth(width);
