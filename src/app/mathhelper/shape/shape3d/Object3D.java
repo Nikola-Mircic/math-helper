@@ -28,10 +28,7 @@ public class Object3D extends GeometryObject{
 	}
 	
 	public Object3D(int x, int y, int z) {
-		super();
-		
-		this.s = new ArrayList<>();
-		//this.volume = -1;
+		this();
 		
 		this.createVerticies(x, y, z);
 		this.createEdges();
@@ -383,6 +380,20 @@ public class Object3D extends GeometryObject{
 
 	public Vertex3D getCenter() {
 		return center;
+	}
+	
+	public void setCenter(Vertex3D center) {
+		for(Vertex3D vertex : this.v) {
+			vertex.x += center.x - this.center.x;
+			vertex.y += center.y - this.center.y;
+			vertex.z += center.z - this.center.z;
+		}
+		
+		System.out.println("Changed center form : " + this.center);
+		
+		this.center = getCenterCords();
+		
+		System.out.println("\t\t to: " + this.center);
 	}
 	
 	public double getVolume() {

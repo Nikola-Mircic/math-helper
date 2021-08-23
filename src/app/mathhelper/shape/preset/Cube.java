@@ -20,6 +20,7 @@ public class Cube extends Object3D {
 		super(x, y, z);
 		
 		this.s = new ArrayList<>();
+		this.v = new ArrayList<>();
 		
 		this.edgeLenght = edgeLenght;
 		this.createVerticies(x, y, z);
@@ -27,9 +28,6 @@ public class Cube extends Object3D {
 		this.createSides();
 		
 		this.center = getCenterCords();
-		
-		System.out.println(this.getArea());
-		System.out.println(this.getScope());
 	}
 	
 	@Override
@@ -46,12 +44,12 @@ public class Cube extends Object3D {
 	
 	@Override
 	protected void createSides() {
-		Vertex[] nearSide = {v.get(5), v.get(4), v.get(1), v.get(0)};
-		Vertex[] farSide = {v.get(7), v.get(6), v.get(3), v.get(2)};
-		Vertex[] topSide = {v.get(6), v.get(7), v.get(5), v.get(4)};
-		Vertex[] bottomSide = {v.get(1), v.get(0), v.get(2), v.get(3)};
-		Vertex[] leftSide = {v.get(4), v.get(7), v.get(0), v.get(3)};
-		Vertex[] rightSide = {v.get(6), v.get(5), v.get(2), v.get(1)};
+		Vertex3D[] nearSide = {v.get(5), v.get(4), v.get(1), v.get(0)};
+		Vertex3D[] farSide = {v.get(7), v.get(6), v.get(3), v.get(2)};
+		Vertex3D[] topSide = {v.get(6), v.get(7), v.get(5), v.get(4)};
+		Vertex3D[] bottomSide = {v.get(1), v.get(0), v.get(2), v.get(3)};
+		Vertex3D[] leftSide = {v.get(4), v.get(7), v.get(0), v.get(3)};
+		Vertex3D[] rightSide = {v.get(6), v.get(5), v.get(2), v.get(1)};
 		
 		s.add( new Shape3D((Vertex3D[]) nearSide));
 		s.add( new Shape3D((Vertex3D[]) farSide));

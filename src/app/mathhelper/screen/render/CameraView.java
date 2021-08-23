@@ -88,8 +88,6 @@ public class CameraView{
 	}
 	
 	public CameraView(int w,int h) {
-		System.out.println("Creating CameraView: W:"+w+" H:"+h);
-		
 		this.img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
 		
 		this.cameras = new ArrayList<>();
@@ -133,11 +131,9 @@ public class CameraView{
 			switch (event.getCode()) {
 			case F1:
 				addCamera();
-				System.out.println(cameraCount);
 				break;
 			case F2:
 				removeCamera();
-				System.out.println(cameraCount);
 				break;
 			case F3:
 				//TODO saveScreenshot();
@@ -375,7 +371,6 @@ class CameraPane extends Pane{
 			@Override
 			public void handle(MouseEvent event) {
 				GeometryObject object = camera.mouseClick((int)event.getX(), (int)event.getY());
-				System.out.println("Get: "+object);
 				if(object != null)
 					cameraView.getScreen().getDataView().setInfo(ObjectInfoCalculator.getObjectInfo(object));
 				else
@@ -405,7 +400,6 @@ class CameraPane extends Pane{
 	
 	
 	public void handleKeyPressed(KeyEvent e) {
-		System.out.println("Key is Pressed");
 		switch (e.getCode()) {
 		case R:
 			if(e.isControlDown() && e.isShiftDown()) {
@@ -425,11 +419,9 @@ class CameraPane extends Pane{
 			break;
 		case DIGIT1:
 			if(e.isShiftDown()) {
-				System.out.println("SHIFT + 1");
 				disabledRotation[1] = !disabledRotation[1];
 				disabledRotation[2] = false;
 			}else {
-				System.out.println("1");
 				if(this.camera instanceof Camera3D)
 					this.camera.objectType = Preset.CUBE;
 					((Camera3D) this.camera).setObject(Preset.CUBE.getObject());
@@ -439,11 +431,9 @@ class CameraPane extends Pane{
 			break;
 		case DIGIT2:
 			if(e.isShiftDown()) {
-				System.out.println("SHIFT + 2");
 				disabledRotation[2] = !disabledRotation[2];
 				disabledRotation[1] = false;
 			}else {
-				System.out.println("2");
 				if(this.camera instanceof Camera3D)
 					this.camera.objectType = Preset.TETRAHEDRON;
 					((Camera3D) this.camera).setObject(Preset.TETRAHEDRON.getObject());
