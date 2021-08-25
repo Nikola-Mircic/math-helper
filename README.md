@@ -9,6 +9,8 @@
 ### Intro:
 Do you have a problem with geometry?You can't visualize an object?Math helper gives you ability to draw an object even in 3D space.
 
+<img src="https://github.com/Nikola-Mircic/math-helper/raw/ui-design/saved.jpg" width="70%" height="70%"></img>
+
 ### Controls:
   - F1 - Add new frame for object to the window
   - F2 - Remove selected frame
