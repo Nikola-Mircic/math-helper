@@ -63,6 +63,14 @@ public class Object3D extends GeometryObject{
 		return temp;
 	}
 	
+	public void moveTo(Vertex3D destination) {
+		this.setCenter(destination);
+	}
+	
+	public void moveFor(double dx, double dy, double dz) {
+		this.setCenter(this.center.add(new Vertex3D("?", dx, dy, dz)));
+	}
+	
 	//Rotation 53 - 116 
 	public void rotateVertical(double rotation) {
 		double[] angleVert = getVerticalAngle();

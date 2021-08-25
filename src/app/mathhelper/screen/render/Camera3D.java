@@ -136,7 +136,7 @@ public class Camera3D extends Camera{
 		
 		double visible = v2.getDotProduct((Vertex3D) v1.add(position));
 		
-		if(visible<=0) {
+		//if(visible<=0) {
 			double dotProduct = v2.getDotProduct((Vertex3D) v1.add(light));
 			double cos = dotProduct/(v1.add(light).getLenght()*v2.getLenght());
 				
@@ -147,7 +147,7 @@ public class Camera3D extends Camera{
 			for(Triangle3D t : s.getTriangles()) {
 				fillTriangle((Vertex3D) t.getVertices().get(0), (Vertex3D) t.getVertices().get(1),(Vertex3D)  t.getVertices().get(2), color, doZbuffer);
 			}
-		}
+		//}
 	}
 	
 	public void fill3DShape(Shape3D s, Graphics g, int color, boolean doZbuffer) {
@@ -650,6 +650,21 @@ public class Camera3D extends Camera{
 	public void setObject(Object3D newObject) {
 		newObject.setCenter(objectSet.get(object).getCenter());
 		objectSet.set(this.object, newObject);
+		drawContext();
+	}
+	
+	public void addObject(Object3D toAdd) {
+		objectSet.add(toAdd);
+		this.object = objectSet.size()-1;
+		drawContext();
+	}
+	
+	public void removeObject() {
+		if(objectSet.size()==1)
+			return;
+		
+		objectSet.remove(object);
+		this.object = objectSet.size()-1;
 		drawContext();
 	}
 	
