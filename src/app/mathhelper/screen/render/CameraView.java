@@ -379,6 +379,7 @@ class CameraPane extends Pane{
 					cameraView.getScreen().getDataView().setInfo(ObjectInfoCalculator.getObjectInfo(object));
 				else
 					cameraView.getScreen().getDataView().setInfo(ObjectInfoCalculator.getObjectInfo(((Camera3D)camera).getObject()));
+				updateImage();
 			}
 		};
 		

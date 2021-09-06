@@ -22,6 +22,7 @@ public class Camera3D extends Camera{
 	public Vertex3D position;
 	public Vertex3D light;
 	
+	private GeometryObject selected = null;
 	private int object;
 	private List<Object3D> objectSet;
 	private Vertex3D clickedVertex;
@@ -85,6 +86,8 @@ public class Camera3D extends Camera{
 		g.setColor(Color.BLACK);
 		g.drawRect(0, 0, width, height);
 		
+		System.out.println(this.selected);
+		
 		if(renderingCenter)
 			for(Object3D object3d : objectSet)
 				renderObjectCenter(object3d, g);
@@ -92,7 +95,11 @@ public class Camera3D extends Camera{
 		if(renderMode == 0) {
 			for(Object3D object : this.objectSet) {
 				for(Shape3D s : object.getSides()) {
-					fill3DShape(s, g, true);
+					System.out.println(object + " | "+selected);
+					if(object.equals(selected))
+						fill3DShape(s, g, true, true);
+					else
+						fill3DShape(s, g, true, false);
 				}
 			}
 		}else if(renderMode == 1) {
@@ -129,7 +136,7 @@ public class Camera3D extends Camera{
 		return temp;
 	}
 	
-	public void fill3DShape(Shape3D s, Graphics g, boolean doZbuffer) {
+	public void fill3DShape(Shape3D s, Graphics g, boolean doZbuffer, boolean isSelected) {
 		Edge3D normal = s.getNormal();
 		Vertex3D v1 = (Vertex3D) normal.a;
 		Vertex3D v2 = (Vertex3D) normal.b;
@@ -144,17 +151,26 @@ public class Camera3D extends Camera{
 			colorComp=Math.min(255, colorComp);
 			colorComp=Math.max(0, colorComp);
 			int color = (new Color(colorComp, colorComp, colorComp)).getRGB();
+			
+			if(s.equals(selected) || isSelected) {
+				color = (new Color(colorComp/255.0f, colorComp/255.0f*0.6f, colorComp/255.0f*0.6f)).getRGB();
+				System.out.print("("+colorComp+", "+colorComp+", "+colorComp+") -> ");
+				System.out.println("("+colorComp/255.0f*0.8f+", "+colorComp/255.0f*0.6f+", "+colorComp/255.0f*0.6f+")");
+			}
+				
 			for(Triangle3D t : s.getTriangles()) {
 				fillTriangle((Vertex3D) t.getVertices().get(0), (Vertex3D) t.getVertices().get(1),(Vertex3D)  t.getVertices().get(2), color, doZbuffer);
 			}
 		//}
 	}
 	
-	public void fill3DShape(Shape3D s, Graphics g, int color, boolean doZbuffer) {
+	/*public void fill3DShape(Shape3D s, Graphics g, int color, boolean doZbuffer, boolean isSelected) {
+		if(s.equals(selected))
+			isSelected = true;
 		for(Triangle3D t : s.getTriangles()) {
-			fillTriangle((Vertex3D) t.getVertices().get(0), (Vertex3D) t.getVertices().get(1),(Vertex3D)  t.getVertices().get(2), color,doZbuffer);
+			fillTriangle((Vertex3D) t.getVertices().get(0), (Vertex3D) t.getVertices().get(1),(Vertex3D)  t.getVertices().get(2), color,doZbuffer, isSelected);
 		}
-	}
+	}*/
 	
 	public void draw3DEdges(Shape3D shape, Graphics g, List<Edge3D> filled) {
 		Edge3D normal = shape.getNormal();
@@ -542,66 +558,72 @@ public class Camera3D extends Camera{
 				return null;
 			}
 		}
-		
-		for(Edge3D e : objectSet.get(object).e) {
-			Vertex3D p1 = convertTo2D(e.a);
-			Vertex3D p2 = convertTo2D(e.b);
-			double a,b,c;
-			
-			if(p1.x == p2.x) {
-				a = 1;
-				b = 0;
-				c = -p1.x;
-				if(Math.min(p1.y, p2.y) < y && y < Math.max(p1.y, p2.y)) {
-					if((a*x+b*y+c)/Math.sqrt(a*a+b*b)<3) {
-						System.out.println(e.a.name + " - " + e.b.name +" : "+Math.round(e.weight*1000)/1000.0);
-						return e;
+		if(renderMode == 1) {
+			for(Edge3D e : objectSet.get(object).e) {
+				Vertex3D p1 = convertTo2D(e.a);
+				Vertex3D p2 = convertTo2D(e.b);
+				double a,b,c;
+				
+				if(p1.x == p2.x) {
+					a = 1;
+					b = 0;
+					c = -p1.x;
+					if(Math.min(p1.y, p2.y) < y && y < Math.max(p1.y, p2.y)) {
+						if((a*x+b*y+c)/Math.sqrt(a*a+b*b)<3) {
+							System.out.println(e.a.name + " - " + e.b.name +" : "+Math.round(e.weight*1000)/1000.0);
+							return e;
+						}
 					}
-				}
-			}else {
-				if(p2.x < p1.x) {
-					Vertex3D temp = p1;
-					p1 = p2;
-					p2 = temp;
-				}
-				double k = (p2.y - p1.y)/(p2.x - p1.x);
-				double n = p1.y-k*p1.x;
-				a = -k;
-				b = 1;
-				c = -n;
-				if(Math.min(p1.y, p2.y) < y && y < Math.max(p1.y, p2.y) && Math.min(p1.x, p2.x) < x && x < Math.max(p1.x, p2.x)) {
-					if((a*x+b*y+c)/Math.sqrt(a*a+b*b)<3) {
-						System.out.println(e.a.name + " - " + e.b.name +" : "+Math.round(e.weight*1000)/1000.0);
-						return e;
+				}else {
+					if(p2.x < p1.x) {
+						Vertex3D temp = p1;
+						p1 = p2;
+						p2 = temp;
+					}
+					double k = (p2.y - p1.y)/(p2.x - p1.x);
+					double n = p1.y-k*p1.x;
+					a = -k;
+					b = 1;
+					c = -n;
+					if(Math.min(p1.y, p2.y) < y && y < Math.max(p1.y, p2.y) && Math.min(p1.x, p2.x) < x && x < Math.max(p1.x, p2.x)) {
+						if((a*x+b*y+c)/Math.sqrt(a*a+b*b)<3) {
+							System.out.println(e.a.name + " - " + e.b.name +" : "+Math.round(e.weight*1000)/1000.0);
+							return e;
+						}
 					}
 				}
 			}
-		}
-		
-		for(int i=0;i<objectSet.size();++i) {
-			for(Shape3D s: objectSet.get(i).s) {
-				Edge3D normal = s.getNormal();
-				Vertex3D v1 = (Vertex3D) normal.a;
-				Vertex3D v2 = (Vertex3D) normal.b;
-				
-				double visible = v2.getDotProduct((Vertex3D) v1.add(position));
-				
-				if(visible < 0) {
-					for(Triangle3D t : s.getTriangles()) {
-						if(isInTriangle(x, y, (Triangle3D)t)) {
-							System.out.println(s);
-							if(i != this.object) {
-								this.object = i;
-								return objectSet.get(i);
+		}else {
+			for(int i=0;i<objectSet.size();++i) {
+				for(Shape3D s: objectSet.get(i).s) {
+					Edge3D normal = s.getNormal();
+					Vertex3D v1 = (Vertex3D) normal.a;
+					Vertex3D v2 = (Vertex3D) normal.b;
+					
+					double visible = v2.getDotProduct((Vertex3D) v1.add(position));
+					
+					if(visible < 0) {
+						for(Triangle3D t : s.getTriangles()) {
+							if(isInTriangle(x, y, (Triangle3D)t)) {
+								System.out.println(s);
+								if(i != this.object || selected == null) {
+									this.object = i;
+									this.selected = objectSet.get(i);
+									drawContext();
+									return objectSet.get(i);
+								}
+								this.selected = s;
+								drawContext();
+								return s;
 							}
-							return s;
 						}
 					}
 				}
 			}
 		}
 		
-		
+		this.selected = null;
+		drawContext();
 		return null;
 	}
 
