@@ -138,6 +138,7 @@ public class ObjectInfoCalculator {
 		double volume = 0;
 		
 		try {
+			//System.out.println("Trying to get volume");
 			volume = Math.round(getObjectVolume(connections, vertices, sides)*1000)/1000.0;
 		} catch (Exception e) {
 			e.printStackTrace();

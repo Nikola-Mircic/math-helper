@@ -50,7 +50,8 @@ public class Camera3D extends Camera{
 		objectSet.add(object);
 		this.object = 0;
 		
-		Cube cube = new Cube(1, 2, -5, 0.5);
+		Object3D cube = Preset.CUBE.getObject();
+		cube.setCenter(new Vertex3D("center", 1, 1.2, -5));
 		
 		objectSet.add(cube);
 		
