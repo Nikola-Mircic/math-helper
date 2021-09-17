@@ -86,9 +86,7 @@ public class Camera3D extends Camera{
 		
 		g.setColor(Color.BLACK);
 		g.drawRect(0, 0, width, height);
-		
-		System.out.println(this.selected);
-		
+				
 		if(renderingCenter)
 			for(Object3D object3d : objectSet)
 				renderObjectCenter(object3d, g);
@@ -96,7 +94,6 @@ public class Camera3D extends Camera{
 		if(renderMode == 0) {
 			for(Object3D object : this.objectSet) {
 				for(Shape3D s : object.getSides()) {
-					System.out.println(object + " | "+selected);
 					if(object.equals(selected))
 						fill3DShape(s, g, true, true);
 					else
@@ -155,8 +152,6 @@ public class Camera3D extends Camera{
 			
 			if(s.equals(selected) || isSelected) {
 				color = (new Color(colorComp/255.0f, colorComp/255.0f*0.6f, colorComp/255.0f*0.6f)).getRGB();
-				System.out.print("("+colorComp+", "+colorComp+", "+colorComp+") -> ");
-				System.out.println("("+colorComp/255.0f*0.8f+", "+colorComp/255.0f*0.6f+", "+colorComp/255.0f*0.6f+")");
 			}
 				
 			for(Triangle3D t : s.getTriangles()) {
@@ -195,21 +190,25 @@ public class Camera3D extends Camera{
 			g2d.setStroke(s);
 			
 			A:for(int i=0;i<temp.length;++i) {
-				for(Edge3D e : filled) {
+				/*for(Edge3D e : filled) {
 					if(e.equals(temp[i])) {
 						continue A;
 					}
-				}					
+				}*/	
+				if(filled.contains((Edge3D) temp[i])) {
+					continue A;
+				}
 				g2d.drawLine((int)((Vertex3D) temp[i].a).x, (int)((Vertex3D) temp[i].a).y, (int)((Vertex3D) temp[i].b).x, (int)((Vertex3D) temp[i].b).y);
 			}
-		} else if(dotProduct < 0){
-			g.setColor(Color.BLACK);
+		}else{
+			System.out.println("Visible Shape: "+shape);
 			for(int i=0;i<temp.length;++i) {
 				drawLine((int)((Vertex3D) temp[i].a).x, (int)((Vertex3D) temp[i].a).y, ((Vertex3D) temp[i].a).z, (int)((Vertex3D) temp[i].b).x, (int)((Vertex3D) temp[i].b).y, ((Vertex3D) temp[i].b).z, 0);
 				filled.add(temp[i]);
 			}
 		}
 		
+		g.setColor(Color.BLACK);
 		g.setFont(new Font("Serif", Font.PLAIN, 20));
 		for(int i=0;i<temp.length;++i) {
 			if(dotProduct<0 || renderMode == 1) {
@@ -280,8 +279,12 @@ public class Camera3D extends Camera{
 			if(b.y<a.y) {
 				a = a.add(b);
 				b = a.add(b.getOpositeVector());
-				b = a.add(b.getOpositeVector());
+				a = a.add(b.getOpositeVector());
 			}
+			
+			System.out.println("Vertical lines:");
+			System.out.println("\t- "+a);
+			System.out.println("\t- "+b);
 			
 			zValue = a.z;
 			zStep = (b.z-a.z)/(b.y-a.y);
@@ -296,6 +299,7 @@ public class Camera3D extends Camera{
 					context.setRGB(x1, y, color);
 					zBuffer[x1][y]=zValue;	
 				}
+				
 				if(zBuffer[x1+1][y]<zValue || zBuffer[x1+1][y]==0) {
 					context.setRGB(x1+1, y, color);
 					zBuffer[x1+1][y]=zValue;
@@ -309,7 +313,7 @@ public class Camera3D extends Camera{
 			if(b.x<a.x) {
 				a = a.add(b);
 				b = a.add(b.getOpositeVector());
-				b = a.add(b.getOpositeVector());
+				a = a.add(b.getOpositeVector());
 			}
 			
 			zValue = a.z;
