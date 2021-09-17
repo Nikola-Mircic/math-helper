@@ -20,7 +20,7 @@ public abstract class Camera {
 		this.width = width;
 		this.height = height;
 		
-		this.context = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		this.context = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 	}
 	
 	public abstract void drawContext();

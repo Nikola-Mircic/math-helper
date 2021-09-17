@@ -1,5 +1,6 @@
 package app.mathhelper.screen.render;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -50,6 +51,8 @@ public class Camera3D extends Camera{
 		objectSet.add(object);
 		this.object = 0;
 		
+		this.selected = objectSet.get(this.object);
+		
 		renderingCenter = false;
 		renderMode = 0;
 		
@@ -64,9 +67,12 @@ public class Camera3D extends Camera{
 		
 		List<Edge3D> filled = new ArrayList<>();
 		
+		BufferedImage contextObjectLayer;
+		Graphics gObj;
+		
 		Graphics g = context.getGraphics();
 		
-		g.setColor(new Color(70, 70, 70));
+		g.setColor(new Color(70, 70, 70, 255));
 		g.fillRect(0, 0, width, height);
 		for(int i=0;i<width;++i) {
 			for(int j=0;j<height;++j) {
@@ -81,28 +87,27 @@ public class Camera3D extends Camera{
 		
 		g.setColor(Color.BLACK);
 		g.drawRect(0, 0, width, height);
-				
-		if(renderingCenter)
-			for(Object3D object3d : objectSet)
-				renderObjectCenter(object3d, g);
 		
-		if(renderMode == 0) {
-			for(Object3D object : this.objectSet) {
+		for(Object3D object : this.objectSet) {
+			contextObjectLayer = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
+			if(renderingCenter)
+				renderObjectCenter(object, contextObjectLayer.getGraphics());
+			
+			if(renderMode == 0) {
 				for(Shape3D s : object.getSides()) {
 					if(object.equals(selected))
-						fill3DShape(s, g, true, true);
+						fill3DShape(s, contextObjectLayer, true, true);
 					else
-						fill3DShape(s, g, true, false);
+						fill3DShape(s, contextObjectLayer, true, false);
 				}
-			}
-		}else if(renderMode == 1) {
-			for(Object3D object : this.objectSet) {
+			}else if(renderMode == 1) {
 				for(Shape3D s : object.getSides()) {
-					draw3DEdges(s, g, filled);
+					draw3DEdges(s, contextObjectLayer, filled);
 				}
 			}
+			
+			context.getGraphics().drawImage(contextObjectLayer, 0, 0, null);
 		}
-		
 		g.setColor(Color.WHITE);
 		g.setFont(new Font("mono", Font.PLAIN, 15));
 		g.drawString("Camera id: "+id, 10, this.height-50);
@@ -117,7 +122,7 @@ public class Camera3D extends Camera{
 		return temp;
 	}
 	
-	public void fill3DShape(Shape3D s, Graphics g, boolean doZbuffer, boolean isSelected) {
+	public void fill3DShape(Shape3D s, BufferedImage layer, boolean doZbuffer, boolean isSelected) {
 		Edge3D normal = s.getNormal();
 		Vertex3D v1 = (Vertex3D) normal.a;
 		Vertex3D v2 = (Vertex3D) normal.b;
@@ -128,18 +133,19 @@ public class Camera3D extends Camera{
 		int colorComp = (int)(150-cos*95);
 		colorComp=Math.min(255, colorComp);
 		colorComp=Math.max(0, colorComp);
-		int color = (new Color(colorComp, colorComp, colorComp)).getRGB();
+		int color = (new Color(colorComp, colorComp, colorComp, 255)).getRGB();
 		
 		if(s.equals(selected) || isSelected) {
 			color = (new Color(colorComp/255.0f, colorComp/255.0f*0.6f, colorComp/255.0f*0.6f)).getRGB();
 		}
 			
 		for(Triangle3D t : s.getTriangles()) {
-			fillTriangle((Vertex3D) t.getVertices().get(0), (Vertex3D) t.getVertices().get(1),(Vertex3D)  t.getVertices().get(2), color, doZbuffer);
+			fillTriangle(layer, (Vertex3D) t.getVertices().get(0), (Vertex3D) t.getVertices().get(1),(Vertex3D)  t.getVertices().get(2), color, doZbuffer);
 		}
 	}
 	
-	public void draw3DEdges(Shape3D shape, Graphics g, List<Edge3D> filled) {
+	public void draw3DEdges(Shape3D shape, BufferedImage layer, List<Edge3D> filled) {
+		Graphics g = layer.getGraphics();
 		Edge3D normal = shape.getNormal();
 		Vertex3D v1 = (Vertex3D) normal.a;
 		Vertex3D v2 = (Vertex3D) normal.b;
@@ -168,7 +174,11 @@ public class Camera3D extends Camera{
 			}
 		}else{
 			for(int i=0;i<temp.length;++i) {
-				drawLine((int)((Vertex3D) temp[i].a).x, (int)((Vertex3D) temp[i].a).y, ((Vertex3D) temp[i].a).z, (int)((Vertex3D) temp[i].b).x, (int)((Vertex3D) temp[i].b).y, ((Vertex3D) temp[i].b).z, 0);
+				int lineColor = 0xFF000000;
+				drawLine(layer,
+						(int)((Vertex3D) temp[i].a).x, (int)((Vertex3D) temp[i].a).y, ((Vertex3D) temp[i].a).z,
+						(int)((Vertex3D) temp[i].b).x, (int)((Vertex3D) temp[i].b).y, ((Vertex3D) temp[i].b).z,
+						lineColor);
 				filled.add(temp[i]);
 			}
 		}
@@ -231,7 +241,7 @@ public class Camera3D extends Camera{
 		g.fillOval((int)center.x, (int)center.y, 5, 5);
 	}
 	
-	private void drawLine(int x1, int y1,double z1, int x2, int y2,double z2, int color) {
+	private void drawLine(BufferedImage layer, int x1, int y1,double z1, int x2, int y2,double z2, int color) {
 		Vertex3D a = new Vertex3D("a", (double)x1, (double)y1, z1);
 		Vertex3D b = new Vertex3D("b", (double)x2, (double)y2, z2);
 		double zValue;
@@ -257,12 +267,12 @@ public class Camera3D extends Camera{
 					continue;
 				
 				if(zBuffer[x1][y]<zValue || zBuffer[x1][y]==0) {
-					context.setRGB(x1, y, color);
+					layer.setRGB(x1, y, color);
 					zBuffer[x1][y]=zValue;	
 				}
 				
 				if(zBuffer[x1+1][y]<zValue || zBuffer[x1+1][y]==0) {
-					context.setRGB(x1+1, y, color);
+					layer.setRGB(x1+1, y, color);
 					zBuffer[x1+1][y]=zValue;
 				}
 				zValue+=zStep;
@@ -287,11 +297,11 @@ public class Camera3D extends Camera{
 					return;
 				
 				if(zBuffer[x][y1]<zValue || zBuffer[x][y1]==0) {
-					context.setRGB(x, y1, color);
+					layer.setRGB(x, y1, color);
 					zBuffer[x][y1]=zValue;	
 				}
 				if(zBuffer[x][y1+1]<zValue || zBuffer[x][y1+1]==0) {
-					context.setRGB(x, y1+1, color);
+					layer.setRGB(x, y1+1, color);
 					zBuffer[x][y1+1]=zValue;
 				}
 				zValue+=zStep;
@@ -327,11 +337,11 @@ public class Camera3D extends Camera{
 				for(double y=ys;y<ye;y+=1) {
 					if(x>0 && x<width-1 && y>0 && y<height-1) {
 						if(zBuffer[x][(int)y]<zValue || zBuffer[x][(int)y]==0)
-							context.setRGB(x, (int)y, color);
+							layer.setRGB(x, (int)y, color);
 						if(zBuffer[x+1][(int)y]<zValue || zBuffer[x+1][(int)y]==0)
-							context.setRGB(x+1, (int)y, color);
+							layer.setRGB(x+1, (int)y, color);
 						if(zBuffer[x][(int)y+1]<zValue || zBuffer[x][(int)y+1]==0)
-							context.setRGB(x, (int)y+1, color);
+							layer.setRGB(x, (int)y+1, color);
 					
 						zValue+=zStep;
 					}
@@ -340,7 +350,7 @@ public class Camera3D extends Camera{
 		}
 	}
 	
-	private void fillTriangle(Vertex3D a, Vertex3D b, Vertex3D c, int color, boolean doZbuffer) {
+	private void fillTriangle(BufferedImage layer, Vertex3D a, Vertex3D b, Vertex3D c, int color, boolean doZbuffer) {
 		List<Vertex3D> temp = new ArrayList<>();
 		temp.add(convertTo2D(a));
 		temp.add(convertTo2D(b));
@@ -361,7 +371,7 @@ public class Camera3D extends Camera{
 		double dy01 = (temp.get(1).y-temp.get(0).y);
 		
 		if(Math.abs(dy02)<=1) {
-			drawLine((int)temp.get(0).x, (int)temp.get(0).y, temp.get(0).z, (int)temp.get(2).x, (int)temp.get(2).y, temp.get(2).z, color);
+			drawLine(layer, (int)temp.get(0).x, (int)temp.get(0).y, temp.get(0).z, (int)temp.get(2).x, (int)temp.get(2).y, temp.get(2).z, color);
 			return;
 		}
 		
@@ -370,22 +380,22 @@ public class Camera3D extends Camera{
 		double middleZ = temp.get(0).z+(temp.get(2).z-temp.get(0).z)*scale;
 		Vertex3D middle = new Vertex3D("middle", middleX, temp.get(1).y, middleZ);
 		
-		fillBottomFlatTriangle(temp.get(0), temp.get(1), middle, color, doZbuffer);
-		fillTopFlatTriangle(temp.get(1), middle, temp.get(2), color, doZbuffer);
+		fillBottomFlatTriangle(layer, temp.get(0), temp.get(1), middle, color, doZbuffer);
+		fillTopFlatTriangle(layer, temp.get(1), middle, temp.get(2), color, doZbuffer);
 		
 		System.out.print("");
 	}
 	
 	//a - vertex on the top of the triangle
 	//b,c - vertices on the bottom edge of the triangle
-	private void fillBottomFlatTriangle(Vertex3D a, Vertex3D b,Vertex3D c, int color, boolean doZbuffer) {
+	private void fillBottomFlatTriangle(BufferedImage layer, Vertex3D a, Vertex3D b,Vertex3D c, int color, boolean doZbuffer) {
 		Vertex3D ab = new Vertex3D("ab", a.x, a.y, a.z);
 		Vertex3D ac = new Vertex3D("ac", a.x, a.y, a.z);
 		
 		double dy = b.y-a.y;
 		
 		if(dy<=1) {
-			drawLine((int)b.x, (int)b.y, b.z, (int)c.x, (int)c.y, c.z, color);
+			drawLine(layer, (int)b.x, (int)b.y, b.z, (int)c.x, (int)c.y, c.z, color);
 			return;
 		}
 		
@@ -404,13 +414,13 @@ public class Camera3D extends Camera{
 				if(y>0 && y<this.height-1 && x>0 && x<this.width-1) {
 					zValue = calculateZ(ac, ab, x);
 					if(zBuffer[x][y]<zValue || zBuffer[x][y]==0) {
-						context.setRGB(x, y, color);
+						layer.setRGB(x, y, color);
 						if(doZbuffer)
 							zBuffer[x][y] = zValue;
 					}
 					zValue = calculateZ((Vertex3D) ac.add(stepAC), (Vertex3D) ab.add(stepAB), x);
 					if(zBuffer[x][y+1]<zValue || zBuffer[x][y+1]==0) {
-						context.setRGB(x, y+1, color);
+						layer.setRGB(x, y+1, color);
 						if(doZbuffer)
 							zBuffer[x][y+1] = zValue;
 					}
@@ -433,13 +443,13 @@ public class Camera3D extends Camera{
 	
 	//a,b - vertices on the top edge of the triangle
 	//c - vertex on the bottom  of the triangle
-	private void fillTopFlatTriangle(Vertex3D a, Vertex3D b,Vertex3D c, int color, boolean doZbuffer) {
+	private void fillTopFlatTriangle(BufferedImage layer, Vertex3D a, Vertex3D b,Vertex3D c, int color, boolean doZbuffer) {
 		Vertex3D ac = new Vertex3D("ac", a.x, a.y, a.z);
 		Vertex3D bc = new Vertex3D("bc", b.x, b.y, b.z);
 		
 		double dy = c.y-b.y;
 		if(dy<=1) {
-			drawLine((int)a.x, (int)a.y, a.z, (int)b.x, (int)b.y, b.z, color);
+			drawLine(layer, (int)a.x, (int)a.y, a.z, (int)b.x, (int)b.y, b.z, color);
 			return;
 		}
 		double dxAC = (c.x-a.x)/dy;
@@ -457,13 +467,13 @@ public class Camera3D extends Camera{
 				if(y>0 && y<this.height-1 && x>0 && x<this.width-1) {
 					zValue = calculateZ(ac, bc, x);
 					if(zBuffer[x][y]<zValue || zBuffer[x][y]==0) {
-						context.setRGB(x, y, color);
+						layer.setRGB(x, y, color);
 						if(doZbuffer)
 							zBuffer[x][y] = zValue;
 					}
 					zValue = calculateZ((Vertex3D) ac.add(stepAC), (Vertex3D) bc.add(stepBC), x);
 					if(zBuffer[x][y+1]<zValue || zBuffer[x][y+1]==0) {
-						context.setRGB(x, y+1, color);
+						layer.setRGB(x, y+1, color);
 						if(doZbuffer)
 							zBuffer[x][y+1] = zValue;
 					}
@@ -499,14 +509,14 @@ public class Camera3D extends Camera{
 	
 	@Override
 	public GeometryObject mouseClick(int x, int y) {
-		for(Vertex vertex : objectSet.get(object).v) {
-			Vertex3D temp = convertTo2D((Vertex3D)vertex);
-			if(Math.abs(x-temp.x)<=3 && Math.abs(y-temp.y)<=3) {
-				System.out.println(vertex.name +" "+ ((Vertex3D)vertex).x + " "+((Vertex3D)vertex).y+" "+ ((Vertex3D)vertex).z);
-				return null;
+		if(renderMode == 1 && object!=-1) {
+			for(Vertex vertex : objectSet.get(object).v) {
+				Vertex3D temp = convertTo2D((Vertex3D)vertex);
+				if(Math.abs(x-temp.x)<=3 && Math.abs(y-temp.y)<=3) {
+					System.out.println(vertex.name +" "+ ((Vertex3D)vertex).x + " "+((Vertex3D)vertex).y+" "+ ((Vertex3D)vertex).z);
+					return null;
+				}
 			}
-		}
-		if(renderMode == 1) {
 			for(Edge3D e : objectSet.get(object).e) {
 				Vertex3D p1 = convertTo2D(e.a);
 				Vertex3D p2 = convertTo2D(e.b);
@@ -571,6 +581,7 @@ public class Camera3D extends Camera{
 		}
 		
 		this.selected = null;
+		this.object = -1;
 		drawContext();
 		return null;
 	}
@@ -582,6 +593,8 @@ public class Camera3D extends Camera{
 	
 	@Override
 	public void mouseDragged(int dx, int dy) {
+		if(this.object == -1)
+			return;
 		double rotationX = (-dx/180.0*Math.PI);
 		double rotationY = (-dy/180.0*Math.PI);
 		
@@ -614,27 +627,34 @@ public class Camera3D extends Camera{
 	}
 	
 	public Object3D getObject() {
+		if(object == -1)
+			return null;
 		return objectSet.get(object);
 	}
 
 	public void setObject(Object3D newObject) {
+		if(this.object == -1)
+			return;
 		newObject.setCenter(objectSet.get(object).getCenter());
 		objectSet.set(this.object, newObject);
+		this.selected = objectSet.get(object);
 		drawContext();
 	}
 	
 	public void addObject(Object3D toAdd) {
 		objectSet.add(toAdd);
 		this.object = objectSet.size()-1;
+		this.selected = objectSet.get(object);
 		drawContext();
 	}
 	
 	public void removeObject() {
-		if(objectSet.size()==1)
+		if(objectSet.size()==1 || object == -1)
 			return;
 		
 		objectSet.remove(object);
 		this.object = objectSet.size()-1;
+		this.selected = objectSet.get(object);
 		drawContext();
 	}
 	

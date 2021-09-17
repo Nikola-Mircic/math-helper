@@ -397,11 +397,7 @@ public class Object3D extends GeometryObject{
 			vertex.z += center.z - this.center.z;
 		}
 		
-		System.out.println("Changed center form : " + this.center);
-		
 		this.center = getCenterCords();
-		
-		System.out.println("\t\t to: " + this.center);
 	}
 	
 	public double getVolume() {

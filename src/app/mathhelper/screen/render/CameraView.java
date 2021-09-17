@@ -374,7 +374,13 @@ class CameraPane extends Pane{
 		EventHandler<MouseEvent> clickMouse = new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				GeometryObject object = camera.mouseClick((int)event.getX(), (int)event.getY());
+				if(lastMouseX != -1 && lastMouseY != -1) {
+					lastMouseX = -1;
+					lastMouseY = -1;
+					return;
+				}
+
+				GeometryObject object = camera.mouseClick((int)event.getX(), (int)(event.getY()-view.getLayoutY()));
 				if(object != null)
 					cameraView.getScreen().getDataView().setInfo(ObjectInfoCalculator.getObjectInfo(object));
 				else
@@ -383,17 +389,8 @@ class CameraPane extends Pane{
 			}
 		};
 		
-		EventHandler<MouseEvent> releaseMouse = new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent event) {
-				lastMouseX = -1;
-				lastMouseY = -1;
-			}
-		};
-		
 		this.addEventFilter(MouseEvent.MOUSE_DRAGGED, draggMouse);
 		this.addEventFilter(MouseEvent.MOUSE_CLICKED, clickMouse);
-		this.addEventFilter(MouseEvent.MOUSE_RELEASED, releaseMouse);
 		
 		this.setOnScroll(new EventHandler<ScrollEvent>() {
 			public void handle(ScrollEvent event) {
@@ -405,6 +402,8 @@ class CameraPane extends Pane{
 	
 	
 	public void handleKeyPressed(KeyEvent e) {
+		Object3D obj = new Cube(0, 0, 0);
+		
 		switch (e.getCode()) {
 		case R:
 			if(e.isControlDown() && e.isShiftDown()) {
@@ -432,7 +431,11 @@ class CameraPane extends Pane{
 			}else {
 				if(this.camera instanceof Camera3D)
 					this.camera.objectType = Preset.CUBE;
-					((Camera3D) this.camera).setObject(Preset.CUBE.getObject());
+					obj = Preset.CUBE.getObject();
+					if(e.isControlDown())
+						((Camera3D) this.camera).setObject(obj);
+					else
+						((Camera3D) this.camera).addObject(obj);
 					this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
 					this.cameraView.getScreen().getDataView().setInfo(info);
 			}
@@ -444,7 +447,11 @@ class CameraPane extends Pane{
 			}else {
 				if(this.camera instanceof Camera3D)
 					this.camera.objectType = Preset.TETRAHEDRON;
-					((Camera3D) this.camera).setObject(Preset.TETRAHEDRON.getObject());
+					obj = Preset.TETRAHEDRON.getObject();
+					if(e.isControlDown())
+						((Camera3D) this.camera).setObject(obj);
+					else
+						((Camera3D) this.camera).addObject(obj);
 					this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
 					this.cameraView.getScreen().getDataView().setInfo(info);
 			}
@@ -452,73 +459,101 @@ class CameraPane extends Pane{
 		case DIGIT3:
 			if(this.camera instanceof Camera3D)
 				this.camera.objectType = Preset.TEAPOT;
-				((Camera3D) this.camera).setObject(Preset.TEAPOT.getObject());
+				obj = Preset.TEAPOT.getObject();
+				if(e.isControlDown())
+					((Camera3D) this.camera).setObject(obj);
+				else
+					((Camera3D) this.camera).addObject(obj);
 				this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
 				this.cameraView.getScreen().getDataView().setInfo(info);
 			break;
 		case DIGIT4:
 			if(this.camera instanceof Camera3D)
 				this.camera.objectType = Preset.CONE;
-				((Camera3D) this.camera).setObject(Preset.CONE.getObject());
+				obj = Preset.CONE.getObject();
+				if(e.isControlDown())
+					((Camera3D) this.camera).setObject(obj);
+				else
+					((Camera3D) this.camera).addObject(obj);
 				this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
 				this.cameraView.getScreen().getDataView().setInfo(info);
 			break;
 		case DIGIT5:
 			if(this.camera instanceof Camera3D)
 				this.camera.objectType = Preset.ICOSPHERE;
-				((Camera3D) this.camera).setObject(Preset.ICOSPHERE.getObject());
+				obj = Preset.ICOSPHERE.getObject();
+				if(e.isControlDown())
+					((Camera3D) this.camera).setObject(obj);
+				else
+					((Camera3D) this.camera).addObject(obj);
 				this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
 				this.cameraView.getScreen().getDataView().setInfo(info);
 			break;
 		case DIGIT6:
 			if(this.camera instanceof Camera3D)
 				this.camera.objectType = Preset.CYLINDER;
-				((Camera3D) this.camera).setObject(Preset.CYLINDER.getObject());
+				obj = Preset.CYLINDER.getObject();
+				if(e.isControlDown())
+					((Camera3D) this.camera).setObject(obj);
+				else
+					((Camera3D) this.camera).addObject(obj);
 				this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
 				this.cameraView.getScreen().getDataView().setInfo(info);
 			break;
 		case DIGIT7:
 			if(this.camera instanceof Camera3D)
 				this.camera.objectType = Preset.BALL;
-				((Camera3D) this.camera).setObject(Preset.BALL.getObject());
+				obj = Preset.BALL.getObject();
+				if(e.isControlDown())
+					((Camera3D) this.camera).setObject(obj);
+				else
+					((Camera3D) this.camera).addObject(obj);
 				this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
 				this.cameraView.getScreen().getDataView().setInfo(info);
-			break;
-		case CONTROL:
-			if(getCameraView().getCamera() instanceof Camera3D)
-				((Camera3D)camera).renderingCenter = true;
 			break;
 		case UP:
 			if(e.isShiftDown())
 				camera.moveY(0.1);
 			else {
-				((Camera3D) camera).getObject().moveFor(0, 0.1, 0);
-				camera.drawContext();
+				if(((Camera3D) camera).getObject() != null) {
+					((Camera3D) camera).getObject().moveFor(0, 0.1, 0);
+					camera.drawContext();
+				}
 			}
 			break;
 		case DOWN:
 			if(e.isShiftDown())
 				camera.moveY(-0.1);
 			else {
-				((Camera3D) camera).getObject().moveFor(0, -0.1, 0);
-				camera.drawContext();
+				if(((Camera3D) camera).getObject() != null) {
+					((Camera3D) camera).getObject().moveFor(0, -0.1, 0);
+					camera.drawContext();
+				}
 			}
 			break;
 		case LEFT:
 			if(e.isShiftDown())
 				camera.moveX(-0.1);
 			else {
-				((Camera3D) camera).getObject().moveFor(-0.1, 0, 0);
-				camera.drawContext();
+				if(((Camera3D) camera).getObject() != null) {
+					((Camera3D) camera).getObject().moveFor(-0.1, 0, 0);
+					camera.drawContext();
+				}
 			}
 			break;
 		case RIGHT:
 			if(e.isShiftDown())
 				camera.moveX(0.1);
 			else {
-				((Camera3D) camera).getObject().moveFor(0.1, 0, 0);
-				camera.drawContext();
+				if(((Camera3D) camera).getObject() != null) {
+					((Camera3D) camera).getObject().moveFor(0.1, 0, 0);
+					camera.drawContext();
+				}
 			}
+			break;
+		case CONTROL:
+			if(getCameraView().getCamera() instanceof Camera3D)
+				((Camera3D)camera).renderingCenter = true;
 			break;
 		default:
 			break;
