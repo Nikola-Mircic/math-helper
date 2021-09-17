@@ -93,7 +93,7 @@ public class CameraView{
 		
 		this.cameras = new ArrayList<>();
 		this.activeCamera = 0;
-		this.cameraCount = 2;
+		this.cameraCount = 1;
 		for(int i=0;i<cameraCount;++i) {
 			cameras.add(new Camera3D(w/cameraCount, h, Preset.CUBE.getObject()));
 		}
