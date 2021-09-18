@@ -24,6 +24,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -88,13 +89,11 @@ public class CameraView{
 	}
 	
 	public CameraView(int w,int h) {
-		System.out.println("Creating CameraView: W:"+w+" H:"+h);
-		
 		this.img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
 		
 		this.cameras = new ArrayList<>();
 		this.activeCamera = 0;
-		this.cameraCount = 2;
+		this.cameraCount = 1;
 		for(int i=0;i<cameraCount;++i) {
 			cameras.add(new Camera3D(w/cameraCount, h, Preset.CUBE.getObject()));
 		}
@@ -133,14 +132,23 @@ public class CameraView{
 			switch (event.getCode()) {
 			case F1:
 				addCamera();
-				System.out.println(cameraCount);
 				break;
 			case F2:
 				removeCamera();
-				System.out.println(cameraCount);
 				break;
 			case F3:
-				//TODO saveScreenshot();
+				WritableImage screenshot = screen.snapshot(null);
+				BufferedImage img = SwingFXUtils.fromFXImage(screenshot, null);
+				try {
+					File saved = new File("saved.jpg");
+					if(!saved.exists()){
+						saved.createNewFile();
+					}
+					ImageIO.write(img, "png", saved);
+				} catch (Exception e) {
+					System.out.println("Failed");
+					e.printStackTrace();
+				}
 				break;
 			default:
 				((CameraPane) box.getChildren().get(activeCamera)).handleKeyPressed(event);
@@ -179,11 +187,7 @@ public class CameraView{
 	public void addCamera() {
 		if(cameraCount<5 && MULTIPLE_CAMERA_ENABLED) {
 			for(int i=0;i<cameraCount;++i) {
-				if(cameras.get(i) instanceof Camera2D) {
-					cameras.set(i, new Camera2D(getWidth()/(cameraCount+1), this.getHeight(), ((Camera2D)cameras.get(i)).getShape()));
-				}else {
-					cameras.set(i, new Camera3D(getWidth()/(cameraCount+1), this.getHeight(), ((Camera3D)cameras.get(i)).getObject()));
-				}
+				cameras.get(i).update(getWidth()/(cameraCount+1), this.getHeight());
 			}
 			this.cameraCount++;
 			cameras.add(new Camera3D(getWidth()/cameraCount, this.getHeight(), Preset.CUBE.getObject()));
@@ -211,11 +215,7 @@ public class CameraView{
 						activeCamera = -1;
 					continue;
 				}
-				if(cameras.get(i) instanceof Camera2D) {
-					cameras.set(i, new Camera2D(getWidth()/(cameraCount-1), this.getHeight(), ((Camera2D)cameras.get(i)).getShape()));
-				}else {
-					cameras.set(i, new Camera3D(getWidth()/(cameraCount-1), this.getHeight(), ((Camera3D)cameras.get(i)).getObject()));
-				}
+				cameras.get(i).update(getWidth()/(cameraCount-1), this.getHeight());
 			}
 			
 			this.cameraCount--;
@@ -374,26 +374,23 @@ class CameraPane extends Pane{
 		EventHandler<MouseEvent> clickMouse = new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				GeometryObject object = camera.mouseClick((int)event.getX(), (int)event.getY());
-				System.out.println("Get: "+object);
+				if(lastMouseX != -1 && lastMouseY != -1) {
+					lastMouseX = -1;
+					lastMouseY = -1;
+					return;
+				}
+
+				GeometryObject object = camera.mouseClick((int)event.getX(), (int)(event.getY()-view.getLayoutY()));
 				if(object != null)
 					cameraView.getScreen().getDataView().setInfo(ObjectInfoCalculator.getObjectInfo(object));
 				else
 					cameraView.getScreen().getDataView().setInfo(ObjectInfoCalculator.getObjectInfo(((Camera3D)camera).getObject()));
-			}
-		};
-		
-		EventHandler<MouseEvent> releaseMouse = new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent event) {
-				lastMouseX = -1;
-				lastMouseY = -1;
+				updateImage();
 			}
 		};
 		
 		this.addEventFilter(MouseEvent.MOUSE_DRAGGED, draggMouse);
 		this.addEventFilter(MouseEvent.MOUSE_CLICKED, clickMouse);
-		this.addEventFilter(MouseEvent.MOUSE_RELEASED, releaseMouse);
 		
 		this.setOnScroll(new EventHandler<ScrollEvent>() {
 			public void handle(ScrollEvent event) {
@@ -405,7 +402,8 @@ class CameraPane extends Pane{
 	
 	
 	public void handleKeyPressed(KeyEvent e) {
-		System.out.println("Key is Pressed");
+		Object3D obj = new Cube(0, 0, 0);
+		
 		switch (e.getCode()) {
 		case R:
 			if(e.isControlDown() && e.isShiftDown()) {
@@ -423,30 +421,37 @@ class CameraPane extends Pane{
 			if(getCameraView().getCamera() instanceof Camera3D)
 				((Camera3D) getCameraView().getCamera()).switchLightEffect();
 			break;
+		case DELETE:
+			((Camera3D) camera).removeObject();
+			break;
 		case DIGIT1:
 			if(e.isShiftDown()) {
-				System.out.println("SHIFT + 1");
 				disabledRotation[1] = !disabledRotation[1];
 				disabledRotation[2] = false;
 			}else {
-				System.out.println("1");
 				if(this.camera instanceof Camera3D)
 					this.camera.objectType = Preset.CUBE;
-					((Camera3D) this.camera).setObject(Preset.CUBE.getObject());
+					obj = Preset.CUBE.getObject();
+					if(e.isControlDown())
+						((Camera3D) this.camera).setObject(obj);
+					else
+						((Camera3D) this.camera).addObject(obj);
 					this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
 					this.cameraView.getScreen().getDataView().setInfo(info);
 			}
 			break;
 		case DIGIT2:
 			if(e.isShiftDown()) {
-				System.out.println("SHIFT + 2");
 				disabledRotation[2] = !disabledRotation[2];
 				disabledRotation[1] = false;
 			}else {
-				System.out.println("2");
 				if(this.camera instanceof Camera3D)
 					this.camera.objectType = Preset.TETRAHEDRON;
-					((Camera3D) this.camera).setObject(Preset.TETRAHEDRON.getObject());
+					obj = Preset.TETRAHEDRON.getObject();
+					if(e.isControlDown())
+						((Camera3D) this.camera).setObject(obj);
+					else
+						((Camera3D) this.camera).addObject(obj);
 					this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
 					this.cameraView.getScreen().getDataView().setInfo(info);
 			}
@@ -454,53 +459,101 @@ class CameraPane extends Pane{
 		case DIGIT3:
 			if(this.camera instanceof Camera3D)
 				this.camera.objectType = Preset.TEAPOT;
-				((Camera3D) this.camera).setObject(Preset.TEAPOT.getObject());
+				obj = Preset.TEAPOT.getObject();
+				if(e.isControlDown())
+					((Camera3D) this.camera).setObject(obj);
+				else
+					((Camera3D) this.camera).addObject(obj);
 				this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
 				this.cameraView.getScreen().getDataView().setInfo(info);
 			break;
 		case DIGIT4:
 			if(this.camera instanceof Camera3D)
 				this.camera.objectType = Preset.CONE;
-				((Camera3D) this.camera).setObject(Preset.CONE.getObject());
+				obj = Preset.CONE.getObject();
+				if(e.isControlDown())
+					((Camera3D) this.camera).setObject(obj);
+				else
+					((Camera3D) this.camera).addObject(obj);
 				this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
 				this.cameraView.getScreen().getDataView().setInfo(info);
 			break;
 		case DIGIT5:
 			if(this.camera instanceof Camera3D)
 				this.camera.objectType = Preset.ICOSPHERE;
-				((Camera3D) this.camera).setObject(Preset.ICOSPHERE.getObject());
+				obj = Preset.ICOSPHERE.getObject();
+				if(e.isControlDown())
+					((Camera3D) this.camera).setObject(obj);
+				else
+					((Camera3D) this.camera).addObject(obj);
 				this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
 				this.cameraView.getScreen().getDataView().setInfo(info);
 			break;
 		case DIGIT6:
 			if(this.camera instanceof Camera3D)
 				this.camera.objectType = Preset.CYLINDER;
-				((Camera3D) this.camera).setObject(Preset.CYLINDER.getObject());
+				obj = Preset.CYLINDER.getObject();
+				if(e.isControlDown())
+					((Camera3D) this.camera).setObject(obj);
+				else
+					((Camera3D) this.camera).addObject(obj);
 				this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
 				this.cameraView.getScreen().getDataView().setInfo(info);
 			break;
 		case DIGIT7:
 			if(this.camera instanceof Camera3D)
 				this.camera.objectType = Preset.BALL;
-				((Camera3D) this.camera).setObject(Preset.BALL.getObject());
+				obj = Preset.BALL.getObject();
+				if(e.isControlDown())
+					((Camera3D) this.camera).setObject(obj);
+				else
+					((Camera3D) this.camera).addObject(obj);
 				this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
 				this.cameraView.getScreen().getDataView().setInfo(info);
+			break;
+		case UP:
+			if(e.isShiftDown())
+				camera.moveY(0.1);
+			else {
+				if(((Camera3D) camera).getObject() != null) {
+					((Camera3D) camera).getObject().moveFor(0, 0.1, 0);
+					camera.drawContext();
+				}
+			}
+			break;
+		case DOWN:
+			if(e.isShiftDown())
+				camera.moveY(-0.1);
+			else {
+				if(((Camera3D) camera).getObject() != null) {
+					((Camera3D) camera).getObject().moveFor(0, -0.1, 0);
+					camera.drawContext();
+				}
+			}
+			break;
+		case LEFT:
+			if(e.isShiftDown())
+				camera.moveX(-0.1);
+			else {
+				if(((Camera3D) camera).getObject() != null) {
+					((Camera3D) camera).getObject().moveFor(-0.1, 0, 0);
+					camera.drawContext();
+				}
+			}
+			break;
+		case RIGHT:
+			if(e.isShiftDown())
+				camera.moveX(0.1);
+			else {
+				if(((Camera3D) camera).getObject() != null) {
+					((Camera3D) camera).getObject().moveFor(0.1, 0, 0);
+					camera.drawContext();
+				}
+			}
 			break;
 		case CONTROL:
 			if(getCameraView().getCamera() instanceof Camera3D)
 				((Camera3D)camera).renderingCenter = true;
-			break;
-		case UP:
-			camera.moveY(0.1);
-			break;
-		case DOWN:
-			camera.moveY(-0.1);
-			break;
-		case LEFT:
-			camera.moveX(-0.1);
-			break;
-		case RIGHT:
-			camera.moveX(0.1);
 			break;
 		default:
 			break;
@@ -525,7 +578,7 @@ class CameraPane extends Pane{
 		//TODO
 	}
 	
-	private void updateImage() {
+	public void updateImage() {
 		int camW = camera.context.getWidth();
 		int camH = camera.context.getHeight();
 		int imageLayoutY = 30;

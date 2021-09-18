@@ -21,7 +21,7 @@ public class Shape3D extends Shape<Vertex3D, Edge3D, Triangle3D>{
 		this.scope = getScope();
 	}
 	
-	public Shape3D(Vertex3D[] verticies){
+	public Shape3D(Vertex3D... verticies){
 		super();
 		for(Vertex3D vertex : verticies) {
 			this.v.add(vertex);

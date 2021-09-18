@@ -26,7 +26,7 @@ public abstract class Shape<VT extends Vertex, ET extends Edge, TT extends Trian
 	
 	public double getArea() {
 		calculateArea();
-		return Math.round(area*100)/100;
+		return Math.round(area*100.0)/100.0;
 	}
 	
 	public double getScope() {

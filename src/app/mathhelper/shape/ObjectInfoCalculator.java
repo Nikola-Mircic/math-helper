@@ -35,9 +35,9 @@ public class ObjectInfoCalculator {
 	private static ObjectInfo getEdge2DInfo(Edge2D e) {
 		HashMap<String, String> info = new LinkedHashMap<>();
 		
-		info.put("vertex 1", ""+e.a);
-		info.put("vertex 2", ""+e.b);
-		info.put("weight", ""+e.weight);
+		info.put("Vertex 1", ""+e.a);
+		info.put("Vertex 2", ""+e.b);
+		info.put("Weight", ""+e.weight);
 		
 		return new ObjectInfo(e, info);
 	}
@@ -45,11 +45,11 @@ public class ObjectInfoCalculator {
 	private static ObjectInfo getShape2DInfo(Shape2D s) {
 		HashMap<String, String> info = new LinkedHashMap<>();
 		
-		info.put("vertices", ""+s.getVertices().size());
-		info.put("edges", ""+s.getEdges().size());
-		info.put("triangles", ""+s.getTriangles().size());
-		info.put("scope", ""+s.getScope());
-		info.put("surface", ""+s.getArea());
+		info.put("Vertices", ""+s.getVertices().size());
+		info.put("Edges", ""+s.getEdges().size());
+		info.put("Triangles", ""+s.getTriangles().size());
+		info.put("Scope", ""+s.getScope());
+		info.put("Surface", ""+s.getArea());
 		
 		return new ObjectInfo(s, info);
 	}
@@ -68,11 +68,14 @@ public class ObjectInfoCalculator {
 	private static ObjectInfo getObject3Dinfo(Object3D o) {
 		HashMap<String, String> info = new LinkedHashMap<>();
 		
-		info.put("vertices", ""+o.getVertices().size());
-		info.put("edges", ""+o.getEdges().size());
-		info.put("sides", ""+o.getSides().size());
-		info.put("scope", ""+getObjectScope(o));
-		info.put("surface", ""+getObjectSurfaceArea(o));
+		Vertex3D v = o.getCenter();
+	
+		info.put("Center", ""+Math.round(v.x*100)/100.0+", "+Math.round(v.y*100)/100.0+", "+Math.round(v.z*100)/100.0);
+		info.put("Vertices", ""+o.getVertices().size());
+		info.put("Edges", ""+o.getEdges().size());
+		info.put("Sides", ""+o.getSides().size());
+		info.put("Scope", ""+getObjectScope(o));
+		info.put("Surface", ""+getObjectSurfaceArea(o));
 		info.put("volume", ""+getObjectVolume(o));
 		
 		return new ObjectInfo(o, info);
@@ -135,6 +138,7 @@ public class ObjectInfoCalculator {
 		double volume = 0;
 		
 		try {
+			//System.out.println("Trying to get volume");
 			volume = Math.round(getObjectVolume(connections, vertices, sides)*1000)/1000.0;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -300,11 +304,11 @@ public class ObjectInfoCalculator {
 	private static ObjectInfo getShape3DInfo(Shape3D s) {
 		HashMap<String, String> info = new LinkedHashMap<>();
 		
-		info.put("vertices", ""+s.getVertices().size());
-		info.put("edges", ""+s.getEdges().size());
-		info.put("triangles", ""+s.getTriangles().size());
-		info.put("scope", ""+s.getScope());
-		info.put("surface", ""+s.getArea());
+		info.put("Vertices", ""+s.getVertices().size());
+		info.put("Edges", ""+s.getEdges().size());
+		info.put("Triangles", ""+s.getTriangles().size());
+		info.put("Scope", ""+s.getScope());
+		info.put("Surface", ""+s.getArea());
 		
 		return new ObjectInfo(s, info);
 	}
