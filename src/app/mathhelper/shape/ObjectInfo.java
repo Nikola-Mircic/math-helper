@@ -1,43 +1,75 @@
 package app.mathhelper.shape;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.*;
 import java.util.Map.Entry;
 
 import app.mathhelper.shape.shape3d.Object3D;
+import javafx.scene.control.TextField;
 
 public class ObjectInfo {
-	private GeometryObject object;
-	private Map<String, String> info;
-	
-	public ObjectInfo(GeometryObject object) {
-		this.object = object;
-		this.info = new HashMap<>();
-	}
-	
-	public ObjectInfo(GeometryObject object, HashMap<String, String> info) {
-		this(object);
-		this.info = info;
-	}
-	
-	public void forEach(ForEachInterface forEachFunction) {
-		for(Entry<String, String> e : info.entrySet()) {
-			forEachFunction.doForEach(e.getKey(), e.getValue());
+	public class FieldInfo<objectT, dataT>{
+		private Field field;
+		private dataT data;
+		private objectT object;
+		
+		public boolean editable;
+		
+		public String label;
+		public String value;
+		
+		public FieldInfo(Field field, objectT object, dataT data, String label, String value) {
+			this.field = field;
+			this.data = data;
+			this.object = object;
+			this.label = label;
+			this.value = value;
 		}
+	}
+	
+	
+	
+	private GeometryObject object;
+	public String label;
+	public String value;
+	
+	public boolean extensible;
+	public boolean editable;
+	
+	public LinkedList<ObjectInfo> objects;
+	public LinkedList<FieldInfo> fields;
+	
+	public ObjectInfo(GeometryObject object, String label, String value) {
+		this.object = object;
+		
+		this.objects = new LinkedList<>();
+		this.fields = new LinkedList<>();
 	}
 	
 	@Override
-	public String toString() {
-		String rez = "Object of type : ["+object.getClass().getSimpleName()+"] ";
-		rez+=(object instanceof Object3D)?((Object3D)object).getCenter()+" \n" : "\n";		 
-		rez+="Info : \n";
-		for(Entry<String, String> e : info.entrySet()) {
-			rez += "  -"+e.getKey()+": "+e.getValue()+"\n";
-		}
+	public String toString() {	 
+		String rez = "Info : \n";
+		rez+=printObjectInfo(this, "");
 		return rez;
 	}
 	
-	public interface ForEachInterface{
-		public void doForEach(String key, String value);
+	public String printObjectInfo(ObjectInfo info, String intent) {
+		String rez = intent + "Object of type : ["+object.getClass().getSimpleName()+"] ";
+		rez+=(object instanceof Object3D)?((Object3D)object).getCenter()+" \n" : "\n";	
+		System.out.println(intent+label+" : "+value);
+		
+		if(info.objects != null) {
+			for(ObjectInfo oi : info.objects) {
+				printObjectInfo(oi, intent+"\s\s");
+			}
+		}
+		
+		if(info.fields != null) {
+			for(FieldInfo fi : fields) {
+				System.out.println(intent + fi.label + " : "+fi.value);
+			}
+		}
+		
+		return rez;
 	}
 }

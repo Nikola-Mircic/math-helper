@@ -2,6 +2,7 @@ package app.mathhelper.screen.render;
 
 import app.mathhelper.screen.Screen;
 import app.mathhelper.shape.ObjectInfo;
+import javafx.beans.value.ChangeListener;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -57,11 +58,17 @@ public class DataView{
 		double prefWidth = screen.getController().dataContainer.getWidth();
 		box.getChildren().clear();
 		box.setPrefWidth(prefWidth);
-		this.info.forEach((name, value)->{
+		
+		System.out.println(info);
+		
+		/*this.info.forEach((name, value)->{
 			Label label = new Label(name + " : ");
 			//label.setMaxWidth(box.getWidth()/2);
 			TextField tf = new TextField(value);
-			tf.setEditable(false);
+			tf.setEditable(true);
+			tf.textProperty().addListener((observable, oldVal, newVal)->{
+				System.out.println(tf.getParent().getId()+" "+oldVal+" "+newVal);
+			});
 			//tf.setMaxWidth(box.getWidth()/2);
 			//HBox item = new HBox(label, tf);
 			FlowPane item = new FlowPane(Orientation.HORIZONTAL);
@@ -74,8 +81,10 @@ public class DataView{
 			item.getChildren().add(label);
 			item.getChildren().add(tf);
 			
+			item.setId(name);
+			
 			box.getChildren().add(item);
-		});
+		});*/
 	}
 
 	public VBox getBox() {

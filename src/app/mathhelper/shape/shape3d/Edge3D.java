@@ -1,6 +1,7 @@
 package app.mathhelper.shape.shape3d;
 
 import app.mathhelper.shape.Edge;
+import app.mathhelper.shape.ObjectInfoCalculator;
 
 public class Edge3D extends Edge<Vertex3D>{
 	
@@ -12,5 +13,7 @@ public class Edge3D extends Edge<Vertex3D>{
 		this.a = a;
 		this.b = b;
 		this.weight = Vertex3D.dist(a, b);
+
+		this.info = ObjectInfoCalculator.getObjectInfo(this);
 	}
 }

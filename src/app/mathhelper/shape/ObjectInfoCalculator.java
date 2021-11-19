@@ -1,6 +1,8 @@
 package app.mathhelper.shape;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -10,10 +12,14 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import app.mathhelper.shape.shape3d.*;
+import app.mathhelper.shape.ObjectInfo.FieldInfo;
 import app.mathhelper.shape.shape2d.*;
 
 public class ObjectInfoCalculator {
 	public static ObjectInfo getObjectInfo(GeometryObject object) {
+		if(object instanceof Vertex3D) {
+			return getVertex3DInfo((Vertex3D) object);
+		}
 		if(object instanceof Edge3D) {
 			return getEdge3DInfo((Edge3D) object);
 		}
@@ -22,6 +28,9 @@ public class ObjectInfoCalculator {
 		}
 		if(object instanceof Object3D) {
 			return getObject3Dinfo((Object3D) object);
+		}
+		if(object instanceof Vertex2D) {
+			return getVertex2DInfo((Vertex2D) object);
 		}
 		if(object instanceof Edge2D) {
 			return getEdge2DInfo((Edge2D) object);
@@ -32,26 +41,76 @@ public class ObjectInfoCalculator {
 		return null;
 	}
 	
+	private static ObjectInfo getVertex2DInfo(Vertex2D v) {
+		String data = v.toString();
+		data = data.substring(data.indexOf('('));
+		data = data.substring(0, data.indexOf(')'));
+		
+		ObjectInfo info = new ObjectInfo(v, "Vertex "+v.name, data );
+		
+		return info;
+	}
+	
 	private static ObjectInfo getEdge2DInfo(Edge2D e) {
-		HashMap<String, String> info = new LinkedHashMap<>();
+		String edgeName = e.toString();
+		String edgeWeight = ""+e.weight;
+		ObjectInfo info = new ObjectInfo(e, edgeName, edgeWeight);
+		info.editable = false;
+		info.extensible = true;
 		
-		info.put("Vertex 1", ""+e.a);
-		info.put("Vertex 2", ""+e.b);
-		info.put("Weight", ""+e.weight);
+		info.objects.add(e.a.info);
+		info.objects.add(e.b.info);
 		
-		return new ObjectInfo(e, info);
+		Field weightf;
+		try {
+			weightf = e.getClass().getField("weight");
+			
+			ObjectInfo.FieldInfo<Edge2D, Double> weightInfo = info.new FieldInfo<>(weightf, e, e.weight, "Weight", ""+e.weight);
+			
+			info.fields.add(weightInfo);
+			
+			return info;
+		} catch (Exception e1) {
+			return null;
+		}
 	}
 
 	private static ObjectInfo getShape2DInfo(Shape2D s) {
-		HashMap<String, String> info = new LinkedHashMap<>();
+		String label = "Shape";
+		String value = s.toString();
+		ObjectInfo info = new ObjectInfo(s, label, value);
 		
-		info.put("Vertices", ""+s.getVertices().size());
-		info.put("Edges", ""+s.getEdges().size());
-		info.put("Triangles", ""+s.getTriangles().size());
-		info.put("Scope", ""+s.getScope());
-		info.put("Surface", ""+s.getArea());
+		Field field;
+		try {
+			//Vertices
+			field = s.getClass().getField("v");
+			ObjectInfo.FieldInfo<Shape2D, String> fieldInfo = info.new FieldInfo<>(field, s, "", "Vertices", "[list of vertices]");
+			info.fields.add(fieldInfo);
+			
+			//Edges
+			field = s.getClass().getField("e");
+			fieldInfo = info.new FieldInfo<>(field, s, "", "Edges", "[List of edges]");
+			info.fields.add(fieldInfo);
+			
+			//Triangles
+			field = s.getClass().getField("triangles");
+			fieldInfo = info.new FieldInfo<>(field, s, "", "Triangles", "[List of triangles]");
+			info.fields.add(fieldInfo);
+			
+			//Scope
+			field = s.getClass().getField("scope");
+			fieldInfo = info.new FieldInfo<>(field, s, "", "Scope", ""+s.scope);
+			info.fields.add(fieldInfo);
+			
+			//Area (Surface)
+			field = s.getClass().getField("area");
+			fieldInfo = info.new FieldInfo<>(field, s, "", "Area", ""+s.area);
+			info.fields.add(fieldInfo);
+		}catch (Exception e) {
+			return null;
+		}
 		
-		return new ObjectInfo(s, info);
+		return info;
 	}
 
 	
@@ -66,19 +125,51 @@ public class ObjectInfoCalculator {
 	 * 	</ol>
 	 * */
 	private static ObjectInfo getObject3Dinfo(Object3D o) {
-		HashMap<String, String> info = new LinkedHashMap<>();
-		
+		ObjectInfo info = new ObjectInfo(o, "", "");
 		Vertex3D v = o.getCenter();
-	
-		info.put("Center", ""+Math.round(v.x*100)/100.0+", "+Math.round(v.y*100)/100.0+", "+Math.round(v.z*100)/100.0);
-		info.put("Vertices", ""+o.getVertices().size());
-		info.put("Edges", ""+o.getEdges().size());
-		info.put("Sides", ""+o.getSides().size());
-		info.put("Scope", ""+getObjectScope(o));
-		info.put("Surface", ""+getObjectSurfaceArea(o));
-		info.put("volume", ""+getObjectVolume(o));
 		
-		return new ObjectInfo(o, info);
+		Field field;
+		try {
+			// Center of the object
+			field = o.getClass().getField("center");
+			FieldInfo<Object3D, String> fieldInfo = info.new FieldInfo<>(field, o, "", "Center", v.toString());
+			info.fields.add(fieldInfo);
+			
+			// Vertices
+			field = o.getClass().getField("v");
+			fieldInfo = info.new FieldInfo<>(field, o, "", "Vertices", "[List of vertices]");
+			info.fields.add(fieldInfo);
+			
+			// Edges
+			field = o.getClass().getField("e");
+			fieldInfo = info.new FieldInfo<>(field, o, "", "Edges", "[List of edges]");
+			info.fields.add(fieldInfo);
+			
+			// Sides
+			field = o.getClass().getField("s");
+			fieldInfo = info.new FieldInfo<>(field, o, "", "Sides", "[List of sides]");
+			info.fields.add(fieldInfo);
+			
+			// Scope
+			field = o.getClass().getField("scope");
+			fieldInfo = info.new FieldInfo<>(field, o, "", "Scope", ""+getObjectScope(o));
+			info.fields.add(fieldInfo);
+			
+			// Area
+			field = o.getClass().getField("area");
+			fieldInfo = info.new FieldInfo<>(field, o, "", "Area", ""+getObjectSurfaceArea(o));
+			info.fields.add(fieldInfo);
+			
+			// Scope
+			field = o.getClass().getField("volume");
+			fieldInfo = info.new FieldInfo<>(field, o, "", "Volume", ""+getObjectVolume(o));
+			info.fields.add(fieldInfo);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		return info;
 	}
 	
 	private static double getObjectScope(Object3D o) {
@@ -301,25 +392,75 @@ public class ObjectInfoCalculator {
 		}
 	}
 	
+	private static ObjectInfo getVertex3DInfo(Vertex3D v) {
+		String data = v.toString();
+		data = data.substring(data.indexOf('('));
+		data = data.substring(0, data.indexOf(')'));
+		
+		ObjectInfo info = new ObjectInfo(v, "Vertex "+v.name, data );
+		
+		return info;
+	}
+	
 	private static ObjectInfo getShape3DInfo(Shape3D s) {
-		HashMap<String, String> info = new LinkedHashMap<>();
+		String label = "Shape";
+		String value = s.toString();
+		ObjectInfo info = new ObjectInfo(s, label, value);
 		
-		info.put("Vertices", ""+s.getVertices().size());
-		info.put("Edges", ""+s.getEdges().size());
-		info.put("Triangles", ""+s.getTriangles().size());
-		info.put("Scope", ""+s.getScope());
-		info.put("Surface", ""+s.getArea());
+		Field field;
+		try {
+			//Vertices
+			field = s.getClass().getField("v");
+			ObjectInfo.FieldInfo<Shape3D, String> fieldInfo = info.new FieldInfo<>(field, s, "", "Vertices", "[list of vertices]");
+			info.fields.add(fieldInfo);
+			
+			//Edges
+			field = s.getClass().getField("e");
+			fieldInfo = info.new FieldInfo<>(field, s, "", "Edges", "[List of edges]");
+			info.fields.add(fieldInfo);
+			
+			//Triangles
+			field = s.getClass().getField("triangles");
+			fieldInfo = info.new FieldInfo<>(field, s, "", "Triangles", "[List of triangles]");
+			info.fields.add(fieldInfo);
+			
+			//Scope
+			field = s.getClass().getField("scope");
+			fieldInfo = info.new FieldInfo<>(field, s, "", "Scope", ""+s.scope);
+			info.fields.add(fieldInfo);
+			
+			//Area (Surface)
+			field = s.getClass().getField("area");
+			fieldInfo = info.new FieldInfo<>(field, s, "", "Area", ""+s.area);
+			info.fields.add(fieldInfo);
+		}catch (Exception e) {
+			return null;
+		}
 		
-		return new ObjectInfo(s, info);
+		return info;
 	}
 
 	private static ObjectInfo getEdge3DInfo(Edge3D e) {
-		HashMap<String, String> info = new LinkedHashMap<>();
+		String edgeName = e.toString();
+		String edgeWeight = ""+e.weight;
+		ObjectInfo info = new ObjectInfo(e, edgeName, edgeWeight);
+		info.editable = false;
+		info.extensible = true;
 		
-		info.put("vertex 1", ""+e.a);
-		info.put("vertex 2", ""+e.b);
-		info.put("weight", ""+e.weight);
+		/*info.objects.add(e.a.info);
+		info.objects.add(e.b.info);*/
 		
-		return new ObjectInfo(e, info);
+		Field weightf;
+		try {
+			weightf = e.getClass().getField("weight");
+			
+			ObjectInfo.FieldInfo<Edge3D, Double> weightInfo = info.new FieldInfo<>(weightf, e, e.weight, "Weight", ""+e.weight);
+			
+			info.fields.add(weightInfo);
+			
+			return info;
+		} catch (Exception e1) {
+			return null;
+		}
 	}
 }

@@ -303,6 +303,8 @@ class CameraPane extends Pane{
 		
 		this.setInfo(ObjectInfoCalculator.getObjectInfo(((Camera3D) camera).getObject()));
 		
+		if(this.info == null) System.out.println("SOMETHING WRONG IS HAPENING!!!");
+		
 		this.frameNameLabel = new Label(frameName);
 		frameNameLabel.setLayoutX(5.0);
 		frameNameLabel.setLayoutY(5.0);

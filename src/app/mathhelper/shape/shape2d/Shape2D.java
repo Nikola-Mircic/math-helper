@@ -2,6 +2,7 @@ package app.mathhelper.shape.shape2d;
 
 import java.util.ArrayList;
 
+import app.mathhelper.shape.ObjectInfoCalculator;
 import app.mathhelper.shape.Shape;
 
 public class Shape2D extends Shape<Vertex2D, Edge2D, Triangle2D> {
@@ -23,6 +24,8 @@ public class Shape2D extends Shape<Vertex2D, Edge2D, Triangle2D> {
 		
 		this.area = getArea();
 		this.scope = getScope();
+
+		this.info = ObjectInfoCalculator.getObjectInfo(this);
 	}
 	
 	private void addVertexFromTriangle(Triangle2D t) {

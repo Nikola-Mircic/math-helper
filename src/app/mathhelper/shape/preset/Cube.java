@@ -51,28 +51,28 @@ public class Cube extends Object3D {
 		Vertex3D[] leftSide = {v.get(4), v.get(7), v.get(0), v.get(3)};
 		Vertex3D[] rightSide = {v.get(6), v.get(5), v.get(2), v.get(1)};
 		
-		s.add( new Shape3D((Vertex3D[]) nearSide));
-		s.add( new Shape3D((Vertex3D[]) farSide));
-		s.add( new Shape3D((Vertex3D[]) topSide));
-		s.add( new Shape3D((Vertex3D[]) bottomSide));
-		s.add( new Shape3D((Vertex3D[]) leftSide));
-		s.add( new Shape3D((Vertex3D[]) rightSide));
+		s.add( new Shape3D(nearSide));
+		s.add( new Shape3D(farSide));
+		s.add( new Shape3D(topSide));
+		s.add( new Shape3D(bottomSide));
+		s.add( new Shape3D(leftSide));
+		s.add( new Shape3D(rightSide));
 	}
 	
 	@Override
 	protected void createEdges() {
-		e.add( new Edge3D((Vertex3D) v.get(0), (Vertex3D) v.get(1)));//0 1
-		e.add( new Edge3D((Vertex3D) v.get(1), (Vertex3D) v.get(2)));//1 2
-		e.add( new Edge3D((Vertex3D) v.get(2), (Vertex3D) v.get(3)));//2 3
-		e.add( new Edge3D((Vertex3D) v.get(3), (Vertex3D) v.get(0)));//3 0 
-		e.add( new Edge3D((Vertex3D) v.get(0), (Vertex3D) v.get(4)));//0 4 
-		e.add( new Edge3D((Vertex3D) v.get(1), (Vertex3D) v.get(5)));//1 5 
-		e.add( new Edge3D((Vertex3D) v.get(2), (Vertex3D) v.get(6)));//2 6 
-		e.add( new Edge3D((Vertex3D) v.get(3), (Vertex3D) v.get(7)));//3 7
-		e.add( new Edge3D((Vertex3D) v.get(4), (Vertex3D) v.get(5)));//4 5 
-		e.add( new Edge3D((Vertex3D) v.get(5), (Vertex3D) v.get(6)));//5 6 
-		e.add( new Edge3D((Vertex3D) v.get(6), (Vertex3D) v.get(7)));//6 7 
-		e.add( new Edge3D((Vertex3D) v.get(7), (Vertex3D) v.get(4)));//7 4 
+		e.add( new Edge3D( v.get(0),  v.get(1)));//0 1
+		e.add( new Edge3D( v.get(1),  v.get(2)));//1 2
+		e.add( new Edge3D( v.get(2),  v.get(3)));//2 3
+		e.add( new Edge3D( v.get(3),  v.get(0)));//3 0 
+		e.add( new Edge3D( v.get(0),  v.get(4)));//0 4 
+		e.add( new Edge3D( v.get(1),  v.get(5)));//1 5 
+		e.add( new Edge3D( v.get(2),  v.get(6)));//2 6 
+		e.add( new Edge3D( v.get(3),  v.get(7)));//3 7
+		e.add( new Edge3D( v.get(4),  v.get(5)));//4 5 
+		e.add( new Edge3D( v.get(5),  v.get(6)));//5 6 
+		e.add( new Edge3D( v.get(6),  v.get(7)));//6 7 
+		e.add( new Edge3D( v.get(7),  v.get(4)));//7 4 
 	}
 	
 }

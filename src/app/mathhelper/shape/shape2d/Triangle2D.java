@@ -1,5 +1,6 @@
 package app.mathhelper.shape.shape2d;
 
+import app.mathhelper.shape.ObjectInfoCalculator;
 import app.mathhelper.shape.Triangle;
 
 public class Triangle2D extends Triangle<Vertex2D, Edge2D> {
@@ -18,6 +19,8 @@ public class Triangle2D extends Triangle<Vertex2D, Edge2D> {
 		
 		this.area = getArea();
 		this.scope = getScope();
+
+		this.info = ObjectInfoCalculator.getObjectInfo(this);
 	}
 	
 	public Triangle2D(Vertex2D[] verticies) {

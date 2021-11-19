@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.zip.ZipFile;
 
 import app.mathhelper.shape.*;
 import app.mathhelper.shape.preset.Cube;
@@ -108,6 +109,8 @@ public class Camera3D extends Camera{
 			
 			context.getGraphics().drawImage(contextObjectLayer, 0, 0, null);
 		}
+		
+
 		g.setColor(Color.WHITE);
 		g.setFont(new Font("mono", Font.PLAIN, 15));
 		g.drawString("Camera id: "+id, 10, this.height-50);
@@ -214,9 +217,12 @@ public class Camera3D extends Camera{
 		double zRatio = zFar/(zFar-zNear);
 		
 		temp.z = (v.z+this.position.z-zNear)/zRatio;
+		
 	
 		temp.x = -a*fov*(v.x+this.position.x)/temp.z*width+width/2;
 		temp.y = fov*(v.y+this.position.y)/temp.z*height+height/2;
+		
+		temp.z = v.z;
 		
 		return temp;
 	}
@@ -358,8 +364,6 @@ public class Camera3D extends Camera{
 		temp.sort(new Comparator<Vertex3D>() {
 			@Override
 			public int compare(Vertex3D o1, Vertex3D o2) {
-				//return (int)(o1.y-o2.y);
-				
 				if((o1.y - o2.y) < 0)
 					return -1;
 				else
@@ -382,8 +386,6 @@ public class Camera3D extends Camera{
 		
 		fillBottomFlatTriangle(layer, temp.get(0), temp.get(1), middle, color, doZbuffer);
 		fillTopFlatTriangle(layer, temp.get(1), middle, temp.get(2), color, doZbuffer);
-		
-		System.out.print("");
 	}
 	
 	//a - vertex on the top of the triangle

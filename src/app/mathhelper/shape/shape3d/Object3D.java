@@ -12,19 +12,23 @@ import app.mathhelper.shape.*;
 import app.mathhelper.shape.preset.Cube;
 
 public class Object3D extends GeometryObject{
-	protected double area;
-	protected double scope;
+	public double area;
+	public double scope;
+	
+	public Vertex3D center;
 	
 	public List<Vertex3D> v;
 	public List<Edge3D> e;
 	public List<Shape3D> s;
-	private double volume;
+	public double volume;
 	
 	public Object3D() {
 		this.v = new ArrayList<>();
 		this.e = new ArrayList<>();
 		this.s = new ArrayList<>();
 		this.center = new Vertex3D("center", 0, 0, 7);
+
+		this.info = ObjectInfoCalculator.getObjectInfo(this);
 	}
 	
 	public Object3D(int x, int y, int z) {
@@ -35,6 +39,9 @@ public class Object3D extends GeometryObject{
 		this.createSides();
 		
 		this.center = getCenterCords();
+		
+
+		this.info = ObjectInfoCalculator.getObjectInfo(this);
 	}
 	
 	protected void createVerticies(int x, int y, int z) {}
@@ -51,8 +58,8 @@ public class Object3D extends GeometryObject{
 		double ysum = 0;
 		double zsum = 0;
 		
-		for(Vertex vertex : this.v) {
-			Vertex3D v2 = (Vertex3D) vertex;
+		for(Vertex3D vertex : this.v) {
+			Vertex3D v2 =  vertex;
 			xsum += v2.x/v.size();
 			ysum += v2.y/v.size();
 			zsum += v2.z/v.size();
@@ -78,9 +85,9 @@ public class Object3D extends GeometryObject{
 		double dist;
 		
 		for(int i=0;i<v.size();++i) {
-			dist = getDistVertical(center, (Vertex3D) v.get(i));
-			((Vertex3D) v.get(i)).y = center.y + Math.sin(angleVert[i]+rotation)*dist;
-			((Vertex3D) v.get(i)).z = center.z + Math.cos(angleVert[i]+rotation)*dist;
+			dist = getDistVertical(center, v.get(i));
+			(v.get(i)).y = center.y + Math.sin(angleVert[i]+rotation)*dist;
+			( v.get(i)).z = center.z + Math.cos(angleVert[i]+rotation)*dist;
 		}
 	}
 	
@@ -90,9 +97,9 @@ public class Object3D extends GeometryObject{
 		double dist;
 		
 		for(int i=0;i<v.size();++i) {
-			dist = getDistHorizontal(center, (Vertex3D) v.get(i));
-			((Vertex3D) v.get(i)).x = center.x + Math.cos(angleHoriz[i]+rotation)*dist;
-			((Vertex3D) v.get(i)).z = center.z + Math.sin(angleHoriz[i]+rotation)*dist;
+			dist = getDistHorizontal(center, v.get(i));
+			(v.get(i)).x = center.x + Math.cos(angleHoriz[i]+rotation)*dist;
+			(v.get(i)).z = center.z + Math.sin(angleHoriz[i]+rotation)*dist;
 		}
 		
 	}
@@ -101,9 +108,9 @@ public class Object3D extends GeometryObject{
 		double[] temp = new double[v.size()];
 		
 		for(int i=0;i<v.size();++i) {
-			double dist = getDistHorizontal(center, (Vertex3D) v.get(i));
-			double sin = (((Vertex3D) v.get(i)).z-center.z)/dist;
-			double cos = (((Vertex3D) v.get(i)).x-center.x)/dist;
+			double dist = getDistHorizontal(center, v.get(i));
+			double sin = ((v.get(i)).z-center.z)/dist;
+			double cos = ((v.get(i)).x-center.x)/dist;
 			double asin = Math.asin(sin);
 			
 			if(cos>=0) {
@@ -120,9 +127,9 @@ public class Object3D extends GeometryObject{
 		double[] temp = new double[v.size()];
 		
 		for(int i=0;i<v.size();++i) {
-			double dist = getDistVertical(center, (Vertex3D) v.get(i));
-			double cos = (((Vertex3D) v.get(i)).z-center.z)/dist;
-			double sin = (((Vertex3D) v.get(i)).y-center.y)/dist;
+			double dist = getDistVertical(center, v.get(i));
+			double cos = ((v.get(i)).z-center.z)/dist;
+			double sin = ((v.get(i)).y-center.y)/dist;
 			double asin = Math.asin(sin);
 			
 			if(cos>=0) {
@@ -183,13 +190,13 @@ public class Object3D extends GeometryObject{
 					Vertex3D v1,v2,v3;
 					for(int i=1;i<end-1;++i) {
 						if(values[i].indexOf('/')!=-1) {
-							v1 = (Vertex3D) temp.v.get(Integer.parseInt(values[i].substring(0,values[i].indexOf('/')))-1);
-							v2 = (Vertex3D) temp.v.get(Integer.parseInt(values[i+1].substring(0,values[i+1].indexOf('/')))-1);
-							v3 = (Vertex3D) temp.v.get(Integer.parseInt(values[end].substring(0,values[end].indexOf('/')))-1);
+							v1 = temp.v.get(Integer.parseInt(values[i].substring(0,values[i].indexOf('/')))-1);
+							v2 = temp.v.get(Integer.parseInt(values[i+1].substring(0,values[i+1].indexOf('/')))-1);
+							v3 = temp.v.get(Integer.parseInt(values[end].substring(0,values[end].indexOf('/')))-1);
 						}else {
-							v1 = (Vertex3D) temp.v.get(Integer.parseInt(values[i])-1);
-							v2 = (Vertex3D) temp.v.get(Integer.parseInt(values[i+1])-1);
-							v3 = (Vertex3D) temp.v.get(Integer.parseInt(values[end])-1);
+							v1 = temp.v.get(Integer.parseInt(values[i])-1);
+							v2 = temp.v.get(Integer.parseInt(values[i+1])-1);
+							v3 = temp.v.get(Integer.parseInt(values[end])-1);
 						}
 						
 						Triangle3D t = new Triangle3D(v1, v2, v3);
@@ -248,13 +255,13 @@ public class Object3D extends GeometryObject{
 					Vertex3D v1,v2,v3;
 					for(int i=1;i<end-1;++i) {
 						if(values[i].indexOf('/')!=-1) {
-							v1 = (Vertex3D) temp.v.get(Integer.parseInt(values[i].substring(0,values[i].indexOf('/')))-1);
-							v2 = (Vertex3D) temp.v.get(Integer.parseInt(values[i+1].substring(0,values[i+1].indexOf('/')))-1);
-							v3 = (Vertex3D) temp.v.get(Integer.parseInt(values[end].substring(0,values[end].indexOf('/')))-1);
+							v1 = temp.v.get(Integer.parseInt(values[i].substring(0,values[i].indexOf('/')))-1);
+							v2 = temp.v.get(Integer.parseInt(values[i+1].substring(0,values[i+1].indexOf('/')))-1);
+							v3 = temp.v.get(Integer.parseInt(values[end].substring(0,values[end].indexOf('/')))-1);
 						}else {
-							v1 = (Vertex3D) temp.v.get(Integer.parseInt(values[i])-1);
-							v2 = (Vertex3D) temp.v.get(Integer.parseInt(values[i+1])-1);
-							v3 = (Vertex3D) temp.v.get(Integer.parseInt(values[end])-1);
+							v1 = temp.v.get(Integer.parseInt(values[i])-1);
+							v2 = temp.v.get(Integer.parseInt(values[i+1])-1);
+							v3 = temp.v.get(Integer.parseInt(values[end])-1);
 						}
 						
 						Triangle3D t = new Triangle3D(v1, v2, v3);
@@ -322,7 +329,7 @@ public class Object3D extends GeometryObject{
 		Vertex3D test = t.getCrossProduct();
 		Vertex3D temp;
 		for(Shape3D side : this.s) {
-			temp = (Vertex3D) side.getNormal().b;
+			temp = side.getNormal().b;
 			if(Math.abs(temp.getDotProduct(test)-temp.getLenght()*test.getLenght())<diff) {
 				side.addTriangle(t);
 				return;
