@@ -2,7 +2,6 @@ package app.mathhelper.shape.shape3d;
 
 import java.util.List;
 
-import app.mathhelper.shape.ObjectInfoCalculator;
 import app.mathhelper.shape.Triangle;
 
 public class Triangle3D extends Triangle<Vertex3D, Edge3D>{
@@ -18,7 +17,7 @@ public class Triangle3D extends Triangle<Vertex3D, Edge3D>{
 		this.area = getArea();
 		this.scope = getScope();
 		
-		this.info = ObjectInfoCalculator.getObjectInfo(this);
+		this.info = this.getInfo();
 	}
 	
 	public Triangle3D(Vertex3D[] verticies) {

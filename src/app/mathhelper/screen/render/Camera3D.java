@@ -1,6 +1,5 @@
 package app.mathhelper.screen.render;
 
-import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -11,11 +10,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.zip.ZipFile;
 
 import app.mathhelper.shape.*;
-import app.mathhelper.shape.preset.Cube;
-import app.mathhelper.shape.preset.Preset;
 import app.mathhelper.shape.shape3d.*;
 
 public class Camera3D extends Camera{
@@ -38,7 +34,7 @@ public class Camera3D extends Camera{
 	private double angle = 0;
 	
 	public Camera3D(int width,int height,Object3D object) {
-		this(width, height, 0, 0, -7,object);
+		this(width, height, 0, 0, -10,object);
 	}
 	
 	public Camera3D(int width, int height, double x, double y, double z, Object3D object) {
@@ -48,7 +44,7 @@ public class Camera3D extends Camera{
 		
 		this.position = new Vertex3D("camera"+id, x, y, z);
 		this.light = new Vertex3D("light"+id,2,1.5,-5);
-		this.orientation = new Vertex3D("orientation"+id, 0, 0, 1);
+		this.orientation = new Vertex3D("orientation"+id, 0, -0.5, 1);
 		
 		this.objectSet = new ArrayList<>();
 		objectSet.add(object);
@@ -71,7 +67,6 @@ public class Camera3D extends Camera{
 		List<Edge3D> filled = new ArrayList<>();
 		
 		BufferedImage contextObjectLayer;
-		Graphics gObj;
 		
 		Graphics g = context.getGraphics();
 		

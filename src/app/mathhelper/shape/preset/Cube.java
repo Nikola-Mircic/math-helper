@@ -2,7 +2,6 @@ package app.mathhelper.shape.preset;
 
 import java.util.ArrayList;
 
-import app.mathhelper.shape.Vertex;
 import app.mathhelper.shape.shape3d.Edge3D;
 import app.mathhelper.shape.shape3d.Object3D;
 import app.mathhelper.shape.shape3d.Shape3D;

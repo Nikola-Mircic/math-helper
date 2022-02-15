@@ -2,10 +2,8 @@ package app.mathhelper.shape;
 
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.Map.Entry;
 
 import app.mathhelper.shape.shape3d.Object3D;
-import javafx.scene.control.TextField;
 
 public class ObjectInfo {
 	public class FieldInfo<objectT, dataT>{
@@ -27,8 +25,6 @@ public class ObjectInfo {
 		}
 	}
 	
-	
-	
 	private GeometryObject object;
 	public String label;
 	public String value;
@@ -37,6 +33,7 @@ public class ObjectInfo {
 	public boolean editable;
 	
 	public LinkedList<ObjectInfo> objects;
+	public LinkedList<LinkedList<ObjectInfo>> lists;
 	public LinkedList<FieldInfo> fields;
 	
 	public ObjectInfo(GeometryObject object, String label, String value) {
@@ -60,7 +57,7 @@ public class ObjectInfo {
 		
 		if(info.objects != null) {
 			for(ObjectInfo oi : info.objects) {
-				printObjectInfo(oi, intent+"\s\s");
+				printObjectInfo(oi, intent+"\t");
 			}
 		}
 		

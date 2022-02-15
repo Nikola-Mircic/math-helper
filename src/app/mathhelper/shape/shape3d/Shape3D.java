@@ -2,9 +2,7 @@ package app.mathhelper.shape.shape3d;
 
 import java.util.ArrayList;
 
-import app.mathhelper.shape.ObjectInfoCalculator;
 import app.mathhelper.shape.Shape;
-import app.mathhelper.shape.Vertex;
 
 public class Shape3D extends Shape<Vertex3D, Edge3D, Triangle3D>{
 	public Shape3D(Triangle3D[] triangles) {
@@ -21,7 +19,7 @@ public class Shape3D extends Shape<Vertex3D, Edge3D, Triangle3D>{
 		this.area = getArea();
 		this.scope = getScope();
 
-		this.info = ObjectInfoCalculator.getObjectInfo(this);
+		this.info = this.getInfo();
 	}
 	
 	public Shape3D(Vertex3D... verticies){
@@ -36,7 +34,7 @@ public class Shape3D extends Shape<Vertex3D, Edge3D, Triangle3D>{
 		}
 		this.area = -1;
 
-		this.info = ObjectInfoCalculator.getObjectInfo(this);
+		this.info = this.getInfo();
 	}
 	
 	private void addEdgeFromTriangle(Triangle3D t) {
@@ -79,7 +77,7 @@ public class Shape3D extends Shape<Vertex3D, Edge3D, Triangle3D>{
 		addVertexFromTriangle(t);
 		calculateArea();
 		calculateScope();
-		this.info = ObjectInfoCalculator.getObjectInfo(this);
+		this.info = this.getInfo();
 	}
 	
 	@Override

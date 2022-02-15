@@ -78,4 +78,15 @@ public abstract class Vertex<dvT extends Vertex> extends GeometryObject{
 	public abstract void setCordsByArr(double[] arr);
 	
 	public abstract dvT getCopy();
+	
+	@Override
+	public ObjectInfo getInfo() {
+		String data = this.toString();
+		data = data.substring(data.indexOf('('));
+		data = data.substring(0, data.indexOf(')'));
+		
+		ObjectInfo info = new ObjectInfo(this, "Vertex "+this.name, data );
+		
+		return info;
+	}
 }

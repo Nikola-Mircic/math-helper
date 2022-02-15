@@ -1,7 +1,6 @@
 package app.mathhelper.shape.shape3d;
 
 import app.mathhelper.shape.ObjectInfo;
-import app.mathhelper.shape.ObjectInfoCalculator;
 import app.mathhelper.shape.Vertex;
 import app.mathhelper.shape.shape2d.Vertex2D;
 
@@ -20,7 +19,7 @@ public class Vertex3D extends Vertex<Vertex3D>{
 		this.z = z;
 		this.numOfCon = 0;
 
-		this.info = ObjectInfoCalculator.getObjectInfo(this);
+		this.info = this.getInfo();
 	}
 	
 	public Vertex3D(String name,double x, double y, double z, ObjectInfo info) {
