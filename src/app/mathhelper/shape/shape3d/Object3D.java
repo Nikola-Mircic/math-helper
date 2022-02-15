@@ -218,6 +218,8 @@ public class Object3D extends GeometryObject{
 		temp.calculateArea();
 		temp.calculateScope();
 		
+		temp.setInfo(ObjectInfoCalculator.getObjectInfo(temp));
+		
 		return temp;
 	}
 	
@@ -282,6 +284,8 @@ public class Object3D extends GeometryObject{
 		temp.calculateArea();
 		temp.calculateScope();
 		
+		temp.setInfo(ObjectInfoCalculator.getObjectInfo(temp));
+		
 		return temp;
 	}
 	
@@ -335,7 +339,8 @@ public class Object3D extends GeometryObject{
 				return;
 			}
 		}
-		this.s.add(new Shape3D(new Triangle3D[] {t}));
+		Shape3D shape = new Shape3D(new Triangle3D[] {t});
+		this.s.add(shape);
 	}
 	
 	private void loadEdgesfromSides() {
@@ -345,13 +350,14 @@ public class Object3D extends GeometryObject{
 	}
 	
 	private void addEdgeFromShape(Shape3D s) {	
-		A:for(Edge3D temp :  s.getEdges()) {
+		A:for(int i=0; i<s.getEdges().size(); ++i) {
 			for(Edge3D edge : this.e) {
-				if(edge.equalsByName(temp)) {
+				if(edge.equalsByName(s.e.get(i))) {
+					s.e.set(i, edge);
 					continue A;
 				}
 			}
-			this.e.add(temp);
+			this.e.add(s.e.get(i));
 		}
 	}
 	

@@ -77,6 +77,9 @@ public class Shape3D extends Shape<Vertex3D, Edge3D, Triangle3D>{
 		this.triangles.add(t);
 		addEdgeFromTriangle(t);
 		addVertexFromTriangle(t);
+		calculateArea();
+		calculateScope();
+		this.info = ObjectInfoCalculator.getObjectInfo(this);
 	}
 	
 	@Override

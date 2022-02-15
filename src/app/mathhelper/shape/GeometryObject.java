@@ -10,4 +10,12 @@ public abstract class GeometryObject {
 	public void handleInfo(InfoHandler handler) {
 		handler.handle(this.info);
 	}
+
+	public ObjectInfo getInfo() {
+		return info;
+	}
+
+	public void setInfo(ObjectInfo info) {
+		this.info = info;
+	}
 }

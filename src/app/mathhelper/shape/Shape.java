@@ -5,12 +5,12 @@ import java.util.List;
 
 @SuppressWarnings("rawtypes")
 public abstract class Shape<VT extends Vertex, ET extends Edge, TT extends Triangle> extends GeometryObject{
-	protected double area;
-	protected double scope;
+	public double area;
+	public double scope;
 	
-	protected List<VT> v;
-	protected List<ET> e;
-	protected List<TT> triangles;
+	public List<VT> v;
+	public List<ET> e;
+	public List<TT> triangles;
 	
 	protected abstract void calculateArea();
 	protected abstract void calculateScope();

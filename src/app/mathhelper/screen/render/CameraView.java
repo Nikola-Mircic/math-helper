@@ -95,7 +95,7 @@ public class CameraView{
 		this.activeCamera = 0;
 		this.cameraCount = 1;
 		for(int i=0;i<cameraCount;++i) {
-			cameras.add(new Camera3D(w/cameraCount, h, Preset.CUBE.getObject()));
+			cameras.add(new Camera3D(w/cameraCount, h, Preset.TETRAHEDRON.getObject()));
 		}
 	}
 	
@@ -301,7 +301,7 @@ class CameraPane extends Pane{
 		this.setCamera(camera);
 		this.setCameraView(cameraView);
 		
-		this.setInfo(ObjectInfoCalculator.getObjectInfo(((Camera3D) camera).getObject()));
+		this.setInfo(((Camera3D) camera).getObject().getInfo());
 		
 		if(this.info == null) System.out.println("SOMETHING WRONG IS HAPENING!!!");
 		
@@ -383,10 +383,11 @@ class CameraPane extends Pane{
 				}
 
 				GeometryObject object = camera.mouseClick((int)event.getX(), (int)(event.getY()-view.getLayoutY()));
+				
 				if(object != null)
-					cameraView.getScreen().getDataView().setInfo(ObjectInfoCalculator.getObjectInfo(object));
+					cameraView.getScreen().getDataView().setInfo(object.getInfo());
 				else
-					cameraView.getScreen().getDataView().setInfo(ObjectInfoCalculator.getObjectInfo(((Camera3D)camera).getObject()));
+					cameraView.getScreen().getDataView().setInfo(((Camera3D)camera).getObject().getInfo());
 				updateImage();
 			}
 		};

@@ -1,5 +1,6 @@
 package app.mathhelper.shape.shape3d;
 
+import app.mathhelper.shape.ObjectInfo;
 import app.mathhelper.shape.ObjectInfoCalculator;
 import app.mathhelper.shape.Vertex;
 import app.mathhelper.shape.shape2d.Vertex2D;
@@ -20,6 +21,16 @@ public class Vertex3D extends Vertex<Vertex3D>{
 		this.numOfCon = 0;
 
 		this.info = ObjectInfoCalculator.getObjectInfo(this);
+	}
+	
+	public Vertex3D(String name,double x, double y, double z, ObjectInfo info) {
+		this.name = name;
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.numOfCon = 0;
+
+		this.info = info;
 	}
 	
 	public static double dist(Vertex3D a, Vertex3D b) {
@@ -61,7 +72,7 @@ public class Vertex3D extends Vertex<Vertex3D>{
 	
 	@Override
 	public Vertex3D getCopy() {
-		return new Vertex3D(""+this.name, this.x, this.y, this.z);
+		return new Vertex3D(""+this.name, this.x, this.y, this.z, info);
 	}
 
 	@Override

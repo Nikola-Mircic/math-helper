@@ -23,6 +23,7 @@ public class Camera3D extends Camera{
 	
 	public Vertex3D position;
 	public Vertex3D light;
+	public Vertex3D orientation;
 	
 	private GeometryObject selected = null;
 	private int object;
@@ -47,6 +48,7 @@ public class Camera3D extends Camera{
 		
 		this.position = new Vertex3D("camera"+id, x, y, z);
 		this.light = new Vertex3D("light"+id,2,1.5,-5);
+		this.orientation = new Vertex3D("orientation"+id, 0, 0, 1);
 		
 		this.objectSet = new ArrayList<>();
 		objectSet.add(object);
@@ -130,6 +132,11 @@ public class Camera3D extends Camera{
 		Vertex3D v1 = (Vertex3D) normal.a;
 		Vertex3D v2 = (Vertex3D) normal.b;
 		
+		
+		double orientDotProduct = orientation.getDotProduct(v1.add(position.getOpositeVector()));
+		
+		if(orientDotProduct < 0) return;
+		
 		double dotProduct = v2.getDotProduct((Vertex3D) v1.add(light));
 		double cos = dotProduct/(v1.add(light).getLenght()*v2.getLenght());
 			
@@ -152,6 +159,10 @@ public class Camera3D extends Camera{
 		Edge3D normal = shape.getNormal();
 		Vertex3D v1 = (Vertex3D) normal.a;
 		Vertex3D v2 = (Vertex3D) normal.b;
+		
+		double orientDotProduct = orientation.getDotProduct(v1.add(position.getOpositeVector()));
+		
+		if(orientDotProduct < 0) return;
 		
 		double dotProduct = v2.getDotProduct((Vertex3D) v1.add(position));
 
@@ -210,7 +221,7 @@ public class Camera3D extends Camera{
 		
 		double zFar = 10000;
 		double zNear = 0.1;
-		double angle = Math.PI/2;
+		double angle = Math.PI/3;
 		double fov = 1/Math.tan(angle/2);
 		double a = height/(double)width;
 		
@@ -565,7 +576,6 @@ public class Camera3D extends Camera{
 					if(visible < 0) {
 						for(Triangle3D t : s.getTriangles()) {
 							if(isInTriangle(x, y, (Triangle3D)t)) {
-								System.out.println(s);
 								if(i != this.object || selected == null) {
 									this.object = i;
 									this.selected = objectSet.get(i);
@@ -583,7 +593,7 @@ public class Camera3D extends Camera{
 		}
 		
 		this.selected = null;
-		this.object = -1;
+		this.object = 0;
 		drawContext();
 		return null;
 	}
