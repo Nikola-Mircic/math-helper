@@ -7,7 +7,6 @@ import java.awt.image.BufferedImage;
 
 import app.mathhelper.shape.GeometryObject;
 import app.mathhelper.shape.ObjectInfo;
-import app.mathhelper.shape.ObjectInfoCalculator;
 import app.mathhelper.shape.Vertex;
 import app.mathhelper.shape.shape2d.*;
 
@@ -29,7 +28,7 @@ public class Camera2D extends Camera{
 		this.shape = shape;
 		this.position = new Vertex2D("camera"+id, x, y);
 		
-		this.info = ObjectInfoCalculator.getObjectInfo(shape);
+		this.info = shape.getInfo();
 		
 		findScale();
 		

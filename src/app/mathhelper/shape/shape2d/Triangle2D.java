@@ -18,6 +18,8 @@ public class Triangle2D extends Triangle<Vertex2D, Edge2D> {
 		
 		this.area = getArea();
 		this.scope = getScope();
+
+		this.info = this.getInfo();
 	}
 	
 	public Triangle2D(Vertex2D[] verticies) {

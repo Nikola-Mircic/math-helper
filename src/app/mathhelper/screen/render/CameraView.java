@@ -7,25 +7,16 @@ import java.io.File;
 import app.mathhelper.screen.Screen;
 import app.mathhelper.shape.GeometryObject;
 import app.mathhelper.shape.ObjectInfo;
-import app.mathhelper.shape.ObjectInfoCalculator;
 import app.mathhelper.shape.preset.*;
-import app.mathhelper.shape.shape2d.Edge2D;
-import app.mathhelper.shape.shape2d.Shape2D;
-import app.mathhelper.shape.shape2d.Triangle2D;
-import app.mathhelper.shape.shape2d.Vertex2D;
 import app.mathhelper.shape.shape3d.Object3D;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
-import javafx.geometry.Insets;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -77,7 +68,6 @@ public class CameraView{
 			@Override
 			public void handle(MouseEvent event) {
 				int x = (int) event.getX();
-				int y = (int) event.getY();
 				int temp = x/(getWidth()/cameraCount);
 				
 				if(activeCamera != temp)
@@ -95,7 +85,7 @@ public class CameraView{
 		this.activeCamera = 0;
 		this.cameraCount = 1;
 		for(int i=0;i<cameraCount;++i) {
-			cameras.add(new Camera3D(w/cameraCount, h, Preset.CUBE.getObject()));
+			cameras.add(new Camera3D(w/cameraCount, h, Preset.TETRAHEDRON.getObject()));
 		}
 	}
 	
@@ -301,7 +291,9 @@ class CameraPane extends Pane{
 		this.setCamera(camera);
 		this.setCameraView(cameraView);
 		
-		this.setInfo(ObjectInfoCalculator.getObjectInfo(((Camera3D) camera).getObject()));
+		this.setInfo(((Camera3D) camera).getObject().getInfo());
+		
+		if(this.info == null) System.out.println("SOMETHING WRONG IS HAPENING!!!");
 		
 		this.frameNameLabel = new Label(frameName);
 		frameNameLabel.setLayoutX(5.0);
@@ -381,10 +373,11 @@ class CameraPane extends Pane{
 				}
 
 				GeometryObject object = camera.mouseClick((int)event.getX(), (int)(event.getY()-view.getLayoutY()));
+				
 				if(object != null)
-					cameraView.getScreen().getDataView().setInfo(ObjectInfoCalculator.getObjectInfo(object));
+					cameraView.getScreen().getDataView().setInfo(object.getInfo());
 				else
-					cameraView.getScreen().getDataView().setInfo(ObjectInfoCalculator.getObjectInfo(((Camera3D)camera).getObject()));
+					cameraView.getScreen().getDataView().setInfo(((Camera3D)camera).getObject().getInfo());
 				updateImage();
 			}
 		};
@@ -436,7 +429,7 @@ class CameraPane extends Pane{
 						((Camera3D) this.camera).setObject(obj);
 					else
 						((Camera3D) this.camera).addObject(obj);
-					this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
+					this.info = ((Camera3D) this.camera).getObject().getInfo();
 					this.cameraView.getScreen().getDataView().setInfo(info);
 			}
 			break;
@@ -452,7 +445,7 @@ class CameraPane extends Pane{
 						((Camera3D) this.camera).setObject(obj);
 					else
 						((Camera3D) this.camera).addObject(obj);
-					this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
+					this.info = ((Camera3D) this.camera).getObject().getInfo();
 					this.cameraView.getScreen().getDataView().setInfo(info);
 			}
 			break;
@@ -464,7 +457,7 @@ class CameraPane extends Pane{
 					((Camera3D) this.camera).setObject(obj);
 				else
 					((Camera3D) this.camera).addObject(obj);
-				this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
+				this.info = ((Camera3D) this.camera).getObject().getInfo();
 				this.cameraView.getScreen().getDataView().setInfo(info);
 			break;
 		case DIGIT4:
@@ -475,7 +468,7 @@ class CameraPane extends Pane{
 					((Camera3D) this.camera).setObject(obj);
 				else
 					((Camera3D) this.camera).addObject(obj);
-				this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
+				this.info = ((Camera3D) this.camera).getObject().getInfo();
 				this.cameraView.getScreen().getDataView().setInfo(info);
 			break;
 		case DIGIT5:
@@ -486,7 +479,7 @@ class CameraPane extends Pane{
 					((Camera3D) this.camera).setObject(obj);
 				else
 					((Camera3D) this.camera).addObject(obj);
-				this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
+				this.info = ((Camera3D) this.camera).getObject().getInfo();
 				this.cameraView.getScreen().getDataView().setInfo(info);
 			break;
 		case DIGIT6:
@@ -497,7 +490,7 @@ class CameraPane extends Pane{
 					((Camera3D) this.camera).setObject(obj);
 				else
 					((Camera3D) this.camera).addObject(obj);
-				this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
+				this.info = ((Camera3D) this.camera).getObject().getInfo();
 				this.cameraView.getScreen().getDataView().setInfo(info);
 			break;
 		case DIGIT7:
@@ -508,7 +501,7 @@ class CameraPane extends Pane{
 					((Camera3D) this.camera).setObject(obj);
 				else
 					((Camera3D) this.camera).addObject(obj);
-				this.info = ObjectInfoCalculator.getObjectInfo(((Camera3D) this.camera).getObject());
+				this.info = ((Camera3D) this.camera).getObject().getInfo();
 				this.cameraView.getScreen().getDataView().setInfo(info);
 			break;
 		case UP:
@@ -574,6 +567,7 @@ class CameraPane extends Pane{
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private void saveScreenshot() {
 		//TODO
 	}

@@ -1,8 +1,10 @@
 package app.mathhelper.shape.shape3d;
 
+import app.mathhelper.shape.ObjectInfo;
 import app.mathhelper.shape.Vertex;
+import app.mathhelper.shape.shape2d.Vertex2D;
 
-public class Vertex3D extends Vertex{
+public class Vertex3D extends Vertex<Vertex3D>{
 	public double x,y,z;
 	public int numOfCon;
 	
@@ -16,6 +18,18 @@ public class Vertex3D extends Vertex{
 		this.y = y;
 		this.z = z;
 		this.numOfCon = 0;
+
+		this.info = this.getInfo();
+	}
+	
+	public Vertex3D(String name,double x, double y, double z, ObjectInfo info) {
+		this.name = name;
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.numOfCon = 0;
+
+		this.info = info;
 	}
 	
 	public static double dist(Vertex3D a, Vertex3D b) {
@@ -23,47 +37,7 @@ public class Vertex3D extends Vertex{
 	}
 	
 	@Override
-	public boolean equals(Vertex v) {
-		if(!(v instanceof Vertex3D)) {
-			return false;
-		}
-		
-		if(this.name.contentEquals(v.name))
-			return true;
-		
-		Vertex3D v3d = (Vertex3D) v;
-		
-		return ((this.x == v3d.x) && (this.y == v3d.y) && (this.z == v3d.z));
-	}
-	
-	@Override
-	public Vertex getOpositeVector() {
-		Vertex3D t = new Vertex3D();
-		
-		t.x = -this.x;
-		t.y = -this.y;
-		t.z = -this.z;
-		
-		return t;
-	}
-	
-    @Override
-	public Vertex3D add(Vertex v) {
-    	if(!(v instanceof Vertex3D))
-			return new Vertex3D("", 0, 0, 0);
-    	
-    	Vertex3D v3d = (Vertex3D) v;
-		Vertex3D t = new Vertex3D(this.name, v3d.x, v3d.y, v3d.z);
-		
-		t.x += this.x;
-		t.y += this.y;
-		t.z += this.z;
-		
-		return t;
-	}
-	
-	@Override
-	public double getDotProduct(Vertex v) {
+	public double getDotProduct(Vertex3D v) {
 		if(!(v instanceof Vertex3D))
 				return 0;
 		
@@ -75,7 +49,7 @@ public class Vertex3D extends Vertex{
 	}
 	
 	@Override
-	public Vertex3D getCrossProduct(Vertex v) {
+	public Vertex3D getCrossProduct(Vertex3D v) {
 		if(!(v instanceof Vertex3D))
 			return new Vertex3D("", 0, 0, 0);
 	
@@ -91,17 +65,30 @@ public class Vertex3D extends Vertex{
 	}
 	
 	@Override
-	public double getLenght() {
-		return Math.sqrt(x*x+y*y+z*z);
-	}
-	
-	@Override
 	public String toString() {
 		return this.name+" ("+Math.round(this.x*1000)/1000.0+", "+Math.round(this.y*1000)/1000.0+", "+Math.round(this.z*1000)/1000.0+")";
 	}
 	
 	@Override
 	public Vertex3D getCopy() {
-		return new Vertex3D(""+this.name, this.x, this.y, this.z);
+		return new Vertex3D(""+this.name, this.x, this.y, this.z, info);
+	}
+
+	@Override
+	public double getCrossProduct(Vertex2D v) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double[] getCordsArr() {
+		return new double[] {x, y, z};
+	}
+
+	@Override
+	public void setCordsByArr(double[] arr) {
+		this.x = arr[0];
+		this.y = arr[1];
+		this.z = arr[2];
 	}
 }

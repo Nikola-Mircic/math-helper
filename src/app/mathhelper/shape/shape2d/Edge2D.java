@@ -12,6 +12,8 @@ public class Edge2D extends Edge<Vertex2D> {
 		this.a = a;
 		this.b = b;
 		this.weight = Vertex2D.dist(a, b);
+
+		this.info = this.getInfo();
 	}
 
 }

@@ -16,6 +16,8 @@ public class Triangle3D extends Triangle<Vertex3D, Edge3D>{
 		
 		this.area = getArea();
 		this.scope = getScope();
+		
+		this.info = this.getInfo();
 	}
 	
 	public Triangle3D(Vertex3D[] verticies) {

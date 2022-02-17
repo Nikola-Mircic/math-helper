@@ -1,6 +1,5 @@
 package app.mathhelper.screen.render;
 
-import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -13,8 +12,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import app.mathhelper.shape.*;
-import app.mathhelper.shape.preset.Cube;
-import app.mathhelper.shape.preset.Preset;
 import app.mathhelper.shape.shape3d.*;
 
 public class Camera3D extends Camera{
@@ -22,6 +19,7 @@ public class Camera3D extends Camera{
 	
 	public Vertex3D position;
 	public Vertex3D light;
+	public Vertex3D orientation;
 	
 	private GeometryObject selected = null;
 	private int object;
@@ -36,7 +34,7 @@ public class Camera3D extends Camera{
 	private double angle = 0;
 	
 	public Camera3D(int width,int height,Object3D object) {
-		this(width, height, 0, 0, -7,object);
+		this(width, height, 0, 0, -10,object);
 	}
 	
 	public Camera3D(int width, int height, double x, double y, double z, Object3D object) {
@@ -46,6 +44,7 @@ public class Camera3D extends Camera{
 		
 		this.position = new Vertex3D("camera"+id, x, y, z);
 		this.light = new Vertex3D("light"+id,2,1.5,-5);
+		this.orientation = new Vertex3D("orientation"+id, 0, -0.5, 1);
 		
 		this.objectSet = new ArrayList<>();
 		objectSet.add(object);
@@ -68,7 +67,6 @@ public class Camera3D extends Camera{
 		List<Edge3D> filled = new ArrayList<>();
 		
 		BufferedImage contextObjectLayer;
-		Graphics gObj;
 		
 		Graphics g = context.getGraphics();
 		
@@ -108,6 +106,8 @@ public class Camera3D extends Camera{
 			
 			context.getGraphics().drawImage(contextObjectLayer, 0, 0, null);
 		}
+		
+
 		g.setColor(Color.WHITE);
 		g.setFont(new Font("mono", Font.PLAIN, 15));
 		g.drawString("Camera id: "+id, 10, this.height-50);
@@ -126,6 +126,11 @@ public class Camera3D extends Camera{
 		Edge3D normal = s.getNormal();
 		Vertex3D v1 = (Vertex3D) normal.a;
 		Vertex3D v2 = (Vertex3D) normal.b;
+		
+		
+		double orientDotProduct = orientation.getDotProduct(v1.add(position.getOpositeVector()));
+		
+		if(orientDotProduct < 0) return;
 		
 		double dotProduct = v2.getDotProduct((Vertex3D) v1.add(light));
 		double cos = dotProduct/(v1.add(light).getLenght()*v2.getLenght());
@@ -149,6 +154,10 @@ public class Camera3D extends Camera{
 		Edge3D normal = shape.getNormal();
 		Vertex3D v1 = (Vertex3D) normal.a;
 		Vertex3D v2 = (Vertex3D) normal.b;
+		
+		double orientDotProduct = orientation.getDotProduct(v1.add(position.getOpositeVector()));
+		
+		if(orientDotProduct < 0) return;
 		
 		double dotProduct = v2.getDotProduct((Vertex3D) v1.add(position));
 
@@ -207,16 +216,19 @@ public class Camera3D extends Camera{
 		
 		double zFar = 10000;
 		double zNear = 0.1;
-		double angle = Math.PI/2;
+		double angle = Math.PI/3;
 		double fov = 1/Math.tan(angle/2);
 		double a = height/(double)width;
 		
 		double zRatio = zFar/(zFar-zNear);
 		
 		temp.z = (v.z+this.position.z-zNear)/zRatio;
+		
 	
 		temp.x = -a*fov*(v.x+this.position.x)/temp.z*width+width/2;
 		temp.y = fov*(v.y+this.position.y)/temp.z*height+height/2;
+		
+		temp.z = v.z;
 		
 		return temp;
 	}
@@ -358,8 +370,6 @@ public class Camera3D extends Camera{
 		temp.sort(new Comparator<Vertex3D>() {
 			@Override
 			public int compare(Vertex3D o1, Vertex3D o2) {
-				//return (int)(o1.y-o2.y);
-				
 				if((o1.y - o2.y) < 0)
 					return -1;
 				else
@@ -382,8 +392,6 @@ public class Camera3D extends Camera{
 		
 		fillBottomFlatTriangle(layer, temp.get(0), temp.get(1), middle, color, doZbuffer);
 		fillTopFlatTriangle(layer, temp.get(1), middle, temp.get(2), color, doZbuffer);
-		
-		System.out.print("");
 	}
 	
 	//a - vertex on the top of the triangle
@@ -563,7 +571,6 @@ public class Camera3D extends Camera{
 					if(visible < 0) {
 						for(Triangle3D t : s.getTriangles()) {
 							if(isInTriangle(x, y, (Triangle3D)t)) {
-								System.out.println(s);
 								if(i != this.object || selected == null) {
 									this.object = i;
 									this.selected = objectSet.get(i);
@@ -581,7 +588,7 @@ public class Camera3D extends Camera{
 		}
 		
 		this.selected = null;
-		this.object = -1;
+		this.object = 0;
 		drawContext();
 		return null;
 	}
