@@ -7,7 +7,7 @@
   - **[Install](#install)**
 
 ### Intro:
-Do you have a problem with geometry?You can't visualize an object?Math helper gives you ability to draw an object even in 3D space.
+Do you have a problem with geometry? You can't visualize an object? Math helper gives you ability to draw an object even in 3D space.
 
 <img src="https://github.com/Nikola-Mircic/math-helper/raw/ui-design/saved.jpg" width="70%" height="70%"></img>
 
@@ -30,6 +30,6 @@ Do you have a problem with geometry?You can't visualize an object?Math helper gi
 To install the program click on the link below and you should get zipped file with application as .jar file and folder with meshes 
 of the presets
 
-> **NOTE!** Start progmram by running **demo.jar** file!
+> **NOTE!** Start program by running **demo.jar** file!
 
 <a href="https://github.com/Nikola-Mircic/math-helper/raw/ui-design/demo.zip">Download application</a>
