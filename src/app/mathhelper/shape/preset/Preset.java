@@ -3,13 +3,13 @@ package app.mathhelper.shape.preset;
 import app.mathhelper.shape.shape3d.Object3D;
 
 public enum Preset {
-	CUBE("presets/cube.obj"),
-	TETRAHEDRON("presets/tetrahedron.obj"),
-	TEAPOT("presets/utah.obj"),
-	CONE("presets/cone.obj"),
-	ICOSPHERE("presets/icosphere.obj"),
-	CYLINDER("presets/cylinder.obj"),
-	BALL("presets/ball.obj");
+	CUBE("app/presets/cube.obj"),
+	TETRAHEDRON("app/presets/tetrahedron.obj"),
+	TEAPOT("app/presets/utah.obj"),
+	CONE("app/presets/cone.obj"),
+	ICOSPHERE("app/presets/icosphere.obj"),
+	CYLINDER("app/presets/cylinder.obj"),
+	BALL("app/presets/ball.obj");
 	
 	public String modelData;
 	
