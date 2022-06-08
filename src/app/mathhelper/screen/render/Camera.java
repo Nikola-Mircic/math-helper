@@ -6,8 +6,8 @@ import app.mathhelper.shape.GeometryObject;
 import app.mathhelper.shape.preset.Preset;
 
 public abstract class Camera {
-	public static int id = 0;
-	public int currentId;
+	private static int LAST_CAMERA_ID = 0;
+	public int id;
 	
 	protected int width;
 	protected int height;
@@ -16,7 +16,7 @@ public abstract class Camera {
 	public Preset objectType = Preset.CUBE;
 	
 	public Camera(int width, int height) {
-		this.currentId = id++;
+		this.id = LAST_CAMERA_ID++;
 		this.width = width;
 		this.height = height;
 		

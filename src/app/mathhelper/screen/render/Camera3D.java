@@ -19,10 +19,9 @@ public class Camera3D extends Camera{
 	
 	public Vertex3D position;
 	public Vertex3D light;
-	public Vertex3D orientation;
 	
-	private GeometryObject selected = null;
-	private int object;
+	private int selected = -1;
+	
 	private List<Object3D> objectSet;
 	private Vertex3D clickedVertex;
 	
@@ -44,13 +43,11 @@ public class Camera3D extends Camera{
 		
 		this.position = new Vertex3D("camera"+id, x, y, z);
 		this.light = new Vertex3D("light"+id,2,1.5,-5);
-		this.orientation = new Vertex3D("orientation"+id, 0, -0.5, 1);
 		
 		this.objectSet = new ArrayList<>();
 		objectSet.add(object);
-		this.object = 0;
 		
-		this.selected = objectSet.get(this.object);
+		this.selected = 0;
 		
 		renderingCenter = false;
 		renderMode = 0;
@@ -63,6 +60,8 @@ public class Camera3D extends Camera{
 		if(this.objectSet.isEmpty()) {
 			return;
 		}
+		
+		System.out.println(this.selected);
 		
 		List<Edge3D> filled = new ArrayList<>();
 		
@@ -86,20 +85,20 @@ public class Camera3D extends Camera{
 		g.setColor(Color.BLACK);
 		g.drawRect(0, 0, width, height);
 		
-		for(Object3D object : this.objectSet) {
+		for(int o = 0; o<this.objectSet.size(); ++o) {
 			contextObjectLayer = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
 			if(renderingCenter)
-				renderObjectCenter(object, contextObjectLayer.getGraphics());
+				renderObjectCenter(this.objectSet.get(o), contextObjectLayer.getGraphics());
 			
 			if(renderMode == 0) {
-				for(Shape3D s : object.getSides()) {
-					if(object.equals(selected))
+				for(Shape3D s : this.objectSet.get(o).getSides()) {
+					if(o == selected)
 						fill3DShape(s, contextObjectLayer, true, true);
 					else
 						fill3DShape(s, contextObjectLayer, true, false);
 				}
 			}else if(renderMode == 1) {
-				for(Shape3D s : object.getSides()) {
+				for(Shape3D s : this.objectSet.get(o).getSides()) {
 					draw3DEdges(s, contextObjectLayer, filled);
 				}
 			}
@@ -127,11 +126,6 @@ public class Camera3D extends Camera{
 		Vertex3D v1 = (Vertex3D) normal.a;
 		Vertex3D v2 = (Vertex3D) normal.b;
 		
-		
-		double orientDotProduct = orientation.getDotProduct(v1.add(position.getOpositeVector()));
-		
-		if(orientDotProduct < 0) return;
-		
 		double dotProduct = v2.getDotProduct((Vertex3D) v1.add(light));
 		double cos = dotProduct/(v1.add(light).getLenght()*v2.getLenght());
 			
@@ -154,10 +148,6 @@ public class Camera3D extends Camera{
 		Edge3D normal = shape.getNormal();
 		Vertex3D v1 = (Vertex3D) normal.a;
 		Vertex3D v2 = (Vertex3D) normal.b;
-		
-		double orientDotProduct = orientation.getDotProduct(v1.add(position.getOpositeVector()));
-		
-		if(orientDotProduct < 0) return;
 		
 		double dotProduct = v2.getDotProduct((Vertex3D) v1.add(position));
 
@@ -517,15 +507,15 @@ public class Camera3D extends Camera{
 	
 	@Override
 	public GeometryObject mouseClick(int x, int y) {
-		if(renderMode == 1 && object!=-1) {
-			for(Vertex vertex : objectSet.get(object).v) {
+		if(renderMode == 1 && this.selected!=-1) {
+			for(Vertex vertex : objectSet.get(this.selected).v) {
 				Vertex3D temp = convertTo2D((Vertex3D)vertex);
 				if(Math.abs(x-temp.x)<=3 && Math.abs(y-temp.y)<=3) {
 					System.out.println(vertex.name +" "+ ((Vertex3D)vertex).x + " "+((Vertex3D)vertex).y+" "+ ((Vertex3D)vertex).z);
 					return null;
 				}
 			}
-			for(Edge3D e : objectSet.get(object).e) {
+			for(Edge3D e : objectSet.get(this.selected).e) {
 				Vertex3D p1 = convertTo2D(e.a);
 				Vertex3D p2 = convertTo2D(e.b);
 				double a,b,c;
@@ -571,15 +561,11 @@ public class Camera3D extends Camera{
 					if(visible < 0) {
 						for(Triangle3D t : s.getTriangles()) {
 							if(isInTriangle(x, y, (Triangle3D)t)) {
-								if(i != this.object || selected == null) {
-									this.object = i;
-									this.selected = objectSet.get(i);
-									drawContext();
-									return objectSet.get(i);
+								if(i != this.selected || this.selected == -1) {
+									this.selected = i;
 								}
-								this.selected = s;
 								drawContext();
-								return s;
+								return objectSet.get(i);
 							}
 						}
 					}
@@ -587,8 +573,7 @@ public class Camera3D extends Camera{
 			}
 		}
 		
-		this.selected = null;
-		this.object = 0;
+		this.selected = -1;
 		drawContext();
 		return null;
 	}
@@ -600,7 +585,7 @@ public class Camera3D extends Camera{
 	
 	@Override
 	public void mouseDragged(int dx, int dy) {
-		if(this.object == -1)
+		if(this.selected == -1)
 			return;
 		double rotationX = (-dx/180.0*Math.PI);
 		double rotationY = (-dy/180.0*Math.PI);
@@ -634,34 +619,31 @@ public class Camera3D extends Camera{
 	}
 	
 	public Object3D getObject() {
-		if(object == -1)
+		if(this.selected == -1)
 			return null;
-		return objectSet.get(object);
+		return objectSet.get(this.selected);
 	}
 
 	public void setObject(Object3D newObject) {
-		if(this.object == -1)
+		if(this.selected == -1)
 			return;
-		newObject.setCenter(objectSet.get(object).getCenter());
-		objectSet.set(this.object, newObject);
-		this.selected = objectSet.get(object);
+		newObject.setCenter(objectSet.get(this.selected).getCenter());
+		objectSet.set(this.selected, newObject);
 		drawContext();
 	}
 	
 	public void addObject(Object3D toAdd) {
 		objectSet.add(toAdd);
-		this.object = objectSet.size()-1;
-		this.selected = objectSet.get(object);
+		this.selected = objectSet.size()-1;
 		drawContext();
 	}
 	
 	public void removeObject() {
-		if(objectSet.size()==1 || object == -1)
+		if(objectSet.size()==1 || this.selected == -1)
 			return;
 		
-		objectSet.remove(object);
-		this.object = objectSet.size()-1;
-		this.selected = objectSet.get(object);
+		objectSet.remove(this.selected == -1);
+		this.selected = objectSet.size()-1;
 		drawContext();
 	}
 	

@@ -52,7 +52,7 @@ public class CameraView{
 		CameraPane temp;
 		
 		for(Camera camera : cameras) {
-			temp = new CameraPane(getWidth()/cameraCount, getHeight(), camera, "Frame "+camera.currentId, this);
+			temp = new CameraPane(getWidth()/cameraCount, getHeight(), camera, "Frame "+camera.id, this);
 			box.getChildren().add(temp);
 		}
 		
@@ -112,7 +112,7 @@ public class CameraView{
 		
 		for(Camera camera : cameras) {
 			camera.update(width/cameraCount, height);
-			temp = new CameraPane(getWidth()/cameraCount, getHeight(), camera, "Frame "+camera.currentId, this);
+			temp = new CameraPane(getWidth()/cameraCount, getHeight(), camera, "Frame "+camera.id, this);
 			box.getChildren().add(temp);
 		}
 	}
@@ -188,7 +188,7 @@ public class CameraView{
 			CameraPane temp;
 			
 			for(Camera camera : cameras) {
-				temp = new CameraPane(getWidth()/cameraCount, getHeight(), camera, "Frame "+camera.currentId, this);
+				temp = new CameraPane(getWidth()/cameraCount, getHeight(), camera, "Frame "+camera.id, this);
 				box.getChildren().add(temp);
 			}
 			
@@ -219,7 +219,7 @@ public class CameraView{
 			CameraPane temp;
 			
 			for(Camera camera : cameras) {
-				temp = new CameraPane(getWidth()/cameraCount, getHeight(), camera, "Frame "+camera.currentId, this);
+				temp = new CameraPane(getWidth()/cameraCount, getHeight(), camera, "Frame "+camera.id, this);
 				box.getChildren().add(temp);
 			}
 			
@@ -245,7 +245,7 @@ public class CameraView{
 			CameraPane temp;
 			
 			for(Camera camera : cameras) {
-				temp = new CameraPane(getWidth()/cameraCount, getHeight(), camera, "Frame "+camera.currentId, this);
+				temp = new CameraPane(getWidth()/cameraCount, getHeight(), camera, "Frame "+camera.id, this);
 				box.getChildren().add(temp);
 			}
 			
@@ -376,8 +376,12 @@ class CameraPane extends Pane{
 				
 				if(object != null)
 					cameraView.getScreen().getDataView().setInfo(object.getInfo());
-				else
-					cameraView.getScreen().getDataView().setInfo(((Camera3D)camera).getObject().getInfo());
+				else {
+					Object3D selectedObject = ((Camera3D)camera).getObject();
+					if(selectedObject != null) {
+						cameraView.getScreen().getDataView().setInfo(selectedObject.getInfo());
+					}
+				}
 				updateImage();
 			}
 		};
